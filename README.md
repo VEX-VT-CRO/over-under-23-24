@@ -7,7 +7,9 @@
 
 ## Resources
 [PROS C++ Documentation](https://pros.cs.purdue.edu/v5/api/cpp/index.html)
+
 [PiLons Odometry Paper](http://thepilons.ca/wp-content/uploads/2018/10/Tracking.pdf)
+
 [Previous Year Code](https://github.com/emcode25/TEK23-Spin-Up/tree/main/TEK23)
 
 ## Directory
