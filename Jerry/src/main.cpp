@@ -1,21 +1,28 @@
-#include "main.h"
+#include <main.h>
+#include <subsystems/tankRobot.hpp>
+#include <cstdlib>
 
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
-}
+pros::Motor leftFront(1, true);
+pros::Motor leftMiddle(2, false);
+pros::Motor leftBack(3, true);
 
+pros::Motor rightFront(4, false);
+pros::Motor rightMiddle(5, true);
+pros::Motor rightBack(6, false);
+
+pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
+pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
+
+pros::IMU gyro(7);
+pros::IMU accel(8);
+
+pros::Motor intake(20);
+RollerIntake ri(intake);
+
+TankDrivetrain* drivetrain;
+TankRobot* robot;
+Odometry* odom;
+TeamColor team = TeamColor::Blue;
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -23,10 +30,10 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+	drivetrain = new TankDrivetrain(leftside, rightside, 3);
+	robot = new TankRobot(*drivetrain, ri, odom, team, NULL, PIDConstants{0, 0, 0}, PIDConstants{0, 0, 0});
 	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
-
-	pros::lcd::register_btn1_cb(on_center_button);
+	pros::delay(3500);
 }
 
 /**
@@ -74,20 +81,10 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor left_mtr(1);
-	pros::Motor right_mtr(2);
 
 	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		int left = master.get_analog(ANALOG_LEFT_Y);
-		int right = master.get_analog(ANALOG_RIGHT_Y);
-
-		left_mtr = left;
-		right_mtr = right;
-
+		robot -> pollController(false);
+		
 		pros::delay(20);
 	}
 }
