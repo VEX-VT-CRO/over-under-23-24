@@ -1,18 +1,16 @@
 #include <subsystems/odometry.hpp>
 #include <pros/rtos.hpp>
+#include <pros/imu.h>
 #include <cmath>
 
 constexpr double PI = 3.141592653589793;
 constexpr double DEG2RAD = PI / 180;
 
-Odometry::Odometry(std::uint8_t xTop, std::uint8_t xBottom, std::uint8_t yTop, 
-        std::uint8_t yBottom, std::uint8_t imu, double circumference) : 
-        xEncoder{pros::ADIEncoder(xTop, xBottom)}, 
-        yEncoder{pros::ADIEncoder(yTop, yBottom)}, inertial{pros::Imu(imu)}
+Odometry::Odometry(std::uint8_t xGyro_port, std::uint8_t yGyro_port, std::uint8_t zGyro_port) : 
+        xGyro{pros::Imu(xGyro_port)}, yGyro{pros::Imu(yGyro_port)}, zGyro{pros::Imu(zGyro_port)}
 {
     position = {0, 0};
-    LINEAR_MULTIPLE = PI * circumference / 360.0;
-    while(inertial.is_calibrating())
+    while(xGyro.is_calibrating() && yGyro.is_calibrating() && zGyro.is_calibrating())
     {
         pros::delay(250);
     }
@@ -20,7 +18,7 @@ Odometry::Odometry(std::uint8_t xTop, std::uint8_t xBottom, std::uint8_t yTop,
 
 Coordinate Odometry::getPosition()
 {
-    return {position.x * LINEAR_MULTIPLE, position.y * LINEAR_MULTIPLE};
+    return position;
 }
 
 void Odometry::setPosition(Coordinate c)
@@ -28,7 +26,8 @@ void Odometry::setPosition(Coordinate c)
     position = c;
 }
 
-double Odometry::getAngle()
+
+/*double Odometry::getAngle()
 {
     return inertial.get_heading();
 }
@@ -36,13 +35,13 @@ double Odometry::getAngle()
 void Odometry::setAngle(double angle)
 {
     inertial.set_heading(angle);
-}
+}*/
 
 void Odometry::reset()
 {
-    xEncoder.reset();
-    yEncoder.reset();
-    inertial.reset();
+    xGyro.reset();
+    yGyro.reset();
+    zGyro.reset();
 }
 
 void Odometry::update()
@@ -56,7 +55,43 @@ void Odometry::update()
     yEncoder.reset();
 }
 
+double Odometry::getYaw()
+{
+    return xGyro.get_heading();
+}
 
+double Odometry::getPitch()
+{
+    return yGyro.get_heading();
+}
+
+double Odometry::getRoll()
+{
+    return zGyro.get_heading();
+}
+
+double Odometry::getXAccel()
+{
+    pros::c::imu_accel_s_t accel = xGyro.get_accel();
+    return accel.x;
+}
+
+double Odometry::getYAccel()
+{
+    pros::c::imu_accel_s_t accel = yGyro.get_accel();
+    return accel.x;
+}
+
+double Odometry::getZAccel()
+{
+    pros::c::imu_accel_s_t accel = zGyro.get_accel();
+    return accel.x;
+}
+
+void Odometry::setYaw(double angle)
+{
+    xGyro.set_heading(angle);
+}
 
 PIDController::PIDController(PIDConstants pidc)
 {
@@ -78,6 +113,8 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
     bool useX = true;
     double goal;
 
+    //Since the target is on a 2D plane, figure out which dimension to use as the target,
+    //rather than computing the absolute distance.
     if(std::abs(target.x - pos.x) > std::abs(target.y - pos.y))
     {
         goal = target.x;
@@ -88,33 +125,51 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
         useX = false;
     }
 
+    //Start the clock, the difference in start time and current time must
+    //be less than the timeout to make sure we don't spend too much time
+    //blocking the program execution.
     int timer = pros::millis();
     while(pros::millis() - timer < timeout)
     {
+        //This chooses what our measured value is, based on the conditional block above.
         double actual = (useX) ? odom.getPosition().x : odom.getPosition().y;
         double error = std::abs(goal - actual);
 
+        //This is the error threshold for what is acceptable as "close enough".
         if(error < 0.1)
         {
             break;
         }
 
+        //Derivative is a prediction of what will happen in the future.
         double derivError = error - prevError;
+
+        //Integral calculation for what has happened in the past.
         nextError += error;
 
+        //The magic happens here: the values are added together to determine
+        //how much power the robot should receive to reach its goal.
+        //We attenuate how much influence each factor has by multiplying PID
+        //by a constant.
         double power = pid.P * error + pid.I * nextError + pid.D * derivError;
 
+        //If the power is too low, the robot won't move and nothing happens.
+        //Technically, integral can fix this on its own but that's a lot of work 
+        //and introduces more issues than it solves.
         if(power < lowerBound)
         {
             power = lowerBound;
         }
 
+        //Power is multiplied into units of mV to provide more accurate control.
         d.drive(power * 110);
 
+        //Remember what the last error was for derivative calculations in the next iteration.
         prevError = error;
         pros::delay(10);
     }
 
+    //Tell the robot to stop moving.
     d.drive(0);
 }
 
