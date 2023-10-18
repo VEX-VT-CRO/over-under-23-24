@@ -88,6 +88,11 @@ double Odometry::getZAccel()
     return accel.x;
 }
 
+void Odometry::setPitch(double angle)
+{
+    yGyro.set_heading(angle);
+}
+
 void Odometry::setYaw(double angle)
 {
     xGyro.set_heading(angle);
