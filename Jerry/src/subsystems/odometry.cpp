@@ -1,6 +1,6 @@
-#include <subsystems/odometry.hpp>
-#include <pros/rtos.hpp>
-#include <pros/imu.h>
+#include "subsystems/odometry.hpp"
+#include "pros/rtos.hpp"
+#include "pros/imu.h"
 #include <cmath>
 
 constexpr double PI = 3.141592653589793;
@@ -44,7 +44,7 @@ void Odometry::reset()
     zGyro.reset();
 }
 
-void Odometry::update()
+/*void Odometry::update()
 {
     double a = getAngle() * DEG2RAD;
     double c = std::cos(a);
@@ -53,7 +53,7 @@ void Odometry::update()
     position.y += xEncoder.get_value() * c + yEncoder.get_value() * s;
     xEncoder.reset();
     yEncoder.reset();
-}
+}*/
 
 double Odometry::getYaw()
 {
@@ -178,7 +178,7 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
     d.drive(0);
 }
 
-void PIDController::goToAngle(TankDrivetrain &d, double target, 
+/*void PIDController::goToAngle(TankDrivetrain &d, double target, 
         Odometry &odom, int timeout)
 {
     double prevError = 0;
@@ -298,4 +298,4 @@ void PIDController::goToAngle(TankDrivetrain &d, double target,
     }
 
     d.turnLeft(0);
-}
+}*/
