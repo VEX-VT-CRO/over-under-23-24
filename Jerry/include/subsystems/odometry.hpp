@@ -13,8 +13,6 @@ class Odometry
     public:
         Odometry(std::uint8_t xGyro_port, std::uint8_t yGyro_port, std::uint8_t zGyro_port);
         Coordinate getPosition();
-        Coordinate updatePosition();
-        Coordinate updateVelocity();
         void setPosition(Coordinate c);
         double getYaw();
         double getPitch();
@@ -23,8 +21,6 @@ class Odometry
         double getXAccel();
         double getYAccel();
         double getZAccel();
-
-        Coordinate transformAcceleration(double roll, double pitch, double yaw);
 
         void setYaw(double angle);
         void setPitch(double angle);
@@ -35,6 +31,10 @@ class Odometry
         void update();
 
     private:
+        Coordinate updatePosition();
+        Coordinate updateVelocity();
+        Coordinate transformAcceleration();
+
         pros::Imu xGyro, yGyro, zGyro;
         Coordinate position;
         Coordinate velocity;

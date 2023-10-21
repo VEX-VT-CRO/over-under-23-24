@@ -12,6 +12,9 @@ Odometry::Odometry(std::uint8_t xGyro_port, std::uint8_t yGyro_port, std::uint8_
 {
     position = {0, 0, 0};
     velocity = {0, 0, 0};
+    acceleration = {0, 0, 0};
+    angle = {0, 0, 0};
+
     while(xGyro.is_calibrating() && yGyro.is_calibrating() && zGyro.is_calibrating())
     {
         pros::delay(250);
@@ -28,17 +31,6 @@ void Odometry::setPosition(Coordinate c)
     position = c;
 }
 
-
-/*double Odometry::getAngle()
-{
-    return inertial.get_heading();
-}
-
-void Odometry::setAngle(double angle)
-{
-    inertial.set_heading(angle);
-}*/
-
 void Odometry::reset()
 {
     xGyro.reset();
@@ -46,33 +38,40 @@ void Odometry::reset()
     zGyro.reset();
 }
 
-/*void Odometry::update()
+void Odometry::update()
 {
-    double a = getAngle() * DEG2RAD;
-    double c = std::cos(a);
-    double s = std::sin(a);
-    position.x += xEncoder.get_value() * s + yEncoder.get_value() * c;
-    position.y += xEncoder.get_value() * c + yEncoder.get_value() * s;
-    xEncoder.reset();
-    yEncoder.reset();
-}*/
+    transformAcceleration();
+    updateVelocity();
+    updatePosition();
+}
 
-Coordinate Odometry::transformAcceleration(double roll, double pitch, double yaw) {
+Coordinate Odometry::transformAcceleration() {
     double ax = getXAccel();
     double ay = getYAccel();
     double az = getZAccel();
     
-    double r11 = cos(yaw) * cos(pitch);
-    double r12 = cos(yaw) * sin(pitch) * sin(roll) - sin(yaw) * cos(roll);
-    double r13 = cos(yaw) * sin(pitch) * cos(roll) + sin(yaw) * sin(roll);
+    double yaw = getYaw();
+    double pitch = getPitch();
+    double roll = getRoll();
+
+    double cosyaw = cos(yaw);
+    double sinyaw = sin(yaw);
+    double cospitch = cos(pitch);
+    double sinpitch = sin(pitch);
+    double cosroll = cos(roll);
+    double sinroll = sin(roll);
+
+    double r11 = cosyaw * cospitch;
+    double r12 = cosyaw * sinpitch * sinroll - sinyaw * cosroll;
+    double r13 = cosyaw * sinpitch * cosroll + sinyaw * sinroll;
     
-    double r21 = sin(yaw) * cos(pitch);
-    double r22 = sin(yaw) * sin(pitch) * sin(roll) + cos(yaw) * cos(roll);
-    double r23 = sin(yaw) * sin(pitch) * cos(roll) - cos(yaw) * sin(roll);
+    double r21 = sinyaw * cospitch;
+    double r22 = sinyaw * sinpitch * sinroll + cosyaw * cosroll;
+    double r23 = sinyaw * sinpitch * cosroll - cosyaw * sinroll;
     
-    double r31 = -sin(pitch);
-    double r32 = cos(pitch) * sin(roll);
-    double r33 = cos(pitch) * cos(roll);
+    double r31 = -sinpitch;
+    double r32 = cospitch * sinroll;
+    double r33 = cospitch * cosroll;
 
     acceleration.x = r11 * ax + r12 * ay + r13 * az;
     acceleration.y = r21 * ax + r22 * ay + r23 * az;
