@@ -2,11 +2,17 @@
 #include "pros/rtos.hpp"
 #include "pros/imu.h"
 #include <cmath>
+#include <tuple>
+
+constexpr double PI = 3.141592653589793;
+constexpr double DEG2RAD = PI / 180;
+constexpr double DT = 5;
 
 Odometry::Odometry(std::uint8_t xGyro_port, std::uint8_t yGyro_port, std::uint8_t zGyro_port) : 
         xGyro{pros::Imu(xGyro_port)}, yGyro{pros::Imu(yGyro_port)}, zGyro{pros::Imu(zGyro_port)}
 {
-    position = {0, 0};
+    position = {0, 0, 0};
+    velocity = {0, 0, 0};
     while(xGyro.is_calibrating() && yGyro.is_calibrating() && zGyro.is_calibrating())
     {
         pros::delay(250);
@@ -52,6 +58,39 @@ void Odometry::reset()
     yEncoder.reset();
 }*/
 
+Coordinate Odometry::transformAcceleration(double ax, double ay, double az,
+                                                         double roll, double pitch, double yaw) {
+    double r11 = cos(yaw) * cos(pitch);
+    double r12 = cos(yaw) * sin(pitch) * sin(roll) - sin(yaw) * cos(roll);
+    double r13 = cos(yaw) * sin(pitch) * cos(roll) + sin(yaw) * sin(roll);
+    
+    double r21 = sin(yaw) * cos(pitch);
+    double r22 = sin(yaw) * sin(pitch) * sin(roll) + cos(yaw) * cos(roll);
+    double r23 = sin(yaw) * sin(pitch) * cos(roll) - cos(yaw) * sin(roll);
+    
+    double r31 = -sin(pitch);
+    double r32 = cos(pitch) * sin(roll);
+    double r33 = cos(pitch) * cos(roll);
+
+    acceleration.x = r11 * ax + r12 * ay + r13 * az;
+    acceleration.y = r21 * ax + r22 * ay + r23 * az;
+    acceleration.z = r31 * ax + r32 * ay + r33 * az;
+
+    return acceleration;
+}
+
+Coordinate Odometry::updateVelocity() {
+        velocity.x += acceleration.x * DT;
+        velocity.y += acceleration.y * DT;
+        velocity.z += acceleration.z * DT;
+    }
+
+Coordinate Odometry::updatePosition() {
+    position.x += velocity.x * DT + 0.5 * acceleration.x * DT * DT;
+    position.y += velocity.y * DT + 0.5 * acceleration.y * DT * DT;
+    position.z += velocity.z * DT + 0.5 * acceleration.z * DT * DT;
+    }
+
 double Odometry::getYaw()
 {
     return xGyro.get_heading();
@@ -91,6 +130,11 @@ void Odometry::setPitch(double angle)
 }
 
 void Odometry::setYaw(double angle)
+{
+    zGyro.set_heading(angle);
+}
+
+void Odometry::setRoll(double angle)
 {
     xGyro.set_heading(angle);
 }
