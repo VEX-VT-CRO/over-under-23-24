@@ -13,7 +13,7 @@ Odometry::Odometry(std::uint8_t xGyro_port, std::uint8_t yGyro_port, std::uint8_
     position = {0, 0, 0};
     velocity = {0, 0, 0};
     acceleration = {0, 0, 0};
-    angle = {0, 0, 0};
+    XYangle = 0.0;
 
     while(xGyro.is_calibrating() && yGyro.is_calibrating() && zGyro.is_calibrating())
     {
@@ -76,6 +76,9 @@ Coordinate Odometry::transformAcceleration() {
     acceleration.x = r11 * ax + r12 * ay + r13 * az;
     acceleration.y = r21 * ax + r22 * ay + r23 * az;
     acceleration.z = r31 * ax + r32 * ay + r33 * az;
+
+    double magnitude = sqrt(r11 * r11 + r21 * r21);
+    XYangle = acos(r11 / magnitude);
 
     return acceleration;
 }

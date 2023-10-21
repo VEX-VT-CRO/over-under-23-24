@@ -38,8 +38,9 @@ class Odometry
         pros::Imu xGyro, yGyro, zGyro;
         Coordinate position;
         Coordinate velocity;
-        Coordinate angle;
         Coordinate acceleration;
+
+        double XYangle;
 };
 
 class PIDController
