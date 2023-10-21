@@ -46,10 +46,6 @@ class PIDController
                 Odometry& odom, int timeout);
         void goToAngle(TankDrivetrain& t, double angle, 
                 Odometry& odom, int timeout);
-        void goToTarget(TankDrivetrain& d, Coordinate target, 
-                Odometry& odom, int timeout, pros::Controller& c);
-        void goToAngle(TankDrivetrain& t, double angle, 
-                Odometry& odom, int timeout, pros::Controller& c);
 
     private:
         PIDConstants pid;

@@ -3,9 +3,6 @@
 #include "pros/imu.h"
 #include <cmath>
 
-constexpr double PI = 3.141592653589793;
-constexpr double DEG2RAD = PI / 180;
-
 Odometry::Odometry(std::uint8_t xGyro_port, std::uint8_t yGyro_port, std::uint8_t zGyro_port) : 
         xGyro{pros::Imu(xGyro_port)}, yGyro{pros::Imu(yGyro_port)}, zGyro{pros::Imu(zGyro_port)}
 {
@@ -187,92 +184,6 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
 
     int timer = pros::millis();
     while(pros::millis() - timer < timeout)
-    {
-        double error = target - odom.getAngle();
-
-        if(error < 0.1)
-        {
-            break;
-        }
-
-        double derivError = error - prevError;
-        nextError += error;
-
-        double power = pid.P * error + pid.I * nextError + pid.D * derivError;
-
-        if(power < lowerBound)
-        {
-            power = lowerBound;
-        }
-
-        d.turnLeft(power * 110);
-
-        prevError = error;
-        pros::delay(10);
-    }
-
-    d.turnLeft(0);
-}
-
-void PIDController::goToTarget(TankDrivetrain &d, Coordinate target, 
-        Odometry &odom, int timeout, pros::Controller& c)
-{
-    Coordinate pos = odom.getPosition();
-    double prevError = 0;
-    double nextError = 0;
-    double lowerBound = 100;
-    bool useX = true;
-    double goal;
-
-    if(std::abs(target.x - pos.x) > std::abs(target.y - pos.y))
-    {
-        goal = target.x;
-    }
-    else
-    {
-        goal = target.y;
-        useX = false;
-    }
-
-    int timer = pros::millis();
-    while(pros::millis() - timer < timeout && c.get_digital(pros::E_CONTROLLER_DIGITAL_B))
-    {
-        double actual = (useX) ? odom.getPosition().x : odom.getPosition().y;
-        double error = std::abs(goal - actual);
-
-        if(error < 0.1)
-        {
-            break;
-        }
-
-        double derivError = error - prevError;
-        nextError += error;
-
-        double power = pid.P * error + pid.I * nextError + pid.D * derivError;
-
-        if(power < lowerBound)
-        {
-            power = lowerBound;
-        }
-
-        d.drive(power * 110);
-
-        prevError = error;
-        pros::delay(10);
-    }
-
-    d.drive(0);
-}
-
-void PIDController::goToAngle(TankDrivetrain &d, double target, 
-        Odometry &odom, int timeout, pros::Controller& c)
-{
-    double prevError = 0;
-    double nextError = 0;
-    double lowerBound = 100;
-
-    int timer = pros::millis();
-    while(pros::millis() - timer < timeout && c.get_digital(pros::E_CONTROLLER_DIGITAL_B))
     {
         double error = target - odom.getAngle();
 

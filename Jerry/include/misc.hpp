@@ -23,4 +23,7 @@ enum TeamColor
     Blue
 };
 
+constexpr double PI = 3.141592653589793;
+constexpr double DEG2RAD = PI / 180;
+
 #endif
