@@ -6,7 +6,7 @@
 
 constexpr double PI = 3.141592653589793;
 constexpr double DEG2RAD = PI / 180;
-constexpr double DT = 5;
+constexpr double DT = 0.01;
 
 Odometry::Odometry(std::uint8_t xGyro_port, std::uint8_t yGyro_port, std::uint8_t zGyro_port) : 
         xGyro{pros::Imu(xGyro_port)}, yGyro{pros::Imu(yGyro_port)}, zGyro{pros::Imu(zGyro_port)}
