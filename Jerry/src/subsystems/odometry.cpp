@@ -1,12 +1,11 @@
 #include "subsystems/odometry.hpp"
 #include "pros/rtos.hpp"
 #include "pros/imu.h"
+#include "pros/misc.hpp"
 #include <cmath>
-#include <tuple>
 
-constexpr double PI = 3.141592653589793;
-constexpr double DEG2RAD = PI / 180;
-constexpr double DT = 0.01;
+constexpr double DT = 0.01; //s
+constexpr double G  = 9.81; //m/s^2 
 
 Odometry::Odometry(std::uint8_t xGyro_port, std::uint8_t yGyro_port, std::uint8_t zGyro_port) : 
         xGyro{pros::Imu(xGyro_port)}, yGyro{pros::Imu(yGyro_port)}, zGyro{pros::Imu(zGyro_port)}
@@ -58,8 +57,11 @@ void Odometry::reset()
     yEncoder.reset();
 }*/
 
-Coordinate Odometry::transformAcceleration(double ax, double ay, double az,
-                                                         double roll, double pitch, double yaw) {
+Coordinate Odometry::transformAcceleration(double roll, double pitch, double yaw) {
+    double ax = getXAccel();
+    double ay = getYAccel();
+    double az = getZAccel();
+    
     double r11 = cos(yaw) * cos(pitch);
     double r12 = cos(yaw) * sin(pitch) * sin(roll) - sin(yaw) * cos(roll);
     double r13 = cos(yaw) * sin(pitch) * cos(roll) + sin(yaw) * sin(roll);
@@ -89,6 +91,7 @@ Coordinate Odometry::updatePosition() {
     position.x += velocity.x * DT + 0.5 * acceleration.x * DT * DT;
     position.y += velocity.y * DT + 0.5 * acceleration.y * DT * DT;
     position.z += velocity.z * DT + 0.5 * acceleration.z * DT * DT;
+    //TODO: Need to account for acceleration due to gravity
     }
 
 double Odometry::getYaw()
@@ -109,19 +112,19 @@ double Odometry::getRoll()
 double Odometry::getXAccel()
 {
     pros::c::imu_accel_s_t accel = xGyro.get_accel();
-    return accel.x;
+    return accel.x * G;
 }
 
 double Odometry::getYAccel()
 {
     pros::c::imu_accel_s_t accel = yGyro.get_accel();
-    return accel.x;
+    return accel.x * G;
 }
 
 double Odometry::getZAccel()
 {
     pros::c::imu_accel_s_t accel = zGyro.get_accel();
-    return accel.x;
+    return accel.x * G;
 }
 
 void Odometry::setPitch(double angle)

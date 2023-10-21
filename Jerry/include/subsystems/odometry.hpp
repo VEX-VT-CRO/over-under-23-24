@@ -24,8 +24,7 @@ class Odometry
         double getYAccel();
         double getZAccel();
 
-        Coordinate transformAcceleration(double ax, double ay, double az,
-                                                             double roll, double pitch, double yaw);
+        Coordinate transformAcceleration(double roll, double pitch, double yaw);
 
         void setYaw(double angle);
         void setPitch(double angle);
