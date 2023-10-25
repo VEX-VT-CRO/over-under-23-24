@@ -46,6 +46,7 @@ void Odometry::update()
 }
 
 Coordinate Odometry::transformAcceleration() {
+    const double GRAVITY = 1;
     double ax = getXAccel();
     double ay = getYAccel();
     double az = getZAccel();
@@ -62,19 +63,19 @@ Coordinate Odometry::transformAcceleration() {
     double sinroll = sin(roll);
 
     double r11 = cosyaw * cospitch;
-    double r12 = cosyaw * sinpitch * sinroll - sinyaw * cosroll;
-    double r13 = cosyaw * sinpitch * cosroll + sinyaw * sinroll;
+    double r21 = cosyaw * sinpitch * sinroll - sinyaw * cosroll;
+    double r31 = cosyaw * sinpitch * cosroll + sinyaw * sinroll;
     
-    double r21 = sinyaw * cospitch;
+    double r12 = sinyaw * cospitch;
     double r22 = sinyaw * sinpitch * sinroll + cosyaw * cosroll;
-    double r23 = sinyaw * sinpitch * cosroll - cosyaw * sinroll;
+    double r32 = sinyaw * sinpitch * cosroll - cosyaw * sinroll;
     
-    double r31 = -sinpitch;
-    double r32 = cospitch * sinroll;
+    double r13 = -sinpitch;
+    double r23 = cospitch * sinroll;
     double r33 = cospitch * cosroll;
 
     acceleration.x = r11 * ax + r12 * ay + r13 * az;
-    acceleration.y = r21 * ax + r22 * ay + r23 * az;
+    acceleration.y = r21 * ax + r22 * ay + r23 * az - GRAVITY;
     acceleration.z = r31 * ax + r32 * ay + r33 * az;
 
     double magnitude = sqrt(r11 * r11 + r21 * r21);
@@ -103,12 +104,12 @@ double Odometry::getYaw()
 
 double Odometry::getPitch()
 {
-    return yGyro.get_heading();
+    return xGyro.get_pitch();
 }
 
 double Odometry::getRoll()
 {
-    return zGyro.get_heading();
+    return xGyro.get_roll();
 }
 
 double Odometry::getXAccel()
@@ -131,17 +132,17 @@ double Odometry::getZAccel()
 
 void Odometry::setPitch(double angle)
 {
-    yGyro.set_heading(angle);
+    xGyro.set_pitch(angle);
 }
 
 void Odometry::setYaw(double angle)
 {
-    zGyro.set_heading(angle);
+    xGyro.set_heading(angle);
 }
 
 void Odometry::setRoll(double angle)
 {
-    xGyro.set_heading(angle);
+    xGyro.set_roll(angle);
 }
 
 PIDController::PIDController(PIDConstants pidc)
@@ -184,10 +185,10 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
     {
         //This chooses what our measured value is, based on the conditional block above.
         double actual = (useX) ? odom.getPosition().x : odom.getPosition().y;
-        double error = std::abs(goal - actual);
+        double error = goal - actual;
 
         //This is the error threshold for what is acceptable as "close enough".
-        if(error < 0.1)
+        if(std::abs(error) < 0.1)
         {
             break;
         }
@@ -224,7 +225,7 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
     d.drive(0);
 }
 
-/*void PIDController::goToAngle(TankDrivetrain &d, double target, 
+void PIDController::goToAngle(TankDrivetrain &d, double target, 
         Odometry &odom, int timeout)
 {
     double prevError = 0;
@@ -234,9 +235,9 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
     int timer = pros::millis();
     while(pros::millis() - timer < timeout)
     {
-        double error = target - odom.getAngle();
+        double error = target - odom.getYaw();
 
-        if(error < 0.1)
+        if(std::abs(error) < 0.1)
         {
             break;
         }
@@ -258,4 +259,4 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
     }
 
     d.turnLeft(0);
-}*/
+}

@@ -13,15 +13,16 @@ pros::Motor rightBack(6, false);
 pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
-pros::IMU gyro(7);
-pros::IMU accel(8);
-
-pros::Motor intake(20);
+pros::Motor intake(7);
 RollerIntake ri(intake);
+
+pros::Motor turretMotor(8);
+pros::IMU turretGyro(17);
+Turret turret(turretMotor, turretGyro, {0, 0, 0});
 
 TankDrivetrain* drivetrain;
 TankRobot* robot;
-Odometry* odom;
+Odometry odom(18, 19, 20);
 TeamColor team = TeamColor::Blue;
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -31,7 +32,7 @@ TeamColor team = TeamColor::Blue;
  */
 void initialize() {
 	drivetrain = new TankDrivetrain(leftside, rightside, 3);
-	robot = new TankRobot(*drivetrain, ri, odom, team, NULL, PIDConstants{0, 0, 0}, PIDConstants{0, 0, 0});
+	robot = new TankRobot(*drivetrain, ri, turret, odom, team, PIDConstants{0, 0, 0}, PIDConstants{0, 0, 0});
 	pros::lcd::initialize();
 	pros::delay(3500);
 }
