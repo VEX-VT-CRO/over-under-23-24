@@ -17,6 +17,7 @@ class Odometry
         double getYaw();
         double getPitch();
         double getRoll();
+        double getXYAngle();
 
         double getXAccel();
         double getYAccel();

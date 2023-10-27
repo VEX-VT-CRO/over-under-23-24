@@ -21,6 +21,11 @@ Odometry::Odometry(std::uint8_t xGyro_port, std::uint8_t yGyro_port, std::uint8_
     }
 }
 
+double Odometry::getXYAngle()
+{
+    return XYangle;
+}
+
 Coordinate Odometry::getPosition()
 {
     return position;
@@ -94,7 +99,6 @@ Coordinate Odometry::updatePosition() {
     position.x += velocity.x * DT + 0.5 * acceleration.x * DT * DT;
     position.y += velocity.y * DT + 0.5 * acceleration.y * DT * DT;
     position.z += velocity.z * DT + 0.5 * acceleration.z * DT * DT;
-    //TODO: Need to account for acceleration due to gravity
     }
 
 double Odometry::getYaw()
@@ -120,14 +124,14 @@ double Odometry::getXAccel()
 
 double Odometry::getYAccel()
 {
-    pros::c::imu_accel_s_t accel = yGyro.get_accel();
-    return accel.x * G;
+    pros::c::imu_accel_s_t accel = xGyro.get_accel();
+    return accel.y * G;
 }
 
 double Odometry::getZAccel()
 {
-    pros::c::imu_accel_s_t accel = zGyro.get_accel();
-    return accel.x * G;
+    pros::c::imu_accel_s_t accel = xGyro.get_accel();
+    return accel.z * G;
 }
 
 void Odometry::setPitch(double angle)

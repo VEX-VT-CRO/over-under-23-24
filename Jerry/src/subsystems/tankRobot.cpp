@@ -1,7 +1,7 @@
 #include "subsystems/tankRobot.hpp"
 #include <cmath>
 
-TankRobot::TankRobot(TankDrivetrain d, RollerIntake& in, Turret& t, Odometry& odom, TeamColor tc, PIDConstants drive, PIDConstants turn) : 
+TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Turret& t, Odometry& odom, TeamColor tc, PIDConstants drive, PIDConstants turn) : 
     drivetrain{d}, ri{in}, turret{t}, odometry{odom}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
     partner{pros::Controller(pros::E_CONTROLLER_PARTNER)}, PIDControl{PIDController(drivePID)}, drivePID{drive}, turnPID{turn}
 {
@@ -56,5 +56,6 @@ void TankRobot::pollController(bool dualDriver)
     pros::lcd::clear();
     pros::lcd::print(0, "X: %f", c.x);
     pros::lcd::print(1, "Y: %f", c.y);
-    //pros::lcd::print(2, "A: %f", odometry->getAngle());
+    pros::lcd::print(2, "Z: %f", c.z);
+    pros::lcd::print(3, "A: %f", odometry.getXYAngle());
 }

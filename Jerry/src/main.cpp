@@ -20,10 +20,17 @@ pros::Motor turretMotor(8);
 pros::IMU turretGyro(17);
 Turret turret(turretMotor, turretGyro, {0, 0, 0});
 
-TankDrivetrain* drivetrain;
-TankRobot* robot;
+TankDrivetrain drivetrain(leftside, rightside, 3);
+
 Odometry odom(18, 19, 20);
+
 TeamColor team = TeamColor::Blue;
+
+PIDConstants forwardDrive = {1.0, 0, 0};
+PIDConstants inPlaceTurn = {0, 0, 0};
+
+TankRobot robot(drivetrain, ri, turret, odom, team, forwardDrive, inPlaceTurn);
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -31,10 +38,9 @@ TeamColor team = TeamColor::Blue;
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	drivetrain = new TankDrivetrain(leftside, rightside, 3);
-	robot = new TankRobot(*drivetrain, ri, turret, odom, team, PIDConstants{0, 0, 0}, PIDConstants{0, 0, 0});
 	pros::lcd::initialize();
 	pros::delay(3500);
+	odom.setPosition({0.0, 0.0});
 }
 
 /**
@@ -66,7 +72,10 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	//TEST AUTON
+	robot.driveTo({300, 0}, 7000);
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -84,7 +93,7 @@ void autonomous() {}
 void opcontrol() {
 
 	while (true) {
-		robot -> pollController(false);
+		robot.pollController(false);
 		
 		pros::delay(20);
 	}
