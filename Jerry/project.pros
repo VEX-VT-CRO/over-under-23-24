@@ -311,7 +311,8 @@
     "upload_options": {
       "icon": "pizza",
       "slot": 1,
-      "description": "My PROS Project"
+      "description": "My PROS Project",
+      "after": "run"
     }
   }
 }

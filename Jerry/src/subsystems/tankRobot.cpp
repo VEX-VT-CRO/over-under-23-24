@@ -1,7 +1,7 @@
 #include "subsystems/tankRobot.hpp"
 #include <cmath>
 
-TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Turret& t, Odometry& odom, TeamColor tc, PIDConstants drive, PIDConstants turn) : 
+TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Turret* t, Odometry* odom, TeamColor tc, PIDConstants drive, PIDConstants turn) : 
     drivetrain{d}, ri{in}, turret{t}, odometry{odom}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
     partner{pros::Controller(pros::E_CONTROLLER_PARTNER)}, PIDControl{PIDController(drivePID)}, drivePID{drive}, turnPID{turn}
 {
@@ -16,18 +16,18 @@ void TankRobot::goTo(Coordinate c, double angle, int timeout)
 
 void TankRobot::driveTo(Coordinate c, int timeout)
 {
-    PIDControl.goToTarget(drivetrain, c, odometry, timeout);
+    PIDControl.goToTarget(drivetrain, c, *odometry, timeout);
 }
 
 void TankRobot::turnTo(double angle, int timeout)
 {
-    PIDControl.goToAngle(drivetrain, angle, odometry, timeout);
+    PIDControl.goToAngle(drivetrain, angle, *odometry, timeout);
 }
 
 void TankRobot::autoAim(bool useVision)
 {
     Coordinate goal = {122.63, 122.63};
-    Coordinate r = odometry.getPosition();
+    Coordinate r = odometry->getPosition();
     //double angle = std::atan2(goal.y - r.y, goal.x - r.x);
 }
 
@@ -35,7 +35,7 @@ void TankRobot::pollController(bool dualDriver)
 {
     drivetrain.tankControl(driver);
 
-    if(!dualDriver)
+    /*if(!dualDriver)
     {
         if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
         {
@@ -49,13 +49,18 @@ void TankRobot::pollController(bool dualDriver)
         {
             ri.spin(0);
         }
-    }
+    }*/
 
-    odometry.update();
-    Coordinate c = odometry.getPosition();
+    odometry->update();
+    Coordinate c = odometry->getPosition();
+    Coordinate a = odometry->getAcceleration();
     pros::lcd::clear();
+    //pros::lcd::print(6, "Ready to drive.");
     pros::lcd::print(0, "X: %f", c.x);
     pros::lcd::print(1, "Y: %f", c.y);
     pros::lcd::print(2, "Z: %f", c.z);
-    pros::lcd::print(3, "A: %f", odometry.getXYAngle());
+    pros::lcd::print(4, "XACC: %lf", a.x);
+    pros::lcd::print(5, "YACC: %lf", a.y);
+    pros::lcd::print(6, "ZACC: %lf", a.z);
+    pros::lcd::print(3, "A: %f", odometry->getYaw());
 }

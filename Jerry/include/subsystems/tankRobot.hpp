@@ -11,7 +11,7 @@
 class TankRobot
 {
     public:
-        TankRobot(TankDrivetrain& d, RollerIntake& in, Turret& t, Odometry& odom, TeamColor tc, PIDConstants drive, PIDConstants turn);
+        TankRobot(TankDrivetrain& d, RollerIntake& in, Turret* t, Odometry* odom, TeamColor tc, PIDConstants drive, PIDConstants turn);
         void goTo(Coordinate c, double angle, int timeout);
         void driveTo(Coordinate c, int timeout);
         void turnTo(double angle, int timeout);
@@ -20,12 +20,12 @@ class TankRobot
         void pollController(bool dualDriver);
 
     private:
-        TankDrivetrain& drivetrain;
-        Odometry& odometry;
+        TankDrivetrain drivetrain;
+        Odometry* odometry;
         pros::Controller driver;
         pros::Controller partner;
         RollerIntake& ri;
-        Turret& turret;
+        Turret* turret;
         TeamColor color;
         PIDConstants drivePID;
         PIDConstants turnPID;

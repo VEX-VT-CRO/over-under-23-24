@@ -3,12 +3,12 @@
 #include <cstdlib>
 
 pros::Motor leftFront(1, true);
-pros::Motor leftMiddle(2, false);
+pros::Motor leftMiddle(2, true);
 pros::Motor leftBack(3, true);
 
-pros::Motor rightFront(4, false);
-pros::Motor rightMiddle(5, true);
-pros::Motor rightBack(6, false);
+pros::Motor rightFront(11, false);
+pros::Motor rightMiddle(12, false);
+pros::Motor rightBack(13, false);
 
 pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
@@ -18,18 +18,18 @@ RollerIntake ri(intake);
 
 pros::Motor turretMotor(8);
 pros::IMU turretGyro(17);
-Turret turret(turretMotor, turretGyro, {0, 0, 0});
+Turret* turret;
 
 TankDrivetrain drivetrain(leftside, rightside, 3);
 
-Odometry odom(18, 19, 20);
+Odometry* odom;
 
 TeamColor team = TeamColor::Blue;
 
 PIDConstants forwardDrive = {1.0, 0, 0};
 PIDConstants inPlaceTurn = {0, 0, 0};
 
-TankRobot robot(drivetrain, ri, turret, odom, team, forwardDrive, inPlaceTurn);
+TankRobot* robot;
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -38,9 +38,17 @@ TankRobot robot(drivetrain, ri, turret, odom, team, forwardDrive, inPlaceTurn);
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+	turret = new Turret(turretMotor, turretGyro, {0, 0, 0});
+	odom = new Odometry(18, 19, 20);
+
+	robot = new TankRobot(drivetrain, ri, turret, odom, team, forwardDrive, inPlaceTurn);
+
 	pros::lcd::initialize();
 	pros::delay(3500);
-	odom.setPosition({0.0, 0.0});
+	odom->setPosition({0.0, 0.0});
+	odom->setYaw(0);
+	odom->setPitch(0);
+	odom->setRoll(0);
 }
 
 /**
@@ -74,7 +82,7 @@ void competition_initialize() {}
  */
 void autonomous() {
 	//TEST AUTON
-	robot.driveTo({300, 0}, 7000);
+	robot->driveTo({300, 0}, 7000);
 }
 
 /**
@@ -93,7 +101,7 @@ void autonomous() {
 void opcontrol() {
 
 	while (true) {
-		robot.pollController(false);
+		robot->pollController(false);
 		
 		pros::delay(20);
 	}
