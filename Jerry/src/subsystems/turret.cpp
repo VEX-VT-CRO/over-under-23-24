@@ -1,7 +1,7 @@
 #include "subsystems/turret.hpp"
 #include <cmath>
 
-Turret::Turret(pros::Motor& motor, pros::IMU& gyro, PIDConstants PID) : turretMotor{motor}, kPID{PID}, imu{gyro}
+Turret::Turret(pros::Motor& motor1, pros::Motor& motor2, pros::IMU& gyro, PIDConstants PID) : turretMotor1{motor1}, turretMotor2{motor2}, kPID{PID}, imu{gyro}
 {
     prevError = 0;
     totalError = 0;
@@ -10,7 +10,8 @@ Turret::Turret(pros::Motor& motor, pros::IMU& gyro, PIDConstants PID) : turretMo
 
 void Turret::turnVoltage(int mV)
 {
-    turretMotor.move_voltage(mV);
+    turretMotor1.move_voltage(mV);
+    turretMotor2.move_voltage(mV);
 }
 
 void Turret::turnAngle(int degrees)
@@ -33,7 +34,8 @@ void Turret::aimAt(Coordinate target, Coordinate pos)
 
     double power = kPID.P * error + kPID.I * totalError + kPID.D * derivError;
 
-    turretMotor.move_voltage(power * 110);
+    turretMotor1.move_voltage(power * 110);
+    turretMotor2.move_voltage(power * 110);
 
     prevError = error;
 }
@@ -51,7 +53,8 @@ void Turret::updatePosition(Coordinate goal, Coordinate pos)
 
     double power = kPID.P * error + kPID.I * totalError + kPID.D * derivError;
 
-    turretMotor.move_voltage(power * 110);
+    turretMotor1.move_voltage(power * 110);
+    turretMotor2.move_voltage(power * 110);
 
     prevError = error;
 }

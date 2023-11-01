@@ -8,7 +8,7 @@
 class Turret
 {
     public:
-        Turret(pros::Motor& motor, pros::IMU& gyro, PIDConstants PID);
+        Turret(pros::Motor& motor1, pros::Motor& motor2, pros::IMU& gyro, PIDConstants PID);
 
         //When in autoAim mode, updatePosition does what it says
         void updatePosition(Coordinate goal, Coordinate pos);
@@ -21,7 +21,7 @@ class Turret
         void aimAt(Coordinate target, Coordinate pos);
 
     private:
-        pros::Motor& turretMotor;
+        pros::Motor& turretMotor1, turretMotor2;
         PIDConstants kPID;
         pros::IMU& imu;
 

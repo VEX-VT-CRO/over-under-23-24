@@ -33,6 +33,7 @@ void TankRobot::autoAim(bool useVision)
 
 void TankRobot::pollController(bool dualDriver)
 {
+    static bool manualAim = false;
     drivetrain.tankControl(driver);
 
     /*if(!dualDriver)
@@ -51,16 +52,25 @@ void TankRobot::pollController(bool dualDriver)
         }
     }*/
 
+    //Toggle manual aim if driver presses A (once per new press)
+    manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) ? !manualAim : manualAim;
+
+    if(manualAim)
+    {
+        constexpr int TURRET_SPEED = 9000;
+        int turretDirection = driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1) - driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
+        
+        turret->turnVoltage(TURRET_SPEED * turretDirection);
+    }
+
     odometry->update();
     Coordinate c = odometry->getPosition();
     Coordinate a = odometry->getAcceleration();
     pros::lcd::clear();
-    //pros::lcd::print(6, "Ready to drive.");
-    pros::lcd::print(0, "X: %f", c.x);
-    pros::lcd::print(1, "Y: %f", c.y);
-    pros::lcd::print(2, "Z: %f", c.z);
-    pros::lcd::print(4, "XACC: %lf", a.x);
-    pros::lcd::print(5, "YACC: %lf", a.y);
-    pros::lcd::print(6, "ZACC: %lf", a.z);
-    pros::lcd::print(3, "A: %f", odometry->getYaw());
+    pros::lcd::print(0, "X POS: %f", c.x);
+    pros::lcd::print(1, "Y POS: %f", c.y);
+    pros::lcd::print(2, "Z POS: %f", c.z);
+    pros::lcd::print(3, "YAW:   %f", odometry->getYaw());
+    pros::lcd::print(4, "PTICH: %f", odometry->getPitch());
+    pros::lcd::print(5, "ROLL:  %f", odometry->getRoll());
 }

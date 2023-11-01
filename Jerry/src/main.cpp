@@ -16,7 +16,8 @@ pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 pros::Motor intake(7);
 RollerIntake ri(intake);
 
-pros::Motor turretMotor(8);
+pros::Motor turretMotor1(8);
+pros::Motor turretMotor2(9);
 pros::IMU turretGyro(17);
 Turret* turret;
 
@@ -38,7 +39,7 @@ TankRobot* robot;
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	turret = new Turret(turretMotor, turretGyro, {0, 0, 0});
+	turret = new Turret(turretMotor1, turretMotor2, turretGyro, {0, 0, 0});
 	odom = new Odometry(18, 19, 20);
 
 	robot = new TankRobot(drivetrain, ri, turret, odom, team, forwardDrive, inPlaceTurn);
