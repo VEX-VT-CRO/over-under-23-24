@@ -7,11 +7,13 @@
 class Catapult
 {
     public:
-        Catapult(pros::Motor* m, Odometry* odom);
-        void setSpeed(int mV);
+        Catapult(pros::Motor* m, Odometry* odom, pros::ADIDigitalIn* catapult_charged);
+        void shoot(int mV);
+        void charge();
         void findGoalSpeed(Coordinate goal_position, Coordinate current_position);
     private:
         pros::Motor* motor;
+        pros::ADIDigitalIn* charged;
         double distance;
         Odometry* odometry;
         TeamColor color;

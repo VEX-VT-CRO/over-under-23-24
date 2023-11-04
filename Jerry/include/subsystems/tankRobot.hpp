@@ -7,11 +7,12 @@
 #include "drivetrain.hpp"
 #include "rollerIntake.hpp"
 #include "turret.hpp"
+#include "catapult.hpp"
 
 class TankRobot
 {
     public:
-        TankRobot(TankDrivetrain& d, RollerIntake& in, Turret* t, Odometry* odom, TeamColor tc, PIDConstants drive, PIDConstants turn);
+        TankRobot(TankDrivetrain& d, RollerIntake& in, Turret* t, Odometry* odom, Catapult* catapult, TeamColor tc, PIDConstants drive, PIDConstants turn);
         void goTo(Coordinate c, double angle, int timeout);
         void driveTo(Coordinate c, int timeout);
         void turnTo(double angle, int timeout);
@@ -26,6 +27,7 @@ class TankRobot
         pros::Controller partner;
         RollerIntake& ri;
         Turret* turret;
+        Catapult* catapult;
         TeamColor color;
         PIDConstants drivePID;
         PIDConstants turnPID;

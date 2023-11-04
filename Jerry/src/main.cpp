@@ -21,6 +21,10 @@ pros::Motor turretMotor2(9);
 pros::IMU turretGyro(17);
 Turret* turret;
 
+pros::ADIDigitalIn catapult_charged(18);
+pros::Motor catapultMotor(15);
+Catapult* catapult;
+
 TankDrivetrain drivetrain(leftside, rightside, 3);
 
 Odometry* odom;
@@ -41,8 +45,9 @@ TankRobot* robot;
 void initialize() {
 	turret = new Turret(turretMotor1, turretMotor2, turretGyro, {0, 0, 0});
 	odom = new Odometry(18, 19, 20);
+	catapult = new Catapult(&catapultMotor,odom, &catapult_charged);
 
-	robot = new TankRobot(drivetrain, ri, turret, odom, team, forwardDrive, inPlaceTurn);
+	robot = new TankRobot(drivetrain, ri, turret, odom, catapult, team, forwardDrive, inPlaceTurn);
 
 	pros::lcd::initialize();
 	pros::delay(3500);
