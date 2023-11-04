@@ -25,6 +25,9 @@ pros::ADIDigitalIn catapult_charged(18);
 pros::Motor catapultMotor(15);
 Catapult* catapult;
 
+pros::ADIDigitalOut indexerSolenoid('A');
+Indexer i(indexerSolenoid);
+
 TankDrivetrain drivetrain(leftside, rightside, 3);
 
 Odometry* odom;
@@ -47,7 +50,7 @@ void initialize() {
 	odom = new Odometry(18, 19, 20);
 	catapult = new Catapult(&catapultMotor,odom, &catapult_charged);
 
-	robot = new TankRobot(drivetrain, ri, turret, odom, catapult, team, forwardDrive, inPlaceTurn);
+	robot = new TankRobot(drivetrain, ri, i, turret, odom, catapult, team, forwardDrive, inPlaceTurn);
 
 	pros::lcd::initialize();
 	pros::delay(3500);

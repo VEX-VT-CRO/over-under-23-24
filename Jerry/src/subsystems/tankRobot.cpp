@@ -1,8 +1,8 @@
 #include "subsystems/tankRobot.hpp"
 #include <cmath>
 
-TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Turret* t, Odometry* odom, Catapult* catapult, TeamColor tc, PIDConstants drive, PIDConstants turn) : 
-    drivetrain{d}, ri{in}, turret{t}, odometry{odom}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
+TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer i, Turret* t, Odometry* odom, Catapult* catapult, TeamColor tc, PIDConstants drive, PIDConstants turn) : 
+    drivetrain{d}, ri{in}, indexer{i}, turret{t}, odometry{odom}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
     partner{pros::Controller(pros::E_CONTROLLER_PARTNER)}, PIDControl{PIDController(drivePID)}, drivePID{drive}, turnPID{turn}
 {
     
@@ -34,6 +34,7 @@ void TankRobot::autoAim(bool useVision)
 void TankRobot::pollController(bool dualDriver)
 {
     static bool manualAim = false;
+    static bool toggle_pneumatics = false;
     drivetrain.tankControl(driver);
 
     /*if(!dualDriver)
@@ -54,7 +55,21 @@ void TankRobot::pollController(bool dualDriver)
 
     //Toggle manual aim if driver presses A (once per new press)
     manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) ? !manualAim : manualAim;
+    toggle_pneumatics = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) ? !toggle_pneumatics : toggle_pneumatics;
     
+    if(!dualDriver){
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2))
+            indexer.indexDisc(toggle_pneumatics);
+    }
+    else{
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2))
+            indexer.indexDisc(toggle_pneumatics);
+        if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2))
+            indexer.indexDisc(false);
+        if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2))
+            indexer.indexDisc(true);    
+    }
+
     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
         catapult->shoot(3000);
         catapult->charge();
