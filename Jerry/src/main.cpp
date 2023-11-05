@@ -47,7 +47,7 @@ TankRobot* robot;
  */
 void initialize() {
 	turret = new Turret(turretMotor1, turretMotor2, turretGyro, {0, 0, 0});
-	odom = new Odometry(18, 19, 20);
+	odom = new Odometry(18, 'A', 'B', 'C', 'D');
 	catapult = new Catapult(&catapultMotor,odom, &catapult_charged);
 
 	robot = new TankRobot(drivetrain, ri, i, turret, odom, catapult, team, forwardDrive, inPlaceTurn);
@@ -55,9 +55,7 @@ void initialize() {
 	pros::lcd::initialize();
 	pros::delay(3500);
 	odom->setPosition({0.0, 0.0});
-	odom->setYaw(0);
-	odom->setPitch(0);
-	odom->setRoll(0);
+	odom->setAngle(0);
 }
 
 /**
@@ -91,7 +89,36 @@ void competition_initialize() {}
  */
 void autonomous() {
 	//TEST AUTON
-	robot->driveTo({300, 0}, 7000);
+	//robot->driveTo({23.5, 0}, 7000);
+	while(odom->getPosition().y < 70.5)
+	{
+		leftFront.move_voltage(2250);
+		leftMiddle.move_voltage(2250);
+		leftBack.move_voltage(2250);
+		rightFront.move_voltage(3000);
+		rightMiddle.move_voltage(3000);
+		rightBack.move_voltage(3000);
+		
+		pros::delay(10);
+		odom->update();
+	}
+
+	drivetrain.drive(0);
+
+	pros::delay(1500);
+
+	while(odom->getPosition().y > 0.0)
+	{
+		leftFront.move_voltage(-2700);
+		leftMiddle.move_voltage(-2700);
+		leftBack.move_voltage(-2700);
+		rightFront.move_voltage(-3000);
+		rightMiddle.move_voltage(-3000);
+		rightBack.move_voltage(-3000);
+		
+		pros::delay(10);
+		odom->update();
+	}
 }
 
 /**

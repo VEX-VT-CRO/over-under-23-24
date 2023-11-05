@@ -2,35 +2,29 @@
 #include "pros/rtos.hpp"
 #include "pros/imu.h"
 #include "pros/misc.hpp"
+#include <float.h>
 #include <cmath>
 
+constexpr double TICKS_PER_REV = 360;
+constexpr double ODOM_DIAMETER = 2.8; //in
 constexpr double DT = 0.01; //s
-constexpr double G  = 9.81; //m/s^2 
+constexpr double LINEAR_CONSTANT = PI * ODOM_DIAMETER / TICKS_PER_REV; //in/tick
 
-Odometry::Odometry(std::uint8_t xGyro_port, std::uint8_t yGyro_port, std::uint8_t zGyro_port) : 
-        xGyro{pros::Imu(xGyro_port)}
+constexpr double ABS(double value)
 {
-    position = {0, 0, 0};
-    velocity = {0, 0, 0};
-    acceleration = {0, 0, 0};
-    XYangle = 0.0;
+    return (value < 0) ? value * -1 : value;
+}
 
-    while(xGyro.is_calibrating())
+Odometry::Odometry(std::uint8_t gyro_port, std::uint8_t xTop, std::uint8_t xBottom, std::uint8_t yTop, std::uint8_t yBottom) : 
+        gyro{pros::IMU(gyro_port)}, x{pros::ADIEncoder(xTop, xBottom)}, y{pros::ADIEncoder(yTop, yBottom)}
+{
+    while(gyro.is_calibrating())
     {
         pros::delay(250);
     }
 
-    pros::delay(500);
-    pros::c::imu_accel_s_t a = xGyro.get_accel();
-    accelAtRest = {floor(a.x * G * 10) / 10, floor(a.y * G * 10) / 10, floor(a.z * G * 10) / 10};
-    accelAtRest.x = (std::abs(accelAtRest.x) > 0.5) ? accelAtRest.x : 0;
-    accelAtRest.y = (std::abs(accelAtRest.y) > 0.5) ? accelAtRest.y : 0;
-    accelAtRest.z = (std::abs(accelAtRest.z) > 0.5) ? accelAtRest.z : 0;
-}
-
-double Odometry::getXYAngle()
-{
-    return XYangle;
+    x.reset();
+    y.reset();
 }
 
 Coordinate Odometry::getPosition()
@@ -43,30 +37,58 @@ void Odometry::setPosition(Coordinate c)
     position = c;
 }
 
+void Odometry::resetTo(Coordinate c)
+{
+    gyro.reset();
+    position = c;
+}
+
 void Odometry::reset()
 {
-    xGyro.reset();
-}
-
-Coordinate Odometry::getVelocity()
-{
-    return velocity;
-}
-
-Coordinate Odometry::getAcceleration()
-{
-    return acceleration;
+    gyro.reset();
+    position = {0, 0, 0};
 }
 
 void Odometry::update()
 {
-    transformAcceleration();
-    updatePosition();
-    updateVelocity();
+    //TODO: Detect driving over the bar
+    
+    constexpr double TURN_THRESHOLD = 0.005;
+
+    static double prevTheta = 0;
+    double theta = gyro.get_rotation() * PI / 180; //In radians
+
+    //Angle change (turning robot if non-zero)
+    double changeInTheta = theta - prevTheta;
+    prevTheta = theta;
+
+    double changeX = (x.get_value() * LINEAR_CONSTANT); //the offset to apply to the x odometry wheel
+    double changeY = (y.get_value() * LINEAR_CONSTANT); //the offset to apply to the y odometry wheel
+    double sinChangeInTheta = 2 * sin(changeInTheta / 2);
+
+    //Check if the robot turns at all
+    if (ABS(changeInTheta) > TURN_THRESHOLD) {
+        //Calculates largest double that would be able to be squared without throwing an error
+        //dx is the horizontal distance to the center of rotation
+        double radiusX = changeX / (changeInTheta) - 5.875;
+        double radiusY = changeY / (changeInTheta) + 1.875; //The offset in the y-axis of the x omni-wheel
+
+        changeX = radiusX * sinChangeInTheta;
+        changeY = radiusY * sinChangeInTheta;
+    }
+
+    double costheta = cos(theta);
+    double sintheta = sin(theta);
+
+    position.x +=  costheta * changeX + sintheta * changeY;
+    position.y += -sintheta * changeX + costheta * changeY;
+
+    x.reset();
+    y.reset();
 }
 
 void Odometry::transformAcceleration() {
-    double ax = getXAccel();
+    /*double ax = getXAccel();
     double ay = getYAccel();
     double az = getZAccel();
     
@@ -102,73 +124,30 @@ void Odometry::transformAcceleration() {
     acceleration.z = az - accelAtRest.z;
 
     double magnitude = sqrt(r11 * r11 + r21 * r21);
-    XYangle = acos(r11 / magnitude);
+    XYangle = acos(r11 / magnitude);*/
 }
 
 void Odometry::updateVelocity() {
-        velocity.x += floor(acceleration.x * DT * 10) / 10;
+        /*velocity.x += floor(acceleration.x * DT * 10) / 10;
         velocity.y += floor(acceleration.y * DT * 10) / 10;
-        velocity.z += floor(acceleration.z * DT * 10) / 10;
+        velocity.z += floor(acceleration.z * DT * 10) / 10;*/
     }
 
 void Odometry::updatePosition() {
-    position.x += floor(velocity.x * DT * 10) / 10 + floor(0.5 * acceleration.x * DT * 10) / 10;
-    position.y += floor(velocity.y * DT * 10) / 10 + floor(0.5 * acceleration.y * DT * 10) / 10;
-    position.z += floor(velocity.z * DT * 10) / 10 + floor(0.5 * acceleration.z * DT * 10) / 10;
+    //position.x += floor(velocity.x * DT * 10) / 10 + floor(0.5 * acceleration.x * DT * 10) / 10;
+    //position.y += floor(velocity.y * DT * 10) / 10 + floor(0.5 * acceleration.y * DT * 10) / 10;
+    //position.z += floor(velocity.z * DT * 10) / 10 + floor(0.5 * acceleration.z * DT * 10) / 10;
+    
     }
 
-double Odometry::getYaw()
+double Odometry::getAngle()
 {
-    return xGyro.get_heading();
+    return gyro.get_heading();
 }
 
-double Odometry::getPitch()
+void Odometry::setAngle(double angle)
 {
-    return xGyro.get_pitch();
-}
-
-double Odometry::getRoll()
-{
-    return xGyro.get_roll();
-}
-
-double Odometry::getXAccel()
-{
-    pros::c::imu_accel_s_t accel = xGyro.get_accel();
-    double ax = accel.x * G;
-    ax = floor(ax * 10) / 10;
-    return (std::abs(ax) > 0.5) ? ax : 0;
-}
-
-double Odometry::getYAccel()
-{
-    pros::c::imu_accel_s_t accel = xGyro.get_accel();
-    double ay = accel.y * G;
-    ay = floor(ay * 10) / 10;
-    return (std::abs(ay) > 0.5) ? ay : 0;
-}
-
-double Odometry::getZAccel()
-{
-    pros::c::imu_accel_s_t accel = xGyro.get_accel();
-    double az = accel.z * G;
-    az = floor(az * 10) / 10;
-    return (std::abs(az) > 0.5) ? az : 0;
-}
-
-void Odometry::setPitch(double angle)
-{
-    xGyro.set_pitch(angle);
-}
-
-void Odometry::setYaw(double angle)
-{
-    xGyro.set_heading(angle);
-}
-
-void Odometry::setRoll(double angle)
-{
-    xGyro.set_roll(angle);
+    gyro.set_heading(angle);
 }
 
 PIDController::PIDController(PIDConstants pidc)
@@ -209,6 +188,7 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
     int timer = pros::millis();
     while(pros::millis() - timer < timeout)
     {
+        odom.update();
         //This chooses what our measured value is, based on the conditional block above.
         double actual = (useX) ? odom.getPosition().x : odom.getPosition().y;
         double error = goal - actual;
@@ -261,7 +241,7 @@ void PIDController::goToAngle(TankDrivetrain &d, double target,
     int timer = pros::millis();
     while(pros::millis() - timer < timeout)
     {
-        double error = target - odom.getYaw();
+        double error = target - odom.getAngle();
 
         if(std::abs(error) < 0.1)
         {

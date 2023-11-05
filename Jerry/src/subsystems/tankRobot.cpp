@@ -83,14 +83,9 @@ void TankRobot::pollController(bool dualDriver)
         turret->turnVoltage(TURRET_SPEED * turretDirection);
     }
 
-    odometry->update();
-    Coordinate c = odometry->getPosition();
-    Coordinate a = odometry->getAcceleration();
     pros::lcd::clear();
+    Coordinate c = odometry->getPosition();
     pros::lcd::print(0, "X POS: %f", c.x);
     pros::lcd::print(1, "Y POS: %f", c.y);
-    pros::lcd::print(2, "Z POS: %f", c.z);
-    pros::lcd::print(3, "YAW:   %f", odometry->getYaw());
-    pros::lcd::print(4, "PTICH: %f", odometry->getPitch());
-    pros::lcd::print(5, "ROLL:  %f", odometry->getRoll());
+    odometry->update();
 }

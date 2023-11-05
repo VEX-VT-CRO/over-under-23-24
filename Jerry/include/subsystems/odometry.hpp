@@ -11,24 +11,12 @@
 class Odometry
 {
     public:
-        Odometry(std::uint8_t xGyro_port, std::uint8_t yGyro_port, std::uint8_t zGyro_port);
+        Odometry(std::uint8_t gyro_port, std::uint8_t xTop, std::uint8_t xBottom, std::uint8_t yTop, std::uint8_t yBottom);
         Coordinate getPosition();
-        Coordinate getVelocity();
-        Coordinate getAcceleration();
         void setPosition(Coordinate c);
-
-        double getYaw();
-        double getPitch();
-        double getRoll();
-        double getXYAngle();
-
-        double getXAccel();
-        double getYAccel();
-        double getZAccel();
-
-        void setYaw(double angle);
-        void setPitch(double angle);
-        void setRoll(double angle);
+        
+        double getAngle();
+        void setAngle(double angle);
 
         void resetTo(Coordinate c);
         void reset();
@@ -39,14 +27,9 @@ class Odometry
         void updateVelocity();
         void transformAcceleration();
 
-        pros::Imu xGyro;
+        pros::IMU gyro;
+        pros::ADIEncoder x, y;
         Coordinate position;
-        Coordinate velocity;
-        Coordinate acceleration;
-
-        Coordinate accelAtRest;
-
-        double XYangle;
 };
 
 class PIDController
