@@ -85,6 +85,9 @@ void Odometry::update()
 
     x.reset();
     y.reset();
+
+    pros::lcd::print(0, "X POS: %f", position.x);
+    pros::lcd::print(1, "Y POS: %f", position.y);
 }
 
 void Odometry::transformAcceleration() {
@@ -166,9 +169,10 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
     Coordinate pos = odom.getPosition();
     double prevError = 0;
     double nextError = 0;
-    double lowerBound = 100;
+    double lowerBound = 10;
     bool useX = true;
     double goal;
+    int sign;
 
     //Since the target is on a 2D plane, figure out which dimension to use as the target,
     //rather than computing the absolute distance.
@@ -182,6 +186,8 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
         useX = false;
     }
 
+    sign = (goal - ((useX) ? odom.getPosition().x : odom.getPosition().y)) < 0 ? -1 : 1;
+
     //Start the clock, the difference in start time and current time must
     //be less than the timeout to make sure we don't spend too much time
     //blocking the program execution.
@@ -194,7 +200,7 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
         double error = goal - actual;
 
         //This is the error threshold for what is acceptable as "close enough".
-        if(std::abs(error) < 0.1)
+        if(std::abs(error) < 0.05)
         {
             break;
         }
@@ -214,13 +220,16 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
         //If the power is too low, the robot won't move and nothing happens.
         //Technically, integral can fix this on its own but that's a lot of work 
         //and introduces more issues than it solves.
-        if(power < lowerBound)
+        if(ABS(power) < lowerBound)
         {
-            power = lowerBound;
+            power = lowerBound * ((error < 0) ? -1 : 1);
         }
 
         //Power is multiplied into units of mV to provide more accurate control.
-        d.drive(power * 110);
+        d.drive(sign * power * 110);
+
+        pros::lcd::print(0, "ERROR: %f", error);
+        pros::lcd::print(1, "POWER: %f", power);
 
         //Remember what the last error was for derivative calculations in the next iteration.
         prevError = error;

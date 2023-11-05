@@ -34,7 +34,7 @@ Odometry* odom;
 
 TeamColor team = TeamColor::Blue;
 
-PIDConstants forwardDrive = {1.0, 0, 0};
+PIDConstants forwardDrive = {10, 0, 0};
 PIDConstants inPlaceTurn = {0, 0, 0};
 
 TankRobot* robot;
@@ -89,8 +89,8 @@ void competition_initialize() {}
  */
 void autonomous() {
 	//TEST AUTON
-	//robot->driveTo({23.5, 0}, 7000);
-	while(odom->getPosition().y < 70.5)
+	robot->driveTo({0, 0.0}, 15000);
+	/*while(odom->getPosition().y < 70.5)
 	{
 		leftFront.move_voltage(2250);
 		leftMiddle.move_voltage(2250);
@@ -118,7 +118,7 @@ void autonomous() {
 		
 		pros::delay(10);
 		odom->update();
-	}
+	}*/
 }
 
 /**
