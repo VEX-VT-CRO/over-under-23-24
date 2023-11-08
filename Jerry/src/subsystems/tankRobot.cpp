@@ -1,7 +1,7 @@
 #include "subsystems/tankRobot.hpp"
 #include <cmath>
 
-TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer i, Turret* t, Odometry* odom, Catapult* catapult, TeamColor tc, PIDConstants drive, PIDConstants turn) : 
+TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer i, Turret* t, VisionSensor* vis, Odometry* odom, Catapult* catapult, TeamColor tc, PIDConstants drive, PIDConstants turn) : 
     drivetrain{d}, ri{in}, indexer{i}, turret{t}, odometry{odom}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
     partner{pros::Controller(pros::E_CONTROLLER_PARTNER)}, PIDControl{PIDController(drivePID)}, drivePID{drive}, turnPID{turn}
 {
@@ -75,6 +75,7 @@ void TankRobot::pollController(bool dualDriver)
 
     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
         catapult->shoot(3000);
+        pros::delay(10);
         catapult->charge();
     }
     

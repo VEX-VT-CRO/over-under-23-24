@@ -32,6 +32,9 @@ TankDrivetrain drivetrain(leftside, rightside, 3);
 
 Odometry* odom;
 
+pros::Vision vision_sensor('A');
+VisionSensor* vis;
+
 TeamColor team = TeamColor::Blue;
 
 PIDConstants forwardDrive = {10, 0, 0};
@@ -49,8 +52,9 @@ void initialize() {
 	turret = new Turret(turretMotor1, turretMotor2, turretGyro, {0, 0, 0});
 	odom = new Odometry(18, 'A', 'B', 'C', 'D');
 	catapult = new Catapult(&catapultMotor,odom, &catapult_charged);
+	vis = new VisionSensor(vision_sensor);
 
-	robot = new TankRobot(drivetrain, ri, i, turret, odom, catapult, team, forwardDrive, inPlaceTurn);
+	robot = new TankRobot(drivetrain, ri, i, turret, vis, odom, catapult, team, forwardDrive, inPlaceTurn);
 
 	pros::lcd::initialize();
 	pros::delay(3500);

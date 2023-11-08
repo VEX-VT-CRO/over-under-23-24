@@ -7,7 +7,7 @@ Catapult::Catapult(pros::Motor* m, Odometry* odom, pros::ADIDigitalIn* catapult_
     charged = catapult_charged;
     odometry = odom;
     charged = catapult_charged;
-    current_position = odom->getPosition();
+    current_position = odometry->getPosition();
     distance = 0;
     mV = 0;
 }
@@ -25,10 +25,7 @@ void Catapult::shoot(int mV){
 }
 
 void Catapult::charge(){
-    if (!charged->get_value()){
-        motor->move_voltage(9000);
-    }
-    else{
-        motor->move_voltage(0);
+    while (!charged->get_value()){
+        motor->move_voltage(6000);
     }
 }

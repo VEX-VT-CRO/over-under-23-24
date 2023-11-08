@@ -3,7 +3,6 @@
 
 #include "pros/adi.hpp"
 #include "pros/imu.hpp"
-#include "pros/imu.hpp"
 #include "misc.hpp"
 #include "drivetrain.hpp"
 #include "pros/misc.hpp"

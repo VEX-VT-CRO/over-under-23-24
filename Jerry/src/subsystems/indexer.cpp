@@ -23,6 +23,7 @@ void Indexer::indexDisc(bool toggle_pneumatics)
         if(open){
             solenoid.set_value(0);
             pros::delay(20);
+            open = !open;
         }
         else{
             solenoid.set_value(1);
