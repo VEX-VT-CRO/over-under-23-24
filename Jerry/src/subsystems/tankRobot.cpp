@@ -8,17 +8,17 @@ TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer i, Turret* t, 
     
 }
 
-void TankRobot::goTo(Coordinate c, double angle, int timeout)
+void TankRobot::goTo(Coordinate c, int timeout)
 {
-    //Implement
-    return;
+    constexpr double RAD2DEG = 180 / PI;
+    Coordinate pos = odometry->getPosition();
+    double angle = atan2(c.y - pos.y, c.x - pos.x) * RAD2DEG;
+    PIDControl.goToAngle(drivetrain, angle, *odometry, timeout);
+    PIDControl.goToTarget(drivetrain, c, *odometry, timeout);
 }
 
 void TankRobot::driveTo(Coordinate c, int timeout)
 {
-    Coordinate pos = odometry->getPosition();
-    double angle = atan2(c.y - pos.y, c.x - pos.x);
-    PIDControl.goToAngle(drivetrain, angle, *odometry, timeout);
     PIDControl.goToTarget(drivetrain, c, *odometry, timeout);
 }
 

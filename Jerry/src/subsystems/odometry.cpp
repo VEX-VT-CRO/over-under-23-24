@@ -145,12 +145,12 @@ void Odometry::updatePosition() {
 
 double Odometry::getAngle()
 {
-    return gyro.get_heading();
+    return -gyro.get_rotation();
 }
 
 void Odometry::setAngle(double angle)
 {
-    gyro.set_heading(angle);
+    gyro.set_rotation(-angle);
 }
 
 PIDController::PIDController(PIDConstants pidc)
@@ -245,7 +245,7 @@ void PIDController::goToAngle(TankDrivetrain &d, double target,
 {
     double prevError = 0;
     double nextError = 0;
-    double lowerBound = 100;
+    double lowerBound = 10;
 
     int timer = pros::millis();
     while(pros::millis() - timer < timeout)
@@ -262,12 +262,17 @@ void PIDController::goToAngle(TankDrivetrain &d, double target,
 
         double power = pid.P * error + pid.I * nextError + pid.D * derivError;
 
-        if(power < lowerBound)
+        if(ABS(power) < lowerBound)
         {
-            power = lowerBound;
+            power = lowerBound * ((error < 0) ? -1 : 1);
         }
 
         d.turnLeft(power * 110);
+
+        pros::lcd::print(0, "ERROR:  %f", error);
+        pros::lcd::print(1, "POWER:  %f", power);
+        pros::lcd::print(2, "TARGET: %f", target);
+        pros::lcd::print(3, "ANGLE:  %f", odom.getAngle());
 
         prevError = error;
         pros::delay(10);

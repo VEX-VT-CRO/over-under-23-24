@@ -15,7 +15,7 @@ class TankRobot
 {
     public:
         TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer i, Turret* t, VisionSensor* vis, Odometry* odom, Catapult* catapult, TeamColor tc, PIDConstants drive, PIDConstants turn);
-        void goTo(Coordinate c, double angle, int timeout);
+        void goTo(Coordinate c, int timeout);
         void driveTo(Coordinate c, int timeout);
         void turnTo(double angle, int timeout);
         void autoAim(bool useVision);
