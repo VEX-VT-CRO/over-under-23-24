@@ -1,20 +1,46 @@
 #include "main.h"
+#include "subsystems/tankRobot.hpp"
+#include <cstdlib>
 
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
-}
+pros::Motor leftFront(1, true);
+pros::Motor leftMiddle(2, true);
+pros::Motor leftBack(3, true);
+
+pros::Motor rightFront(11, false);
+pros::Motor rightMiddle(12, false);
+pros::Motor rightBack(13, false);
+
+pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
+pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
+
+pros::Motor intake(7);
+RollerIntake ri(intake);
+
+pros::Motor turretMotor1(8);
+pros::Motor turretMotor2(9);
+pros::IMU turretGyro(17);
+Turret* turret;
+
+pros::ADIDigitalIn catapult_charged(18);
+pros::Motor catapultMotor(15);
+Catapult* catapult;
+
+pros::ADIDigitalOut indexerSolenoid('E');
+Indexer i(indexerSolenoid);
+
+TankDrivetrain drivetrain(leftside, rightside, 3);
+
+Odometry* odom;
+
+pros::Vision vision_sensor(10);
+VisionSensor* vis;
+
+TeamColor team = TeamColor::Blue;
+
+PIDConstants forwardDrive = {0.1, 0, 0};
+PIDConstants inPlaceTurn = {0.01, 0, 0};
+
+TankRobot* robot;
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -23,10 +49,17 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
+	turret = new Turret(turretMotor1, turretMotor2, turretGyro, {0, 0, 0});
+	odom = new Odometry(18, 'A', 'B', 'C', 'D');
+	catapult = new Catapult(&catapultMotor,odom, &catapult_charged);
+	vis = new VisionSensor(vision_sensor);
 
-	pros::lcd::register_btn1_cb(on_center_button);
+	robot = new TankRobot(drivetrain, ri, i, turret, vis, odom, catapult, team, forwardDrive, inPlaceTurn);
+
+	pros::lcd::initialize();
+	pros::delay(3500);
+	odom->setPosition({0.0, 0.0});
+	odom->setAngle(0);
 }
 
 /**
@@ -58,7 +91,50 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	//TEST AUTON
+	odom->setPosition({15.5, 35.25}); //START
+	odom->setAngle(0);
+	robot->goTo({47, 59.75}, 15000); //First triball
+	robot->goTo({63.5, 59.75}, 15000); //Second triball
+	robot->goTo({28.5, 14}, 15000); //Left of bar
+	robot->goTo({99.5, 14}, 15000); //Right of bar
+	robot->goTo({108, 29}, 15000); //Get ready for the turn
+	robot->goTo({94, 47}, 15000); //About to go to third triball
+	robot->goTo({77.5, 47}, 15000); //Third triball
+	robot->goTo({110.5, 58.75}, 15000); //Push it in
+	robot->goTo({75.5, 23.5}, 15000); //Ram the climb post
+
+	/*while(odom->getPosition().y < 70.5)
+	{
+		leftFront.move_voltage(2250);
+		leftMiddle.move_voltage(2250);
+		leftBack.move_voltage(2250);
+		rightFront.move_voltage(3000);
+		rightMiddle.move_voltage(3000);
+		rightBack.move_voltage(3000);
+		
+		pros::delay(10);
+		odom->update();
+	}
+
+	drivetrain.drive(0);
+
+	pros::delay(1500);
+
+	while(odom->getPosition().y > 0.0)
+	{
+		leftFront.move_voltage(-2700);
+		leftMiddle.move_voltage(-2700);
+		leftBack.move_voltage(-2700);
+		rightFront.move_voltage(-3000);
+		rightMiddle.move_voltage(-3000);
+		rightBack.move_voltage(-3000);
+		
+		pros::delay(10);
+		odom->update();
+	}*/
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -74,20 +150,10 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor left_mtr(1);
-	pros::Motor right_mtr(2);
 
 	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		int left = master.get_analog(ANALOG_LEFT_Y);
-		int right = master.get_analog(ANALOG_RIGHT_Y);
-
-		left_mtr = left;
-		right_mtr = right;
-
+		robot->pollController(false);
+		
 		pros::delay(20);
 	}
 }
