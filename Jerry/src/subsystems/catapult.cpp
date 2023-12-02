@@ -1,15 +1,17 @@
 #include "subsystems/catapult.hpp"
 #include <cmath>
 
-Catapult::Catapult(pros::Motor* m, Odometry* odom, pros::ADIDigitalIn* catapult_charged){
+Catapult::Catapult(pros::Motor* m, Odometry* odom, pros::ADIDigitalIn* catapult_charged, pros::Distance* distance_sensor){
     goal_position = {0,0,0};
     motor = m;
     charged = catapult_charged;
+    triball_in = distance_sensor;
     odometry = odom;
     charged = catapult_charged;
     current_position = odometry->getPosition();
     distance = 0;
     mV = 0;
+    triball_distance = 50;
 }
 
 // Function for finding the angle/velocity for launching the projectile knowing the required distance to travel
@@ -21,7 +23,8 @@ Catapult::Catapult(pros::Motor* m, Odometry* odom, pros::ADIDigitalIn* catapult_
 // }
 
 void Catapult::shoot(int mV){
-    motor->move_voltage(mV);
+    if(triball_in->get()<triball_distance)
+        motor->move_voltage(mV);
 }
 
 void Catapult::charge(){

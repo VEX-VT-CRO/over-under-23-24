@@ -22,6 +22,7 @@ pros::IMU turretGyro(17);
 Turret* turret;
 
 pros::ADIDigitalIn catapult_charged(18);
+pros::Distance distance_sensor(19);
 pros::Motor catapultMotor(15);
 Catapult* catapult;
 
@@ -51,7 +52,7 @@ TankRobot* robot;
 void initialize() {
 	turret = new Turret(turretMotor1, turretMotor2, turretGyro, {0, 0, 0});
 	odom = new Odometry(18, 'A', 'B', 'C', 'D');
-	catapult = new Catapult(&catapultMotor,odom, &catapult_charged);
+	catapult = new Catapult(&catapultMotor,odom, &catapult_charged, &distance_sensor);
 	vis = new VisionSensor(vision_sensor);
 
 	robot = new TankRobot(drivetrain, ri, i, turret, vis, odom, catapult, team, forwardDrive, inPlaceTurn);
