@@ -22,7 +22,6 @@ pros::IMU turretGyro(17);
 Turret* turret;
 
 pros::ADIDigitalIn catapult_charged(18);
-pros::Distance distance_sensor(19);
 pros::Motor catapultMotor(15);
 Catapult* catapult;
 
@@ -38,7 +37,7 @@ VisionSensor* vis;
 
 TeamColor team = TeamColor::Blue;
 
-PIDConstants forwardDrive = {12, 0, 5};
+PIDConstants forwardDrive = {0.1, 0, 0};
 PIDConstants inPlaceTurn = {0.01, 0, 0};
 
 TankRobot* robot;
@@ -52,7 +51,7 @@ TankRobot* robot;
 void initialize() {
 	turret = new Turret(turretMotor1, turretMotor2, turretGyro, {0, 0, 0});
 	odom = new Odometry(18, 'A', 'B', 'C', 'D');
-	catapult = new Catapult(&catapultMotor,odom, &catapult_charged, &distance_sensor);
+	catapult = new Catapult(&catapultMotor,odom, &catapult_charged);
 	vis = new VisionSensor(vision_sensor);
 
 	robot = new TankRobot(drivetrain, ri, i, turret, vis, odom, catapult, team, forwardDrive, inPlaceTurn);
@@ -94,18 +93,17 @@ void competition_initialize() {}
  */
 void autonomous() {
 	//TEST AUTON
-	odom->setPosition({16, 30.5}); //START
+	odom->setPosition({15.5, 35.25}); //START
 	odom->setAngle(0);
-	robot->goTo({36, 30.5}, 15000); //
 	robot->goTo({47, 59.75}, 15000); //First triball
-	//robot->goTo({63.5, 59.75}, 15000); //Second triball
-	//robot->goTo({28.5, 14}, 15000); //Left of bar
-	//robot->goTo({99.5, 14}, 15000); //Right of bar
-	//robot->goTo({108, 29}, 15000); //Get ready for the turn
-	//robot->goTo({94, 47}, 15000); //About to go to third triball
-	//robot->goTo({77.5, 47}, 15000); //Third triball
-	//robot->goTo({110.5, 58.75}, 15000); //Push it in
-	//robot->goTo({75.5, 23.5}, 15000); //Ram the climb post
+	robot->goTo({63.5, 59.75}, 15000); //Second triball
+	robot->goTo({28.5, 14}, 15000); //Left of bar
+	robot->goTo({99.5, 14}, 15000); //Right of bar
+	robot->goTo({108, 29}, 15000); //Get ready for the turn
+	robot->goTo({94, 47}, 15000); //About to go to third triball
+	robot->goTo({77.5, 47}, 15000); //Third triball
+	robot->goTo({110.5, 58.75}, 15000); //Push it in
+	robot->goTo({75.5, 23.5}, 15000); //Ram the climb post
 
 	/*while(odom->getPosition().y < 70.5)
 	{

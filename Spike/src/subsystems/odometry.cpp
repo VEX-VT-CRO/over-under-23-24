@@ -200,7 +200,7 @@ void PIDController::goToTarget(TankDrivetrain &d, Coordinate target,
         double error = goal - actual;
 
         //This is the error threshold for what is acceptable as "close enough".
-        if(std::abs(error) < 0.01)
+        if(std::abs(error) < 0.05)
         {
             break;
         }
