@@ -95,6 +95,19 @@ lemlib::ChassisController_t turnController {
 
 lemlib::Chassis chassis(LLDrivetrain, driveController, turnController, sensors);
 
+//Combine turnTo and moveTo into a single function
+void goTo(float x, float y, int timeout, float maxDriveSpeed, float maxTurnSpeed, bool reversed = false, bool log = false)
+{
+	chassis.turnTo(x, y, timeout, reversed, maxTurnSpeed, log);
+	chassis.moveTo(x, y, timeout, maxDriveSpeed, log);
+}
+
+void goTo(float x, float y, int timeout, float maxSpeed = 127.0f, bool reversed = false, bool log = false)
+{
+	chassis.turnTo(x, y, timeout, reversed, maxSpeed, log);
+	chassis.moveTo(x, y, timeout, maxSpeed, log);
+}
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -146,7 +159,9 @@ void autonomous() {
 	//TEST AUTON
 	//odom->setPosition({16, 30.5}); //START
 	//odom->setAngle(0);
+	chassis.setPose(16, 30.5, 0);
 	//robot->goTo({36, 30.5}, 15000); //
+	goTo(36, 30.5, 15000);
 	//robot->goTo({47, 59.75}, 15000); //First triball
 	//robot->goTo({63.5, 59.75}, 15000); //Second triball
 	//robot->goTo({28.5, 14}, 15000); //Left of bar
