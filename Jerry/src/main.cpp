@@ -1,6 +1,7 @@
 #include "main.h"
 #include "subsystems/tankRobot.hpp"
 #include <cstdlib>
+#include <lemlib/api.hpp>
 
 pros::Motor leftFront(1, true);
 pros::Motor leftMiddle(2, true);
@@ -12,6 +13,7 @@ pros::Motor rightBack(13, false);
 
 pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
+
 
 pros::Motor intake(7);
 RollerIntake ri(intake);
@@ -43,6 +45,60 @@ PIDConstants inPlaceTurn = {0.01, 0, 0};
 
 TankRobot* robot;
 
+//LEMLIB (https://lemlib.github.io/LemLib/md_docs_tutorials_2_setting_up_the_chassis.html)
+pros::MotorGroup leftSideGroup({leftFront, leftMiddle, leftBack});
+pros::MotorGroup rightSideGroup({rightFront, rightMiddle, rightBack});
+
+lemlib::Drivetrain_t LLDrivetrain
+{
+	&leftSideGroup,
+	&rightSideGroup,
+	10, //Track width (space between groups in inches)
+	3.25, //Wheel diameter
+	360, //Wheel rpm
+};
+
+pros::IMU gyro(18);
+
+pros::ADIEncoder verticalEncoder('C', 'D');
+pros::ADIEncoder horizontalEncoder('A', 'B');
+
+//Parameters: ADIEncoder, wheel diameter, distance from center, gear ratio
+lemlib::TrackingWheel verticalWheel(&verticalEncoder, 2.75, 4.3, 1);
+lemlib::TrackingWheel horizontalWheel(&horizontalEncoder, 2.75, 4.3, 1);
+
+lemlib::OdomSensors_t sensors
+{
+	&verticalWheel,
+	nullptr,
+	&horizontalWheel,
+	nullptr,
+	&gyro
+};
+
+lemlib::ChassisController_t driveController
+{
+	8, // kP
+    30, // kD
+    1, // smallErrorRange
+    100, // smallErrorTimeout
+    3, // largeErrorRange
+    500, // largeErrorTimeout
+    5 // slew rate
+};
+
+lemlib::ChassisController_t turnController {
+    4, // kP
+    40, // kD
+    1, // smallErrorRange
+    100, // smallErrorTimeout
+    3, // largeErrorRange
+    500, // largeErrorTimeout
+    0 // slew rate
+};
+
+lemlib::Chassis chassis(LLDrivetrain, driveController, turnController, sensors);
+
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -61,6 +117,8 @@ void initialize() {
 	pros::delay(3500);
 	odom->setPosition({0.0, 0.0});
 	odom->setAngle(0);
+
+	chassis.calibrate();
 }
 
 /**
