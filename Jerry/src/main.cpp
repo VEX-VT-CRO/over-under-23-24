@@ -163,15 +163,25 @@ void autonomous() {
 	//robot->goTo({36, 30.5}, 15000); //
 	goTo(36, 30.5, 15000);
 	//robot->goTo({47, 59.75}, 15000); //First triball
+	goTo(47, 59.75, 15000);
 	//robot->goTo({63.5, 59.75}, 15000); //Second triball
+	goTo(63.5, 59.75, 15000);
 	//robot->goTo({28.5, 14}, 15000); //Left of bar
+	goTo(28.5, 14, 15000);
 	//robot->goTo({99.5, 14}, 15000); //Right of bar
+	goTo(99.5, 14, 15000);
 	//robot->goTo({108, 29}, 15000); //Get ready for the turn
+	goTo(108, 29, 15000);
 	//robot->goTo({94, 47}, 15000); //About to go to third triball
+	goTo(94, 47, 15000);
 	//robot->goTo({77.5, 47}, 15000); //Third triball
+	goTo(77.5, 47, 15000);
 	//robot->goTo({110.5, 58.75}, 15000); //Push it in
+	goTo(110.5, 58.75, 15000);
 	//robot->goTo({75.5, 23.5}, 15000); //Ram the climb post
+	goTo(75.5, 23.5, 15000);
 
+	//TESTING PID
 	/*while(odom->getPosition().y < 70.5)
 	{
 		leftFront.move_voltage(2250);
