@@ -1,36 +1,17 @@
 #include "subsystems/tankRobot.hpp"
 #include <cmath>
 
-TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer i, Turret* t, VisionSensor* vis, Odometry* odom, Catapult* catapult, TeamColor tc, PIDConstants drive, PIDConstants turn) : 
-    drivetrain{d}, ri{in}, indexer{i}, turret{t}, odometry{odom}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
-    partner{pros::Controller(pros::E_CONTROLLER_PARTNER)}, PIDControl{PIDController(drivePID)}, drivePID{drive}, turnPID{turn}
+TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer i, Turret* t, VisionSensor* vis, Catapult* catapult, TeamColor tc) : 
+    drivetrain{d}, ri{in}, indexer{i}, turret{t}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
+    partner{pros::Controller(pros::E_CONTROLLER_PARTNER)}
 {
     
-}
-
-void TankRobot::goTo(Coordinate c, int timeout)
-{
-    constexpr double RAD2DEG = 180 / PI;
-    Coordinate pos = odometry->getPosition();
-    double angle = atan2(c.y - pos.y, c.x - pos.x) * RAD2DEG;
-    PIDControl.goToAngle(drivetrain, angle, *odometry, timeout);
-    PIDControl.goToTarget(drivetrain, c, *odometry, timeout);
-}
-
-void TankRobot::driveTo(Coordinate c, int timeout)
-{
-    PIDControl.goToTarget(drivetrain, c, *odometry, timeout);
-}
-
-void TankRobot::turnTo(double angle, int timeout)
-{
-    PIDControl.goToAngle(drivetrain, angle, *odometry, timeout);
 }
 
 void TankRobot::autoAim(bool useVision)
 {
     Coordinate goal = {122.63, 122.63};
-    Coordinate r = odometry->getPosition();
+    //Coordinate r = odometry->getPosition();
     //double angle = std::atan2(goal.y - r.y, goal.x - r.x);
 }
 
@@ -88,5 +69,4 @@ void TankRobot::pollController(bool dualDriver)
     }
 
     pros::lcd::clear();
-    odometry->update();
 }

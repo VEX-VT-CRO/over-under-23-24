@@ -14,7 +14,7 @@
 class TankRobot
 {
     public:
-        TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer i, Turret* t, VisionSensor* vis, Odometry* odom, Catapult* catapult, TeamColor tc, PIDConstants drive, PIDConstants turn);
+        TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer i, Turret* t, VisionSensor* vis, Catapult* catapult, TeamColor tc);
         void goTo(Coordinate c, int timeout);
         void driveTo(Coordinate c, int timeout);
         void turnTo(double angle, int timeout);
@@ -24,7 +24,6 @@ class TankRobot
 
     private:
         TankDrivetrain drivetrain;
-        Odometry* odometry;
         pros::Controller driver;
         pros::Controller partner;
         RollerIntake& ri;
@@ -32,9 +31,6 @@ class TankRobot
         Catapult* catapult;
         Indexer indexer;
         TeamColor color;
-        PIDConstants drivePID;
-        PIDConstants turnPID;
-        PIDController PIDControl;
 };
 
 #endif

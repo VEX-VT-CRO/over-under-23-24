@@ -1,18 +1,20 @@
 #include "subsystems/catapult.hpp"
 #include <cmath>
+#include "lemlib/chassis/odom.hpp"
 
-Catapult::Catapult(pros::Motor* m, Odometry* odom, pros::ADIDigitalIn* catapult_charged, pros::Distance* distance_sensor){
+Catapult::Catapult(pros::Motor* m, pros::ADIDigitalIn* catapult_charged, pros::Distance* distance_sensor){
     goal_position = {0,0,0};
     motor = m;
     charged = catapult_charged;
     triball_in = distance_sensor;
-    odometry = odom;
     charged = catapult_charged;
     current_position = odometry->getPosition();
     distance = 0;
     mV = 0;
     triball_distance = 50;
 }
+
+//use lemlib::getPos() to grab the position of the robot
 
 // Function for finding the angle/velocity for launching the projectile knowing the required distance to travel
 // void Catapult::findGoalSpeed(Coordinate goal_position, Coordinate current_position){
