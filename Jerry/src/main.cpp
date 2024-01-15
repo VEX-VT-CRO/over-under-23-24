@@ -41,7 +41,7 @@ TeamColor team = TeamColor::Blue;
 
 TankRobot* robot;
 
-//LEMLIB (https://lemlib.github.io/LemLib/md_docs_tutorials_2_setting_up_the_chassis.html)
+//LEMLIB (https://lemlib.github.io/LemLib/md_docs_tutorials_2_setting_up_the_chassis->html)
 pros::MotorGroup leftSideGroup({leftFront, leftMiddle, leftBack});
 pros::MotorGroup rightSideGroup({rightFront, rightMiddle, rightBack});
 
@@ -93,19 +93,30 @@ lemlib::ChassisController_t turnController {
     0 // slew rate
 };
 
-lemlib::Chassis chassis(LLDrivetrain, driveController, turnController, sensors);
+lemlib::Chassis* chassis;
 
 //Combine turnTo and moveTo into a single function
 void goTo(float x, float y, int timeout, float maxDriveSpeed, float maxTurnSpeed, bool reversed = false, bool log = false)
 {
-	chassis.turnTo(x, y, timeout, reversed, maxTurnSpeed, log);
-	chassis.moveTo(x, y, timeout, maxDriveSpeed, log);
+	chassis->turnTo(x, y, timeout, reversed, maxTurnSpeed, log);
+	chassis->moveTo(x, y, timeout, maxDriveSpeed, log);
 }
 
 void goTo(float x, float y, int timeout, float maxSpeed = 127.0f, bool reversed = false, bool log = false)
 {
-	chassis.turnTo(x, y, timeout, reversed, maxSpeed, log);
-	chassis.moveTo(x, y, timeout, maxSpeed, log);
+	chassis->turnTo(x, y, timeout, reversed, maxSpeed, log);
+	chassis->moveTo(x, y, timeout, maxSpeed, log);
+}
+
+void screen() {
+    // loop forever
+    while (true) {
+        lemlib::Pose pose = chassis->getPose(); // get the current position of the robot
+        pros::lcd::print(0, "x: %f", pose.x); // print the x position
+        pros::lcd::print(1, "y: %f", pose.y); // print the y position
+        pros::lcd::print(2, "heading: %f", pose.theta); // print the heading
+        pros::delay(10);
+    }
 }
 
 /**
@@ -115,15 +126,17 @@ void goTo(float x, float y, int timeout, float maxSpeed = 127.0f, bool reversed 
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	turret = new Turret(turretMotor1, turretMotor2, turretGyro, {0, 0, 0});
-	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
-	vis = new VisionSensor(vision_sensor);
+	//turret = new Turret(turretMotor1, turretMotor2, turretGyro, {0, 0, 0});
+	//catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
+	//vis = new VisionSensor(vision_sensor);
 
 	robot = new TankRobot(drivetrain, ri, i, turret, vis, catapult, team);
+	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 
 	pros::lcd::initialize();
 
-	chassis.calibrate();
+	chassis->calibrate();
+	pros::Task screenTask(screen); // create a task to print the position to the screen
 }
 
 /**
@@ -159,27 +172,27 @@ void autonomous() {
 	//TEST AUTON
 	//odom->setPosition({16, 30.5}); //START
 	//odom->setAngle(0);
-	chassis.setPose(16, 30.5, 0);
+	chassis->setPose(36, -60, 90);
 	//robot->goTo({36, 30.5}, 15000); //
-	goTo(36, 30.5, 15000);
+	goTo(36, -36, 15000);
 	//robot->goTo({47, 59.75}, 15000); //First triball
-	goTo(47, 59.75, 15000);
+	goTo(12, 0, 15000);
 	//robot->goTo({63.5, 59.75}, 15000); //Second triball
-	goTo(63.5, 59.75, 15000);
+	//goTo(63.5, 59.75, 15000);
 	//robot->goTo({28.5, 14}, 15000); //Left of bar
-	goTo(28.5, 14, 15000);
+	//goTo(28.5, 14, 15000);
 	//robot->goTo({99.5, 14}, 15000); //Right of bar
-	goTo(99.5, 14, 15000);
+	//goTo(99.5, 14, 15000);
 	//robot->goTo({108, 29}, 15000); //Get ready for the turn
-	goTo(108, 29, 15000);
+	//goTo(108, 29, 15000);
 	//robot->goTo({94, 47}, 15000); //About to go to third triball
-	goTo(94, 47, 15000);
+	//goTo(94, 47, 15000);
 	//robot->goTo({77.5, 47}, 15000); //Third triball
-	goTo(77.5, 47, 15000);
+	//goTo(77.5, 47, 15000);
 	//robot->goTo({110.5, 58.75}, 15000); //Push it in
-	goTo(110.5, 58.75, 15000);
+	//goTo(110.5, 58.75, 15000);
 	//robot->goTo({75.5, 23.5}, 15000); //Ram the climb post
-	goTo(75.5, 23.5, 15000);
+	//goTo(75.5, 23.5, 15000);
 
 	//TESTING PID
 	/*while(odom->getPosition().y < 70.5)
