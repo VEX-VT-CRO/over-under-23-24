@@ -49,9 +49,9 @@ lemlib::Drivetrain_t LLDrivetrain
 {
 	&leftSideGroup,
 	&rightSideGroup,
-	10, //Track width (space between groups in inches)
-	3.25, //Wheel diameter
-	360, //Wheel rpm
+	12, //Track width (space between groups in inches)
+	4.14, //Wheel diameter
+	257, //Wheel rpm
 };
 
 pros::IMU gyro(18);
@@ -60,14 +60,15 @@ pros::ADIEncoder verticalEncoder('C', 'D');
 pros::ADIEncoder horizontalEncoder('A', 'B');
 
 //Parameters: ADIEncoder, wheel diameter, distance from center, gear ratio
-lemlib::TrackingWheel verticalWheel(&verticalEncoder, 2.75, 4.3, 1);
-lemlib::TrackingWheel horizontalWheel(&horizontalEncoder, 2.75, 4.3, 1);
+lemlib::TrackingWheel verticalWheel(&verticalEncoder, 2.72, 0, 1);
+lemlib::TrackingWheel horizontalWheel(&horizontalEncoder, 2.75, 6, 1);
 
 lemlib::OdomSensors_t sensors
 {
 	&verticalWheel,
 	nullptr,
-	&horizontalWheel,
+	nullptr,
+	//&horizontalWheel,
 	nullptr,
 	&gyro
 };
@@ -172,11 +173,12 @@ void autonomous() {
 	//TEST AUTON
 	//odom->setPosition({16, 30.5}); //START
 	//odom->setAngle(0);
-	chassis->setPose(36, -60, 90);
+	chassis->setPose(36, -60, 0);
 	//robot->goTo({36, 30.5}, 15000); //
-	goTo(36, -36, 15000);
+	chassis->moveTo(36, -36, 5000, 50);
+	//goTo(36, -36, 5000);
 	//robot->goTo({47, 59.75}, 15000); //First triball
-	goTo(12, 0, 15000);
+	//goTo(12, 0, 5000);
 	//robot->goTo({63.5, 59.75}, 15000); //Second triball
 	//goTo(63.5, 59.75, 15000);
 	//robot->goTo({28.5, 14}, 15000); //Left of bar
