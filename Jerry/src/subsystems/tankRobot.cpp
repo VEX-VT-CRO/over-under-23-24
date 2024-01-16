@@ -28,7 +28,7 @@ void TankRobot::pollController(bool dualDriver)
             ri.spin(ri.STANDARD_MV);
 
         }
-    }    
+    }
 
     //Toggle manual aim if driver presses A (once per new press)
     manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) ? !manualAim : manualAim;

@@ -15,8 +15,9 @@ pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
 
-pros::Motor intake(7);
-RollerIntake ri(intake);
+pros::Motor intake1(7);
+pros::Motor intake2(8);
+RollerIntake ri(intake1,intake2);
 
 pros::Motor turretMotor1(8);
 pros::Motor turretMotor2(9);
