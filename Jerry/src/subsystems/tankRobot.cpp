@@ -21,21 +21,14 @@ void TankRobot::pollController(bool dualDriver)
     static bool toggle_pneumatics = false;
     drivetrain.tankControl(driver);
 
-    /*if(!dualDriver)
+    if(!dualDriver)
     {
-        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
+        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
         {
             ri.spin(ri.STANDARD_MV);
+
         }
-        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
-        {
-            ri.spin(ri.STANDARD_MV);
-        }
-        else
-        {
-            ri.spin(0);
-        }
-    }*/
+    }    
 
     //Toggle manual aim if driver presses A (once per new press)
     manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) ? !manualAim : manualAim;
