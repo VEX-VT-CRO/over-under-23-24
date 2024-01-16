@@ -24,7 +24,7 @@ pros::Motor turretMotor2(9);
 pros::IMU turretGyro(17);
 Turret* turret;
 
-pros::ADIDigitalIn catapult_charged(18);
+pros::ADIDigitalIn catapult_charged('F');
 pros::Distance distance_sensor(19);
 pros::Motor catapultMotor(15);
 Catapult* catapult;
