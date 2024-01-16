@@ -11,6 +11,7 @@ class Catapult
         void shoot(int mV);
         void charge();
         void findGoalSpeed(Coordinate goal_position, Coordinate current_position);
+        void spin(int mV);
     private:
         pros::Motor* motor;
         pros::ADIDigitalIn* charged;

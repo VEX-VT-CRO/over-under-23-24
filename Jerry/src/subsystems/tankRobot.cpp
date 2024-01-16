@@ -5,7 +5,7 @@ TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer i, Turret* t, 
     drivetrain{d}, ri{in}, indexer{i}, turret{t}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
     partner{pros::Controller(pros::E_CONTROLLER_PARTNER)}
 {
-    
+    this->catapult = catapult;
 }
 
 void TankRobot::autoAim(bool useVision)
@@ -26,7 +26,27 @@ void TankRobot::pollController(bool dualDriver)
         if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
         {
             ri.spin(ri.STANDARD_MV);
+        }
+        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+        {
+            ri.spin(-ri.STANDARD_MV);
+        }
+        else
+        {
+            ri.spin(0);
+        }
 
+        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_X))
+        {
+            catapult->spin(6000);
+        }
+        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
+        {
+            catapult->spin(-6000);
+        }
+        else
+        {
+            catapult->spin(0);
         }
     }
 
@@ -47,11 +67,11 @@ void TankRobot::pollController(bool dualDriver)
             indexer.indexDisc(true);    
     }
 
-    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
+    /*if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
         catapult->shoot(3000);
         pros::delay(10);
         catapult->charge();
-    }
+    }*/
     
     if(manualAim)
     {

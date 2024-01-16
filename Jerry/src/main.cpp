@@ -57,8 +57,8 @@ lemlib::Drivetrain_t LLDrivetrain
 
 pros::IMU gyro(18);
 
-pros::ADIEncoder verticalEncoder('C', 'D');
-pros::ADIEncoder horizontalEncoder('A', 'B');
+pros::ADIEncoder verticalEncoder('A', 'B');
+pros::ADIEncoder horizontalEncoder('C', 'D');
 
 //Parameters: ADIEncoder, wheel diameter, distance from center, gear ratio
 lemlib::TrackingWheel verticalWheel(&verticalEncoder, 2.72, 0, 1);
@@ -129,7 +129,7 @@ void screen() {
  */
 void initialize() {
 	//turret = new Turret(turretMotor1, turretMotor2, turretGyro, {0, 0, 0});
-	//catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
+	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
 	//vis = new VisionSensor(vision_sensor);
 
 	robot = new TankRobot(drivetrain, ri, i, turret, vis, catapult, team);

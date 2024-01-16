@@ -8,10 +8,11 @@ Catapult::Catapult(pros::Motor* m, pros::ADIDigitalIn* catapult_charged, pros::D
     charged = catapult_charged;
     triball_in = distance_sensor;
     charged = catapult_charged;
-    current_position = odometry->getPosition();
     distance = 0;
     mV = 0;
     triball_distance = 50;
+
+    motor->set_brake_mode(pros::motor_brake_mode_e::E_MOTOR_BRAKE_HOLD);
 }
 
 //use lemlib::getPos() to grab the position of the robot
@@ -33,4 +34,9 @@ void Catapult::charge(){
     while (!charged->get_value()){
         motor->move_voltage(6000);
     }
+}
+
+void Catapult::spin(int mV)
+{
+    motor->move_voltage(mV);
 }
