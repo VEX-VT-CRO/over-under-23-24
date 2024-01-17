@@ -30,11 +30,18 @@ void Catapult::shoot(int mV){
         motor->move_voltage(mV);
 }
 
-void Catapult::charge(){
-    while (!charged->get_value()){
-        motor->move_voltage(6000);
+void Catapult::charge() {
+    uint32_t startTime = pros::millis();
+    while (!charged->get_value()) {
+        if (pros::millis() - startTime > 3000) {
+            motor->move_voltage(0);
+            break;
+        }
+        motor->move_voltage(-6000);
+        pros::delay(20);
     }
 }
+
 
 void Catapult::spin(int mV)
 {

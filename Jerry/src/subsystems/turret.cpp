@@ -1,5 +1,6 @@
 #include "subsystems/turret.hpp"
 #include <cmath>
+#include "lemlib/api.hpp"
 
 Turret::Turret(pros::Motor& motor1, pros::Motor& motor2, pros::IMU& gyro, PIDConstants PID) : turretMotor1{motor1}, turretMotor2{motor2}, kPID{PID}, imu{gyro}
 {
