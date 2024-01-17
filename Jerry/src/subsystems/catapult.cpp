@@ -26,8 +26,14 @@ Catapult::Catapult(pros::Motor* m, pros::ADIDigitalIn* catapult_charged, pros::D
 // }
 
 void Catapult::shoot(int mV){
-    if(triball_in->get()<triball_distance)
-        motor->move_voltage(mV);
+    uint32_t startTime = pros::millis();
+    while (true) {
+        if (pros::millis() - startTime > 50) {
+            motor->move_voltage(0);
+            break;
+        }
+        motor->move_voltage(-6000);
+    }
 }
 
 void Catapult::charge() {
@@ -38,7 +44,6 @@ void Catapult::charge() {
             break;
         }
         motor->move_voltage(-6000);
-        pros::delay(20);
     }
 }
 
