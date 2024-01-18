@@ -1,11 +1,12 @@
 #include "subsystems/tankRobot.hpp"
 #include <cmath>
 
-TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer* i, Turret* t, VisionSensor* vis, Catapult* catapult, TeamColor tc) : 
+TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer* i, Turret* t, Conveyor* conveyor, Catapult* catapult, VisionSensor* vis, TeamColor tc) : 
     drivetrain{d}, ri{in}, indexer{i}, turret{t}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
     partner{pros::Controller(pros::E_CONTROLLER_PARTNER)}
 {
     this->catapult = catapult;
+    this->conveyor = conveyor;
 }
 
 void TankRobot::autoAim(bool useVision)
@@ -35,6 +36,19 @@ void TankRobot::pollController(bool dualDriver)
         else
         {
             ri.spin(0);
+        }
+
+        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
+        {
+            conveyor->set(12000);
+        }
+        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
+        {
+            conveyor->set(-12000);
+        }
+        else
+        {
+            conveyor->set(0);
         }
     }
 
