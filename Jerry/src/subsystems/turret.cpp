@@ -18,7 +18,7 @@ void Turret::turnAngle(int degrees)
 {
     uint32_t startTime = pros::millis();
     while (true) {
-        if (pros::millis() - startTime > 200*abs(degrees)) {
+        if (pros::millis() - startTime > 165*abs(degrees)) {
             turretMotor1.move_voltage(0);
             turretMotor2.move_voltage(0);
             break;
@@ -26,6 +26,8 @@ void Turret::turnAngle(int degrees)
         turretMotor1.move_voltage(-6000*degrees/abs(degrees));
         turretMotor2.move_voltage(-6000*degrees/abs(degrees));
     }
+    turretMotor1.set_brake_mode(pros::motor_brake_mode_e::E_MOTOR_BRAKE_HOLD);
+    turretMotor2.set_brake_mode(pros::motor_brake_mode_e::E_MOTOR_BRAKE_HOLD);
 }
 
 void Turret::updatePosition(lemlib::Pose targetpos, lemlib::Pose currentpos)

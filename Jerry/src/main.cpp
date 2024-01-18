@@ -8,8 +8,8 @@ pros::Motor leftMiddle(2, true);
 pros::Motor leftBack(3, true);
 
 pros::Motor rightFront(11, false);
-pros::Motor rightMiddle(12, false);
-pros::Motor rightBack(13, false);
+pros::Motor rightMiddle(20, false);
+pros::Motor rightBack(18, false);
 
 pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
@@ -19,9 +19,9 @@ pros::Motor intake1(7);
 pros::Motor intake2(8);
 RollerIntake ri(intake1,intake2);
 
-pros::Motor turretMotor1(8);
-pros::Motor turretMotor2(9);
-pros::IMU turretGyro(17);
+pros::Motor turretMotor1(12);
+pros::Motor turretMotor2(13);
+pros::IMU turretGyro(21);
 Turret* turret;
 
 pros::ADIDigitalIn catapult_charged('F');
@@ -50,26 +50,25 @@ lemlib::Drivetrain_t LLDrivetrain
 {
 	&leftSideGroup,
 	&rightSideGroup,
-	12, //Track width (space between groups in inches)
-	4.14, //Wheel diameter
-	257, //Wheel rpm
+	11, //Track width (space between groups in inches)
+	3.25, //Wheel diameter
+	266, //Wheel rpm
 };
 
-pros::IMU gyro(18);
+pros::IMU gyro(14);
 
 pros::ADIEncoder verticalEncoder('A', 'B');
 pros::ADIEncoder horizontalEncoder('C', 'D');
 
 //Parameters: ADIEncoder, wheel diameter, distance from center, gear ratio
-lemlib::TrackingWheel verticalWheel(&verticalEncoder, 2.72, 0, 1);
+lemlib::TrackingWheel verticalWheel(&verticalEncoder, 2.75, 0.25, 1);
 lemlib::TrackingWheel horizontalWheel(&horizontalEncoder, 2.75, 6, 1);
 
 lemlib::OdomSensors_t sensors
 {
 	&verticalWheel,
 	nullptr,
-	nullptr,
-	//&horizontalWheel,
+	&horizontalWheel,
 	nullptr,
 	&gyro
 };
@@ -110,6 +109,7 @@ void goTo(float x, float y, int timeout, float maxSpeed = 127.0f, bool reversed 
 	chassis->moveTo(x, y, timeout, maxSpeed, log);
 }
 
+
 void screen() {
     // loop forever
     while (true) {
@@ -127,18 +127,25 @@ void screen() {
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
+lemlib::Pose target = lemlib::Pose(-48,0,0);
+
+void autoaim(){
+	turret->updatePosition(chassis->getPose(), target);
+}
+
 void initialize() {
-	//turret = new Turret(turretMotor1, turretMotor2, turretGyro, {0, 0, 0});
+	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
+	chassis->calibrate();
+	turret = new Turret(turretMotor1, turretMotor2, turretGyro);
 	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
 	//vis = new VisionSensor(vision_sensor);
 
 	robot = new TankRobot(drivetrain, ri, i, turret, vis, catapult, team);
-	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
-
 	pros::lcd::initialize();
 
-	chassis->calibrate();
-	pros::Task screenTask(screen); // create a task to print the position to the screen
+	
+	pros::Task screenTask1(screen);
+	pros::Task screenTask2(autoaim);
 }
 
 /**
