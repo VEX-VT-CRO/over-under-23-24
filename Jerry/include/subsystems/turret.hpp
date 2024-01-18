@@ -4,6 +4,7 @@
 #include "pros/imu.hpp"
 #include "pros/motors.hpp"
 #include "misc.hpp"
+#include "lemlib/api.hpp"
 
 class Turret
 {
@@ -11,7 +12,7 @@ class Turret
         Turret(pros::Motor& motor1, pros::Motor& motor2, pros::IMU& gyro, PIDConstants PID);
 
         //When in autoAim mode, updatePosition does what it says
-        void updatePosition(Coordinate goal, Coordinate pos);
+        void updatePosition(lemlib::Pose targetpos, lemlib::Pose currentpos);
         
         //Specifies how much the turret should be powered
         void turnVoltage(int mV);

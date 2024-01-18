@@ -28,7 +28,7 @@ Catapult::Catapult(pros::Motor* m, pros::ADIDigitalIn* catapult_charged, pros::D
 void Catapult::shoot(int mV){
     uint32_t startTime = pros::millis();
     while (true) {
-        if (pros::millis() - startTime > 50) {
+        if (pros::millis() - startTime > 200) {
             motor->move_voltage(0);
             break;
         }
