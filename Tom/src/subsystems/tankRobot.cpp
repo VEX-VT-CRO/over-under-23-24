@@ -19,7 +19,7 @@ void TankRobot::pollController(bool dualDriver)
 {
     static bool manualAim = false;
     static bool toggle_pneumatics = false;
-    drivetrain.arcadeControl(driver);
+    drivetrain.tankControl(driver);
 
     if(!dualDriver)
     {

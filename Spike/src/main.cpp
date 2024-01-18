@@ -6,19 +6,20 @@
 #include <cstdlib>
 #include "lemlib/api.hpp"
 
-pros::Motor leftFront(1, true);
-pros::Motor leftMiddle(2, true);
-pros::Motor leftBack(3, true);
+pros::Motor leftFront(2, true);
+pros::Motor leftMiddle(1, true);
+pros::Motor leftBack(11, true);
 
-pros::Motor rightFront(11, false);
-pros::Motor rightMiddle(12, false);
-pros::Motor rightBack(13, false);
+pros::Motor rightFront(6, false);
+pros::Motor rightMiddle(10, false);
+pros::Motor rightBack(20, false);
 
 pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
-
-pros::Motor intake1(7);
+//7 - Front intake
+pros::Motor intake3(7);
+pros::Motor intake1(3);
 pros::Motor intake2(8);
 RollerIntake ri(intake1,intake2);
 
@@ -26,9 +27,6 @@ pros::ADIDigitalOut indexerSolenoid('E');
 Indexer i(indexerSolenoid);
 
 TankDrivetrain drivetrain(leftside, rightside, 3);
-
-pros::Vision vision_sensor(10);
-VisionSensor* vis;
 
 TeamColor team = TeamColor::Blue;
 
@@ -59,12 +57,11 @@ lemlib::TrackingWheel horizontalWheel(&horizontalEncoder, 2.75, 6, 1);
 
 lemlib::OdomSensors_t sensors
 {
-	&verticalWheel,
 	nullptr,
 	nullptr,
-	//&horizontalWheel,
 	nullptr,
-	&gyro
+	nullptr,
+	nullptr
 };
 
 lemlib::ChassisController_t driveController
@@ -122,12 +119,12 @@ void screen() {
  */
 void initialize() {
 	robot = new TankRobot(drivetrain, ri, &i, nullptr, nullptr, nullptr, team);
-	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
+	//chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 
 	pros::lcd::initialize();
 
 	//chassis->calibrate();
-	pros::Task screenTask(screen); // create a task to print the position to the screen
+	//pros::Task screenTask(screen); // create a task to print the position to the screen
 }
 
 /**
@@ -232,10 +229,24 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
+	pros::Controller driver(pros::controller_id_e_t::E_CONTROLLER_MASTER);
 
 	while (true) {
 		robot->pollController(false);
 		
+		if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
+        {
+            intake3.move_voltage(12000);
+        }
+        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
+        {
+            intake3.move_voltage(-12000);
+        }
+        else
+        {
+            intake3.move_voltage(0);
+        }
+
 		pros::delay(20);
 	}
 }
