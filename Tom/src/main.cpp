@@ -20,7 +20,8 @@ pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
 pros::Motor intake1(7);
 pros::Motor intake2(8);
-RollerIntake ri(intake1,intake2);
+pros::MotorGroup riGroup({intake1, intake2});
+RollerIntake ri(riGroup);
 
 
 pros::ADIDigitalIn catapult_charged('F');
