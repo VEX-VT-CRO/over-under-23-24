@@ -10,11 +10,12 @@
 #include "catapult.hpp"
 #include "indexer.hpp"
 #include "visionsensor.hpp"
+#include "conveyor.hpp"
 
 class TankRobot
 {
     public:
-        TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer* i, Turret* t, VisionSensor* vis, Catapult* catapult, TeamColor tc);
+        TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer* i, Turret* t, Conveyor* conveyor, Catapult* catapult, VisionSensor* vis, TeamColor tc);
         void goTo(Coordinate c, int timeout);
         void driveTo(Coordinate c, int timeout);
         void turnTo(double angle, int timeout);
@@ -29,6 +30,7 @@ class TankRobot
         RollerIntake& ri;
         Turret* turret;
         Catapult* catapult;
+        Conveyor* conveyor;
         Indexer* indexer;
         TeamColor color;
 };

@@ -17,11 +17,14 @@ pros::Motor rightBack(20, false);
 pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
-//7 - Front intake
-pros::Motor intake3(7);
-pros::Motor intake1(3);
-pros::Motor intake2(8);
-RollerIntake ri(intake1,intake2);
+pros::Motor conveyor1(3);
+pros::Motor conveyor2(8);
+pros::MotorGroup convGroup({conveyor1, conveyor2});
+Conveyor conveyor(convGroup);
+
+pros::Motor intake(7);
+pros::MotorGroup riGroup({intake});
+RollerIntake ri(riGroup);
 
 pros::ADIDigitalOut indexerSolenoid('E');
 Indexer i(indexerSolenoid);
@@ -118,7 +121,7 @@ void screen() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	robot = new TankRobot(drivetrain, ri, &i, nullptr, nullptr, nullptr, team);
+	robot = new TankRobot(drivetrain, ri, &i, nullptr, &conveyor, nullptr, nullptr, team);
 	//chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 
 	pros::lcd::initialize();
@@ -229,23 +232,8 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	pros::Controller driver(pros::controller_id_e_t::E_CONTROLLER_MASTER);
-
 	while (true) {
 		robot->pollController(false);
-		
-		if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
-        {
-            intake3.move_voltage(12000);
-        }
-        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
-        {
-            intake3.move_voltage(-12000);
-        }
-        else
-        {
-            intake3.move_voltage(0);
-        }
 
 		pros::delay(20);
 	}
