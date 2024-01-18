@@ -1,19 +1,118 @@
-#include "main.h"
+//TOM
+//Senior robot
 
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
+#include "main.h"
+#include "subsystems/tankRobot.hpp"
+#include <cstdlib>
+#include "lemlib/api.hpp"
+
+pros::Motor leftFront(1, true);
+pros::Motor leftMiddle(2, true);
+pros::Motor leftBack(3, true);
+
+pros::Motor rightFront(11, false);
+pros::Motor rightMiddle(12, false);
+pros::Motor rightBack(13, false);
+
+pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
+pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
+
+
+pros::Motor intake1(7);
+pros::Motor intake2(8);
+RollerIntake ri(intake1,intake2);
+
+
+pros::ADIDigitalIn catapult_charged('F');
+pros::Distance distance_sensor(19);
+pros::Motor catapultMotor(15);
+Catapult* catapult;
+
+
+TankDrivetrain drivetrain(leftside, rightside, 3);
+
+TeamColor team = TeamColor::Blue;
+
+
+TankRobot* robot;
+
+//LEMLIB (https://lemlib.github.io/LemLib/md_docs_tutorials_2_setting_up_the_chassis->html)
+pros::MotorGroup leftSideGroup({leftFront, leftMiddle, leftBack});
+pros::MotorGroup rightSideGroup({rightFront, rightMiddle, rightBack});
+
+lemlib::Drivetrain_t LLDrivetrain
+{
+	&leftSideGroup,
+	&rightSideGroup,
+	12, //Track width (space between groups in inches)
+	4.14, //Wheel diameter
+	257, //Wheel rpm
+};
+
+pros::IMU gyro(18);
+
+pros::ADIEncoder verticalEncoder('A', 'B');
+pros::ADIEncoder horizontalEncoder('C', 'D');
+
+//Parameters: ADIEncoder, wheel diameter, distance from center, gear ratio
+lemlib::TrackingWheel verticalWheel(&verticalEncoder, 2.72, 0, 1);
+lemlib::TrackingWheel horizontalWheel(&horizontalEncoder, 2.75, 6, 1);
+
+lemlib::OdomSensors_t sensors
+{
+	&verticalWheel,
+	nullptr,
+	nullptr,
+	//&horizontalWheel,
+	nullptr,
+	&gyro
+};
+
+lemlib::ChassisController_t driveController
+{
+	8, // kP
+    30, // kD
+    1, // smallErrorRange
+    100, // smallErrorTimeout
+    3, // largeErrorRange
+    500, // largeErrorTimeout
+    5 // slew rate
+};
+
+lemlib::ChassisController_t turnController {
+    4, // kP
+    40, // kD
+    1, // smallErrorRange
+    100, // smallErrorTimeout
+    3, // largeErrorRange
+    500, // largeErrorTimeout
+    0 // slew rate
+};
+
+lemlib::Chassis* chassis;
+
+//Combine turnTo and moveTo into a single function
+void goTo(float x, float y, int timeout, float maxDriveSpeed, float maxTurnSpeed, bool reversed = false, bool log = false)
+{
+	chassis->turnTo(x, y, timeout, reversed, maxTurnSpeed, log);
+	chassis->moveTo(x, y, timeout, maxDriveSpeed, log);
+}
+
+void goTo(float x, float y, int timeout, float maxSpeed = 127.0f, bool reversed = false, bool log = false)
+{
+	chassis->turnTo(x, y, timeout, reversed, maxSpeed, log);
+	chassis->moveTo(x, y, timeout, maxSpeed, log);
+}
+
+void screen() {
+    // loop forever
+    while (true) {
+        lemlib::Pose pose = chassis->getPose(); // get the current position of the robot
+        pros::lcd::print(0, "x: %f", pose.x); // print the x position
+        pros::lcd::print(1, "y: %f", pose.y); // print the y position
+        pros::lcd::print(2, "heading: %f", pose.theta); // print the heading
+        pros::delay(10);
+    }
 }
 
 /**
@@ -23,10 +122,15 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
+	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
 
-	pros::lcd::register_btn1_cb(on_center_button);
+	robot = new TankRobot(drivetrain, ri, nullptr, nullptr, nullptr, catapult, team);
+	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
+
+	pros::lcd::initialize();
+
+	//chassis->calibrate();
+	pros::Task screenTask(screen); // create a task to print the position to the screen
 }
 
 /**
@@ -58,7 +162,64 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	//TEST AUTON
+	//odom->setPosition({16, 30.5}); //START
+	//odom->setAngle(0);
+	chassis->setPose(36, -60, 0);
+	//robot->goTo({36, 30.5}, 15000); //
+	chassis->moveTo(36, -36, 5000, 50);
+	//goTo(36, -36, 5000);
+	//robot->goTo({47, 59.75}, 15000); //First triball
+	//goTo(12, 0, 5000);
+	//robot->goTo({63.5, 59.75}, 15000); //Second triball
+	//goTo(63.5, 59.75, 15000);
+	//robot->goTo({28.5, 14}, 15000); //Left of bar
+	//goTo(28.5, 14, 15000);
+	//robot->goTo({99.5, 14}, 15000); //Right of bar
+	//goTo(99.5, 14, 15000);
+	//robot->goTo({108, 29}, 15000); //Get ready for the turn
+	//goTo(108, 29, 15000);
+	//robot->goTo({94, 47}, 15000); //About to go to third triball
+	//goTo(94, 47, 15000);
+	//robot->goTo({77.5, 47}, 15000); //Third triball
+	//goTo(77.5, 47, 15000);
+	//robot->goTo({110.5, 58.75}, 15000); //Push it in
+	//goTo(110.5, 58.75, 15000);
+	//robot->goTo({75.5, 23.5}, 15000); //Ram the climb post
+	//goTo(75.5, 23.5, 15000);
+
+	//TESTING PID
+	/*while(odom->getPosition().y < 70.5)
+	{
+		leftFront.move_voltage(2250);
+		leftMiddle.move_voltage(2250);
+		leftBack.move_voltage(2250);
+		rightFront.move_voltage(3000);
+		rightMiddle.move_voltage(3000);
+		rightBack.move_voltage(3000);
+		
+		pros::delay(10);
+		odom->update();
+	}
+
+	drivetrain.drive(0);
+
+	pros::delay(1500);
+
+	while(odom->getPosition().y > 0.0)
+	{
+		leftFront.move_voltage(-2700);
+		leftMiddle.move_voltage(-2700);
+		leftBack.move_voltage(-2700);
+		rightFront.move_voltage(-3000);
+		rightMiddle.move_voltage(-3000);
+		rightBack.move_voltage(-3000);
+		
+		pros::delay(10);
+		odom->update();
+	}*/
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
@@ -74,20 +235,10 @@ void autonomous() {}
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor left_mtr(1);
-	pros::Motor right_mtr(2);
 
 	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		int left = master.get_analog(ANALOG_LEFT_Y);
-		int right = master.get_analog(ANALOG_RIGHT_Y);
-
-		left_mtr = left;
-		right_mtr = right;
-
+		robot->pollController(false);
+		
 		pros::delay(20);
 	}
 }

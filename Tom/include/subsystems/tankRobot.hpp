@@ -23,7 +23,7 @@ class TankRobot
         void pollController(bool dualDriver);
 
     private:
-        TankDrivetrain& drivetrain;
+        TankDrivetrain drivetrain;
         pros::Controller driver;
         pros::Controller partner;
         RollerIntake& ri;
