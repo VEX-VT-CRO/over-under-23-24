@@ -28,6 +28,9 @@ pros::Distance distance_sensor(19);
 pros::Motor catapultMotor(15);
 Catapult* catapult;
 
+pros::ADIDigitalOut open_intake_sol('H');
+pros::ADIDigitalOut solenoid('E');
+Indexer* indexer;
 
 TankDrivetrain drivetrain(leftside, rightside, 3);
 
@@ -123,14 +126,15 @@ void screen() {
  */
 void initialize() {
 	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
-
-	robot = new TankRobot(drivetrain, ri, nullptr, nullptr, nullptr, catapult, team);
-	//chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
+	indexer = new Indexer(solenoid, open_intake_sol);
+	robot = new TankRobot(drivetrain, ri, indexer, nullptr, nullptr, catapult, team);
+	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 
 	pros::lcd::initialize();
 
-	//chassis->calibrate();
-	//pros::Task screenTask(screen); // create a task to print the position to the screen
+	chassis->calibrate();
+	pros::Task screenTask(screen); // create a task to print the position to the screen
+	indexer->openIntake();
 }
 
 /**
