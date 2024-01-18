@@ -48,6 +48,9 @@ void TankRobot::pollController(bool dualDriver)
         {
             catapult->spin(0);
         }
+        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_B)){
+            turret->turnAngle(2*M_PI);
+        }
     }
 
     //Toggle manual aim if driver presses A (once per new press)
