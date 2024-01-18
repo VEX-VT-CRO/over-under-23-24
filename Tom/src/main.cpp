@@ -125,12 +125,12 @@ void initialize() {
 	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
 
 	robot = new TankRobot(drivetrain, ri, nullptr, nullptr, nullptr, catapult, team);
-	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
+	//chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 
 	pros::lcd::initialize();
 
 	//chassis->calibrate();
-	pros::Task screenTask(screen); // create a task to print the position to the screen
+	//pros::Task screenTask(screen); // create a task to print the position to the screen
 }
 
 /**
