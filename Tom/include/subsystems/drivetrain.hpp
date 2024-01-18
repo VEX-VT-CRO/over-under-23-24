@@ -20,6 +20,7 @@ class TankDrivetrain
         void drive(int mV);
         void turnLeft(int mV);
         void tankControl(pros::Controller& c);
+        void arcadeControl(pros::Controller& c);
         //void driveForward(double inches, int timeout);
         //void turnTo(double angles, int timeout);
         pros::Motor* getLeft();
