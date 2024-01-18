@@ -7,7 +7,7 @@ class Indexer
 {
     public:
         Indexer(pros::ADIDigitalOut& solenoid);
-        void indexDisc(bool toggle_pneumatics);
+        void indexDisc();
     private:
         pros::ADIDigitalOut& solenoid;
         bool open;
