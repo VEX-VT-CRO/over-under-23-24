@@ -242,7 +242,13 @@ void opcontrol() {
 
 	while (true) {
 		robot->pollController(false);
-		
-		pros::delay(20);
+		if(catapult->charge_state)
+		{
+			catapult->charge(); 
+		}
+		if(catapult->shoot_state){
+			catapult->shoot();
+		}
+		pros::delay(10);
 	}
 }
