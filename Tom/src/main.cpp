@@ -74,13 +74,13 @@ lemlib::OdomSensors_t sensors
 
 lemlib::ChassisController_t driveController
 {
-	8, // kP
-    30, // kD
+	20, // kP
+    0, // kD
     1, // smallErrorRange
     100, // smallErrorTimeout
     3, // largeErrorRange
     500, // largeErrorTimeout
-    5 // slew rate
+    3 // slew rate
 };
 
 lemlib::ChassisController_t turnController {
@@ -126,15 +126,14 @@ void screen() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
+	chassis->calibrate();
+	pros::Task screenTask(screen); // create a task to print the position to the screen
 	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
 	indexer = new Indexer(solenoid, open_intake_sol);
 	robot = new TankRobot(drivetrain, ri, indexer, nullptr, nullptr, catapult, team);
-	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 
 	pros::lcd::initialize();
-
-	chassis->calibrate();
-	pros::Task screenTask(screen); // create a task to print the position to the screen
 	indexer->openIntake();
 }
 
@@ -171,9 +170,9 @@ void autonomous() {
 	//TEST AUTON
 	//odom->setPosition({16, 30.5}); //START
 	//odom->setAngle(0);
-	chassis->setPose(36, -60, 0);
+	//chassis->setPose(36, -60, 0);
 	//robot->goTo({36, 30.5}, 15000); //
-	chassis->moveTo(36, -36, 5000, 50);
+	//chassis->moveTo(36, -36, 5000, 50);
 	//goTo(36, -36, 5000);
 	//robot->goTo({47, 59.75}, 15000); //First triball
 	//goTo(12, 0, 5000);
@@ -193,6 +192,9 @@ void autonomous() {
 	//goTo(110.5, 58.75, 15000);
 	//robot->goTo({75.5, 23.5}, 15000); //Ram the climb post
 	//goTo(75.5, 23.5, 15000);
+
+	chassis->setPose(0, 0, 0);
+	chassis->moveTo(0, 10, 20000);
 
 	//TESTING PID
 	/*while(odom->getPosition().y < 70.5)
