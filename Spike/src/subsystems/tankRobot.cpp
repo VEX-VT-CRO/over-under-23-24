@@ -1,11 +1,10 @@
 #include "subsystems/tankRobot.hpp"
 #include <cmath>
 
-TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer* i, Turret* t, Conveyor* conveyor, Catapult* catapult, VisionSensor* vis, TeamColor tc) : 
-    drivetrain{d}, ri{in}, indexer{i}, turret{t}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
+TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer* i, Conveyor* conveyor, VisionSensor* vis, TeamColor tc) : 
+    drivetrain{d}, ri{in}, indexer{i}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
     partner{pros::Controller(pros::E_CONTROLLER_PARTNER)}
 {
-    this->catapult = catapult;
     this->conveyor = conveyor;
 }
 
@@ -19,7 +18,6 @@ void TankRobot::autoAim(bool useVision)
 void TankRobot::pollController(bool dualDriver)
 {
     static bool manualAim = false;
-    static bool toggle_pneumatics = false;
     static bool toggle_intake = false;
     drivetrain.tankControl(driver);
 
@@ -52,27 +50,10 @@ void TankRobot::pollController(bool dualDriver)
         }
     }
 
-    //Toggle manual aim if driver presses A (once per new press)
-    
-    
     if(!dualDriver){
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2))
-            indexer->indexDisc(toggle_pneumatics);
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B))
+            indexer->indexDisc();
     }
-    else{
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2))
-            indexer->indexDisc(toggle_pneumatics);
-        if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2))
-            indexer->indexDisc(false);
-        if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2))
-            indexer->indexDisc(true);    
-    }
-
-    /*if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
-        catapult->shoot(3000);
-        pros::delay(10);
-        catapult->charge();
-    }*/
 
     pros::lcd::clear();
 }
