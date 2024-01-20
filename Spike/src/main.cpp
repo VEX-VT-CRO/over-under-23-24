@@ -121,7 +121,7 @@ void screen() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	robot = new TankRobot(drivetrain, ri, &i, nullptr, &conveyor, nullptr, nullptr, team);
+	robot = new TankRobot(drivetrain, ri, &i, &conveyor, nullptr, team);
 	//chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 
 	pros::lcd::initialize();

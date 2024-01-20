@@ -131,7 +131,7 @@ void initialize() {
 	pros::Task screenTask(screen); // create a task to print the position to the screen
 	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
 	indexer = new Indexer(solenoid, open_intake_sol);
-	robot = new TankRobot(drivetrain, ri, indexer, nullptr, nullptr, catapult, team);
+	robot = new TankRobot(drivetrain, ri, indexer, nullptr, catapult, team);
 
 	pros::lcd::initialize();
 	indexer->openIntake();
