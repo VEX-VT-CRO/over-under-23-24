@@ -74,13 +74,13 @@ lemlib::OdomSensors_t sensors
 
 lemlib::ChassisController_t driveController
 {
-	20, // kP
+	750, // kP
     0, // kD
     1, // smallErrorRange
     100, // smallErrorTimeout
     3, // largeErrorRange
     500, // largeErrorTimeout
-    3 // slew rate
+    2 // slew rate
 };
 
 lemlib::ChassisController_t turnController {
