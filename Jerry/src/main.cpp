@@ -6,30 +6,30 @@
 #include <cstdlib>
 #include "lemlib/api.hpp"
 
-pros::Motor leftFront(1, true);
-pros::Motor leftMiddle(2, true);
-pros::Motor leftBack(3, true);
+pros::Motor leftFront(14, true);
+pros::Motor leftMiddle(1, true);
+pros::Motor leftBack(2, true);
 
-pros::Motor rightFront(11, false);
-pros::Motor rightMiddle(20, false);
-pros::Motor rightBack(18, false);
+pros::Motor rightFront(16, false);
+pros::Motor rightMiddle(15, false);
+pros::Motor rightBack(20, false);
 
 pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
+//19 - Spool
 
-pros::Motor intake1(7);
-pros::Motor intake2(8);
-pros::MotorGroup riGroup({intake1, intake2});
+pros::Motor intake1(17);
+pros::MotorGroup riGroup({intake1});
 RollerIntake ri(riGroup);
 
-pros::Motor turretMotor1(12);
+pros::Motor turretMotor1(18);
 pros::Motor turretMotor2(13);
 pros::IMU turretGyro(21);
 Turret* turret;
 
 pros::ADIDigitalIn catapult_charged('F');
-pros::Distance distance_sensor(19);
+pros::Distance distance_sensor(11);
 pros::Motor catapultMotor(15);
 Catapult* catapult;
 
@@ -59,7 +59,7 @@ lemlib::Drivetrain_t LLDrivetrain
 	266, //Wheel rpm
 };
 
-pros::IMU gyro(14);
+pros::IMU gyro(12);
 
 pros::ADIEncoder verticalEncoder('A', 'B');
 pros::ADIEncoder horizontalEncoder('C', 'D');
@@ -79,8 +79,8 @@ lemlib::OdomSensors_t sensors
 
 lemlib::ChassisController_t driveController
 {
-	8, // kP
-    30, // kD
+	1, // kP
+    0, // kD
     1, // smallErrorRange
     100, // smallErrorTimeout
     3, // largeErrorRange
@@ -144,7 +144,7 @@ void initialize() {
 	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
 	//vis = new VisionSensor(vision_sensor);
 
-	robot = new TankRobot(drivetrain, ri, i, turret, vis, catapult, team);
+	robot = new TankRobot(drivetrain, ri, &i, turret, vis, catapult, team);
 	pros::lcd::initialize();
 
 	
@@ -185,9 +185,9 @@ void autonomous() {
 	//TEST AUTON
 	//odom->setPosition({16, 30.5}); //START
 	//odom->setAngle(0);
-	chassis->setPose(36, -60, 0);
+	//chassis->setPose(36, -60, 0);
 	//robot->goTo({36, 30.5}, 15000); //
-	chassis->moveTo(36, -36, 5000, 50);
+	//chassis->moveTo(36, -36, 5000, 50);
 	//goTo(36, -36, 5000);
 	//robot->goTo({47, 59.75}, 15000); //First triball
 	//goTo(12, 0, 5000);
@@ -238,6 +238,10 @@ void autonomous() {
 		pros::delay(10);
 		odom->update();
 	}*/
+
+
+	chassis->setPose(0, 0, 0);
+	chassis->moveTo(0, 10, 20000);
 }
 
 /**

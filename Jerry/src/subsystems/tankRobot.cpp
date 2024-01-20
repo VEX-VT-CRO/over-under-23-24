@@ -1,7 +1,7 @@
 #include "subsystems/tankRobot.hpp"
 #include <cmath>
 
-TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer i, Turret* t, VisionSensor* vis, Catapult* catapult, TeamColor tc) : 
+TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer* i, Turret* t, VisionSensor* vis, Catapult* catapult, TeamColor tc) : 
     drivetrain{d}, ri{in}, indexer{i}, turret{t}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
     partner{pros::Controller(pros::E_CONTROLLER_PARTNER)}
 {
@@ -58,15 +58,15 @@ void TankRobot::pollController(bool dualDriver)
     
     if(!dualDriver){
         if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2))
-            indexer.indexDisc(toggle_pneumatics);
+            indexer->indexDisc(toggle_pneumatics);
     }
     else{
         if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2))
-            indexer.indexDisc(toggle_pneumatics);
+            indexer->indexDisc(toggle_pneumatics);
         if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2))
-            indexer.indexDisc(false);
+            indexer->indexDisc(false);
         if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2))
-            indexer.indexDisc(true);    
+            indexer->indexDisc(true);    
     }
 
     /*if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
