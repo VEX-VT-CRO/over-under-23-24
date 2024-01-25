@@ -17,28 +17,9 @@ Catapult::Catapult(pros::Motor* m, pros::ADIDigitalIn* catapult_charged, pros::D
     motor->set_brake_mode(pros::motor_brake_mode_e::E_MOTOR_BRAKE_HOLD);
 }
 
-//use lemlib::getPos() to grab the position of the robot
-
-// Function for finding the angle/velocity for launching the projectile knowing the required distance to travel
-// void Catapult::findGoalSpeed(Coordinate goal_position, Coordinate current_position){
-//     double dx = (current_position.x-goal_position.x);
-//     double dy = (current_position.y-goal_position.y);
-//     distance = std::sqrt(dx*dx+dy*dy);
-//     mV = mV_const*std::sqrt(distance);
-// }
-
-void Catapult::shoot(){
-    if (charged) {
-            motor->move_voltage(-6000);
-            shoot_state=false;
-        }
-        else{
-            motor->move_voltage(0);
-        }
-}
 
 void Catapult::charge() {
-        if (charged) {
+        if (charged->get_value()) {
             motor->move_voltage(0);
             charge_state=false;
         }

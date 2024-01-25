@@ -18,7 +18,7 @@ void TankRobot::autoAim(bool useVision)
 void TankRobot::pollController(bool dualDriver)
 {
     static bool manualAim = false;
-    drivetrain.tankControl(driver);
+    drivetrain.arcadeControl(driver);
 
     if(!dualDriver)
     {
@@ -35,23 +35,22 @@ void TankRobot::pollController(bool dualDriver)
             ri.spin(0);
         }
 
-        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_X))
-        {
-            if(!catapult->charge_state){
-                catapult->charge_state=true;
-            }    
-            else{
-                catapult->shoot_state=true;
-            }    
+        if (driver.get_digital(pros::E_CONTROLLER_DIGITAL_X)) {
+            if (!catapult->charge_state) {
+                catapult->charge_state = true;
+            }
         }
-        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
-        {
+
+        if (driver.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
             catapult->spin(-6000);
-        }
-        else
-        {
+        } else {
             catapult->spin(0);
         }
+        
+        if (driver.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) {
+            catapult->charge_state = false;
+        }
+
         if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
             indexer->indexDisc();
         }
@@ -59,12 +58,6 @@ void TankRobot::pollController(bool dualDriver)
 
     //Toggle manual aim if driver presses A (once per new press)
     manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) ? !manualAim : manualAim;
-
-    /*if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
-        catapult->shoot(3000);
-        pros::delay(10);
-        catapult->charge();
-    }*/
-
+    
     pros::lcd::clear();
 }
