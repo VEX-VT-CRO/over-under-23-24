@@ -18,8 +18,8 @@ pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
 
-pros::Motor intake1(7);
-pros::Motor intake2(8);
+pros::Motor intake1(7, false);
+pros::Motor intake2(8, true);
 pros::MotorGroup riGroup({intake1, intake2});
 RollerIntake ri(riGroup);
 
@@ -247,7 +247,8 @@ void opcontrol() {
 		robot->pollController(false);
 		if(catapult->charge_state)
 		{
-			catapult->charge(); 
+			catapult->charge();
+			pros::lcd::print(3,"I am charging");
 		}
 		if(catapult->shoot_state){
 			catapult->shoot();
