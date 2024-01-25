@@ -31,10 +31,8 @@ Turret* turret;
 pros::ADIDigitalIn catapult_charged('F');
 pros::Distance distance_sensor(11);
 pros::Motor catapultMotor(15);
-Catapult* catapult;
 
 pros::ADIDigitalOut indexerSolenoid('E');
-Indexer i(indexerSolenoid);
 
 TankDrivetrain drivetrain(leftside, rightside, 3);
 
@@ -144,7 +142,7 @@ void initialize() {
 	turret = new Turret(turretMotor1, turretMotor2, turretGyro);
 	//vis = new VisionSensor(vision_sensor);
 
-	robot = new TankRobot(drivetrain, ri, &i, turret, vis, catapult, team);
+	robot = new TankRobot(drivetrain, ri, nullptr, turret, vis, nullptr, team);
 	pros::lcd::initialize();
 
 	

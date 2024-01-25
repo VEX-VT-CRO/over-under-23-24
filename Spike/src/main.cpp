@@ -20,14 +20,12 @@ pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 pros::Motor conveyor1(3);
 pros::Motor conveyor2(8);
 pros::MotorGroup convGroup({conveyor1, conveyor2});
-Conveyor conveyor(convGroup);
 
 pros::Motor intake(7);
 pros::MotorGroup riGroup({intake});
 RollerIntake ri(riGroup);
 
 pros::ADIDigitalOut indexerSolenoid('E');
-Indexer i(indexerSolenoid);
 
 TankDrivetrain drivetrain(leftside, rightside, 3);
 
@@ -121,7 +119,7 @@ void screen() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	robot = new TankRobot(drivetrain, ri, &i, &conveyor, nullptr, team);
+	robot = new TankRobot(drivetrain, ri, nullptr, nullptr, nullptr, team);
 	//chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 
 	pros::lcd::initialize();
@@ -235,6 +233,6 @@ void opcontrol() {
 	while (true) {
 		robot->pollController(false);
 
-		pros::delay(20);
+		pros::delay(10);
 	}
 }
