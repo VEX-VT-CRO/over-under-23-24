@@ -16,15 +16,16 @@ void Turret::turnVoltage(int mV)
 
 void Turret::turnAngle(int degrees)
 {
+    float radians = degrees * DEG2RAD;
     uint32_t startTime = pros::millis();
     while (true) {
-        if (pros::millis() - startTime > 165*abs(degrees)) {
+        if (pros::millis() - startTime > 165*abs(radians)) {
             turretMotor1.move_voltage(0);
             turretMotor2.move_voltage(0);
             break;
         }
-        turretMotor1.move_voltage(-6000*degrees/abs(degrees));
-        turretMotor2.move_voltage(-6000*degrees/abs(degrees));
+        turretMotor1.move_voltage(-6000*radians/abs(radians));
+        turretMotor2.move_voltage(-6000*radians/abs(radians));
     }
     turretMotor1.set_brake_mode(pros::motor_brake_mode_e::E_MOTOR_BRAKE_HOLD);
     turretMotor2.set_brake_mode(pros::motor_brake_mode_e::E_MOTOR_BRAKE_HOLD);

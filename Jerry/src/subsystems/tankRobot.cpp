@@ -1,11 +1,11 @@
 #include "subsystems/tankRobot.hpp"
 #include <cmath>
 
-TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer& i, Turret* t, VisionSensor* vis, TeamColor tc) : 
+TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer* i, Turret* t, VisionSensor* vis, Catapult* catapult, TeamColor tc) : 
     drivetrain{d}, ri{in}, indexer{i}, turret{t}, color{tc}, driver{pros::Controller(pros::E_CONTROLLER_MASTER)}, 
     partner{pros::Controller(pros::E_CONTROLLER_PARTNER)}
 {
-
+    this->catapult = catapult;
 }
 
 void TankRobot::autoAim(bool useVision)
@@ -35,24 +35,38 @@ void TankRobot::pollController(bool dualDriver)
         {
             ri.spin(0);
         }
+
+        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_X))
+        {
+            catapult->charge();
+        }
+        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
+        {
+            catapult->spin(-6000);
+        }
+        else
+        {
+            catapult->spin(0);
+        }
     }
     if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_B)){
-            turret->turnAngle(2*M_PI);
+            turret->turnAngle(360);
     }
     //Toggle manual aim if driver presses A (once per new press)
-    // manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) ? !manualAim : manualAim;
+    manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) ? !manualAim : manualAim;
+    toggle_pneumatics = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) ? !toggle_pneumatics : toggle_pneumatics;
     
     if(!dualDriver){
         if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2))
-            indexer.indexDisc(toggle_pneumatics);
+            indexer->indexDisc(toggle_pneumatics);
     }
     else{
         if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2))
-            indexer.indexDisc(toggle_pneumatics);
+            indexer->indexDisc(toggle_pneumatics);
         if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2))
-            indexer.indexDisc(false);
+            indexer->indexDisc(false);
         if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2))
-            indexer.indexDisc(true);    
+            indexer->indexDisc(true);    
     }
 
     /*if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
