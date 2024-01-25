@@ -18,7 +18,6 @@ void TankRobot::autoAim(bool useVision)
 void TankRobot::pollController(bool dualDriver)
 {
     static bool manualAim = false;
-    static bool toggle_pneumatics = false;
     drivetrain.tankControl(driver);
 
     if(!dualDriver)
@@ -38,7 +37,12 @@ void TankRobot::pollController(bool dualDriver)
 
         if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_X))
         {
-            catapult->charge();
+            if(!catapult->charge_state){
+                catapult->charge_state=true;
+            }    
+            else{
+                catapult->shoot_state=true;
+            }    
         }
         else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
         {

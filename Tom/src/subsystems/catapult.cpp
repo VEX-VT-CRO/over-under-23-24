@@ -11,6 +11,8 @@ Catapult::Catapult(pros::Motor* m, pros::ADIDigitalIn* catapult_charged, pros::D
     distance = 0;
     mV = 0;
     triball_distance = 50;
+    charge_state = false;
+    shoot_state = false;
 
     motor->set_brake_mode(pros::motor_brake_mode_e::E_MOTOR_BRAKE_HOLD);
 }
@@ -25,28 +27,25 @@ Catapult::Catapult(pros::Motor* m, pros::ADIDigitalIn* catapult_charged, pros::D
 //     mV = mV_const*std::sqrt(distance);
 // }
 
-void Catapult::shoot(int mV){
-    uint32_t startTime = pros::millis();
-    while (true) {
-        if (pros::millis() - startTime > 200) {
-            motor->move_voltage(0);
-            break;
+void Catapult::shoot(){
+    if (charged) {
+            motor->move_voltage(-6000);
+            shoot_state=false;
         }
-        motor->move_voltage(-6000);
-    }
+        else{
+            motor->move_voltage(0);
+        }
 }
 
 void Catapult::charge() {
-    uint32_t startTime = pros::millis();
-    while (!charged->get_value()) {
-        if (pros::millis() - startTime > 3000) {
+        if (charged) {
             motor->move_voltage(0);
-            break;
+            charge_state=false;
         }
-        motor->move_voltage(-6000);
-    }
+        else{
+            motor->move_voltage(-6000);
+        }
 }
-
 
 void Catapult::spin(int mV)
 {
