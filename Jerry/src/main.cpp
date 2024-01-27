@@ -142,7 +142,7 @@ void initialize() {
 	turret = new Turret(turretMotor1, turretMotor2, turretGyro);
 	//vis = new VisionSensor(vision_sensor);
 
-	robot = new TankRobot(drivetrain, ri, nullptr, turret, vis, nullptr, team);
+	robot = new TankRobot(drivetrain, ri, nullptr, turret, vis, team);
 	pros::lcd::initialize();
 
 	
