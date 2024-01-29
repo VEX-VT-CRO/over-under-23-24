@@ -53,14 +53,20 @@ void TankDrivetrain::tankControl(pros::Controller& c)
 void TankDrivetrain::arcadeControl(pros::Controller& c)
 {
     //Power
-    int l = (c.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y) * 120 / 127) * 100;
+    // int l = (c.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y) * 120 / 127) * 100;
     
-    //Normalize direction [-127, 127] -> [0, 2], 1 being no input on the stick
-    double r = (c.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + 127) / 127.0;
+    // //Normalize direction [-127, 127] -> [0, 2], 1 being no input on the stick
+    // double r = (c.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X) + 127) / 127.0;
 
-    for(int i = 0; i < motorCount; ++i)
-    {
-        left[i].move_voltage(static_cast<int>(l * r));
-        right[i].move_voltage(static_cast<int>(l * (1 - r)));
+    // for(int i = 0; i < motorCount; ++i)
+    // {
+    //     left[i].move_voltage(static_cast<int>(l * r));
+    //     right[i].move_voltage(static_cast<int>(l * (1 - r)));
+    // }
+    int l = c.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+    int r = c.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+    for(int i = 0; i < motorCount; ++i){
+    left[i].move(l + r);
+    right[i].move(l - r);
     }
 }
