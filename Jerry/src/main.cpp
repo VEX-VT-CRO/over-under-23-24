@@ -35,7 +35,6 @@ pros::Motor catapultMotor(4);
 Catapult* catapult;
 
 pros::ADIDigitalOut indexerSolenoid('E');
-Indexer i(indexerSolenoid);
 
 TankDrivetrain drivetrain(leftside, rightside, 3);
 
@@ -146,7 +145,7 @@ void initialize() {
 	//vis = new VisionSensor(vision_sensor);
 	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
 
-	robot = new TankRobot(drivetrain, ri, &i, turret, nullptr, catapult, team);
+	robot = new TankRobot(drivetrain, ri, nullptr, turret, nullptr, catapult, team);
 	pros::lcd::initialize();
 
 	

@@ -67,7 +67,7 @@ lemlib::OdomSensors_t sensors
 	&verticalWheel,
 	nullptr,
 	nullptr,
-	//&horizontalWheel,
+	// &horizontalWheel,
 	nullptr,
 	&gyro
 };
@@ -167,65 +167,8 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	//TEST AUTON
-	//odom->setPosition({16, 30.5}); //START
-	//odom->setAngle(0);
-	//chassis->setPose(36, -60, 0);
-	//robot->goTo({36, 30.5}, 15000); //
-	//chassis->moveTo(36, -36, 5000, 50);
-	//goTo(36, -36, 5000);
-	//robot->goTo({47, 59.75}, 15000); //First triball
-	//goTo(12, 0, 5000);
-	//robot->goTo({63.5, 59.75}, 15000); //Second triball
-	//goTo(63.5, 59.75, 15000);
-	//robot->goTo({28.5, 14}, 15000); //Left of bar
-	//goTo(28.5, 14, 15000);
-	//robot->goTo({99.5, 14}, 15000); //Right of bar
-	//goTo(99.5, 14, 15000);
-	//robot->goTo({108, 29}, 15000); //Get ready for the turn
-	//goTo(108, 29, 15000);
-	//robot->goTo({94, 47}, 15000); //About to go to third triball
-	//goTo(94, 47, 15000);
-	//robot->goTo({77.5, 47}, 15000); //Third triball
-	//goTo(77.5, 47, 15000);
-	//robot->goTo({110.5, 58.75}, 15000); //Push it in
-	//goTo(110.5, 58.75, 15000);
-	//robot->goTo({75.5, 23.5}, 15000); //Ram the climb post
-	//goTo(75.5, 23.5, 15000);
-
 	chassis->setPose(0, 0, 0);
 	chassis->moveTo(0, 10, 20000);
-
-	//TESTING PID
-	/*while(odom->getPosition().y < 70.5)
-	{
-		leftFront.move_voltage(2250);
-		leftMiddle.move_voltage(2250);
-		leftBack.move_voltage(2250);
-		rightFront.move_voltage(3000);
-		rightMiddle.move_voltage(3000);
-		rightBack.move_voltage(3000);
-		
-		pros::delay(10);
-		odom->update();
-	}
-
-	drivetrain.drive(0);
-
-	pros::delay(1500);
-
-	while(odom->getPosition().y > 0.0)
-	{
-		leftFront.move_voltage(-2700);
-		leftMiddle.move_voltage(-2700);
-		leftBack.move_voltage(-2700);
-		rightFront.move_voltage(-3000);
-		rightMiddle.move_voltage(-3000);
-		rightBack.move_voltage(-3000);
-		
-		pros::delay(10);
-		odom->update();
-	}*/
 }
 
 /**
@@ -245,14 +188,10 @@ void opcontrol() {
 
 	while (true) {
 		robot->pollController(false);
-		if(catapult->charge_state)
-		{
-			catapult->charge();
-			pros::lcd::print(3,"I am charging");
-		}
-		if(catapult->shoot_state){
-			catapult->shoot();
-		}
+		if (catapult->charge_state) {
+            catapult->charge();
+            pros::lcd::print(3, "I am charging");
+        }
 		pros::delay(10);
 	}
 }

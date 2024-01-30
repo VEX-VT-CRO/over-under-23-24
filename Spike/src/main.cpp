@@ -238,6 +238,6 @@ void opcontrol() {
 	while (true) {
 		robot->pollController(false);
 
-		pros::delay(20);
+		pros::delay(10);
 	}
 }

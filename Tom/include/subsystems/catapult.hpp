@@ -8,16 +8,15 @@ class Catapult
 {
     public:
         Catapult(pros::Motor* m, pros::ADIDigitalIn* catapult_charged, pros::Distance* distance_sensor);
-        void shoot();
         void charge();
         void findGoalSpeed(Coordinate goal_position, Coordinate current_position);
         void spin(int mV);
         void checkIfCharged();
         bool charge_state;
         bool shoot_state;
+        pros::ADIDigitalIn* charged;
     private:
         pros::Motor* motor;
-        pros::ADIDigitalIn* charged;
         pros::Distance* triball_in;
         double distance;
         Odometry* odometry;
