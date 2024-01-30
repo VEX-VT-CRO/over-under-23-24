@@ -6,31 +6,32 @@
 #include <cstdlib>
 #include "lemlib/api.hpp"
 
-pros::Motor leftFront(14, true);
-pros::Motor leftMiddle(1, true);
-pros::Motor leftBack(2, true);
+pros::Motor leftFront(11, true);
+pros::Motor leftMiddle(12, true);
+pros::Motor leftBack(13, true);
 
-pros::Motor rightFront(16, false);
-pros::Motor rightMiddle(15, false);
+pros::Motor rightFront(19, false);
+pros::Motor rightMiddle(18, false);
 pros::Motor rightBack(20, false);
 
 pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
-//19 - Spool
+//16 - Spool
 
 pros::Motor intake1(17);
 pros::MotorGroup riGroup({intake1});
 RollerIntake ri(riGroup);
 
-pros::Motor turretMotor1(18);
-pros::Motor turretMotor2(13);
-pros::IMU turretGyro(21);
+pros::Motor turretMotor1(2);
+pros::Motor turretMotor2(15);
+pros::IMU turretGyro(5);
 Turret* turret;
 
+//3 - rotation sensor
 pros::ADIDigitalIn catapult_charged('F');
-pros::Distance distance_sensor(11);
-pros::Motor catapultMotor(15);
+pros::Distance distance_sensor(14);
+pros::Motor catapultMotor(4);
 Catapult* catapult;
 
 pros::ADIDigitalOut indexerSolenoid('E');
@@ -38,7 +39,7 @@ Indexer i(indexerSolenoid);
 
 TankDrivetrain drivetrain(leftside, rightside, 3);
 
-pros::Vision vision_sensor(10);
+//pros::Vision vision_sensor(10);
 VisionSensor* vis;
 
 TeamColor team = TeamColor::Blue;
@@ -59,7 +60,7 @@ lemlib::Drivetrain_t LLDrivetrain
 	266, //Wheel rpm
 };
 
-pros::IMU gyro(12);
+pros::IMU gyro(1);
 
 pros::ADIEncoder verticalEncoder('A', 'B');
 pros::ADIEncoder horizontalEncoder('C', 'D');
@@ -143,8 +144,9 @@ void initialize() {
 	chassis->setPose(0,0,0);
 	turret = new Turret(turretMotor1, turretMotor2, turretGyro);
 	//vis = new VisionSensor(vision_sensor);
+	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
 
-	robot = new TankRobot(drivetrain, ri, &i, turret, vis, catapult, team);
+	robot = new TankRobot(drivetrain, ri, &i, turret, nullptr, catapult, team);
 	pros::lcd::initialize();
 
 	
