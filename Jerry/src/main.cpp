@@ -6,37 +6,42 @@
 #include <cstdlib>
 #include "lemlib/api.hpp"
 
-pros::Motor leftFront(14, true);
-pros::Motor leftMiddle(1, true);
-pros::Motor leftBack(2, true);
+pros::Motor leftFront(11, true);
+pros::Motor leftMiddle(12, true);
+pros::Motor leftBack(13, true);
 
-pros::Motor rightFront(16, false);
-pros::Motor rightMiddle(15, false);
+pros::Motor rightFront(19, false);
+pros::Motor rightMiddle(18, false);
 pros::Motor rightBack(20, false);
 
 pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
-//19 - Spool
+//16 - Spool
+pros::Motor spoolMotor(16);
+pros::MotorGroup spoolGroup({spoolMotor});
+Spool spool(spoolGroup, 3);
 
 pros::Motor intake1(17);
 pros::MotorGroup riGroup({intake1});
 RollerIntake ri(riGroup);
 
-pros::Motor turretMotor1(18);
-pros::Motor turretMotor2(13);
-pros::IMU turretGyro(21);
+pros::Motor turretMotor1(2);
+pros::Motor turretMotor2(15);
+pros::IMU turretGyro(5);
 Turret* turret;
 
+//3 - rotation sensor
 pros::ADIDigitalIn catapult_charged('F');
-pros::Distance distance_sensor(11);
-pros::Motor catapultMotor(15);
+pros::Distance distance_sensor(14);
+pros::Motor catapultMotor(4);
+Catapult* catapult;
 
 pros::ADIDigitalOut indexerSolenoid('E');
 
 TankDrivetrain drivetrain(leftside, rightside, 3);
 
-pros::Vision vision_sensor(10);
+//pros::Vision vision_sensor(10);
 VisionSensor* vis;
 
 TeamColor team = TeamColor::Blue;
@@ -52,19 +57,19 @@ lemlib::Drivetrain_t LLDrivetrain
 {
 	&leftSideGroup,
 	&rightSideGroup,
-	11, //Track width (space between groups in inches)
-	3.25, //Wheel diameter
+	10.875, //Track width (space between groups in inches)
+	3.215, //Wheel diameter
 	266, //Wheel rpm
 };
 
-pros::IMU gyro(12);
+pros::IMU gyro(1);
 
-pros::ADIEncoder verticalEncoder('A', 'B');
-pros::ADIEncoder horizontalEncoder('C', 'D');
+pros::ADIEncoder verticalEncoder('A', 'B', true);
+pros::Rotation horizontalRotation(7);
 
 //Parameters: ADIEncoder, wheel diameter, distance from center, gear ratio
-lemlib::TrackingWheel verticalWheel(&verticalEncoder, 2.75, 0.25, 1);
-lemlib::TrackingWheel horizontalWheel(&horizontalEncoder, 2.75, 6, 1);
+lemlib::TrackingWheel verticalWheel(&verticalEncoder, 2.9, 0.125, 1);
+lemlib::TrackingWheel horizontalWheel(&horizontalRotation, 2.9, 5.5, 1);
 
 lemlib::OdomSensors_t sensors
 {
@@ -77,18 +82,18 @@ lemlib::OdomSensors_t sensors
 
 lemlib::ChassisController_t driveController
 {
-	1, // kP
-    0, // kD
-    1, // smallErrorRange
-    100, // smallErrorTimeout
-    3, // largeErrorRange
-    500, // largeErrorTimeout
-    5 // slew rate
+	30, // kP
+    140, // kD
+    0.25, // smallErrorRange
+    250, // smallErrorTimeout
+    1, // largeErrorRange
+    1000, // largeErrorTimeout
+    10 // slew rate
 };
 
 lemlib::ChassisController_t turnController {
-    4, // kP
-    40, // kD
+    5, // kP
+    20, // kD
     1, // smallErrorRange
     100, // smallErrorTimeout
     3, // largeErrorRange
@@ -141,12 +146,12 @@ void initialize() {
 	chassis->setPose(0,0,0);
 	turret = new Turret(turretMotor1, turretMotor2, turretGyro);
 	//vis = new VisionSensor(vision_sensor);
+	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
 
-	robot = new TankRobot(drivetrain, ri, nullptr, turret, vis, team);
+	robot = new TankRobot(drivetrain, ri, nullptr, turret, nullptr, catapult, &spool, team);
 	pros::lcd::initialize();
-
 	
-	pros::Task screenTask1(screen);
+	//pros::Task screenTask1(screen);
 	// pros::Task screenTask2(autoaim);
 }
 
@@ -183,18 +188,18 @@ void autonomous() {
 	//TEST AUTON
 	//odom->setPosition({16, 30.5}); //START
 	//odom->setAngle(0);
-	//chassis->setPose(36, -60, 0);
+	chassis->setPose(-36, -60, 90);
 	//robot->goTo({36, 30.5}, 15000); //
 	//chassis->moveTo(36, -36, 5000, 50);
-	//goTo(36, -36, 5000);
+	goTo(36, -60, 5000);
 	//robot->goTo({47, 59.75}, 15000); //First triball
-	//goTo(12, 0, 5000);
+	goTo(48, -48, 5000);
 	//robot->goTo({63.5, 59.75}, 15000); //Second triball
-	//goTo(63.5, 59.75, 15000);
+	goTo(53, -53, 15000);
 	//robot->goTo({28.5, 14}, 15000); //Left of bar
-	//goTo(28.5, 14, 15000);
+	goTo(48, -48, 15000);
 	//robot->goTo({99.5, 14}, 15000); //Right of bar
-	//goTo(99.5, 14, 15000);
+	goTo(60, -36, 15000);
 	//robot->goTo({108, 29}, 15000); //Get ready for the turn
 	//goTo(108, 29, 15000);
 	//robot->goTo({94, 47}, 15000); //About to go to third triball
@@ -238,8 +243,9 @@ void autonomous() {
 	}*/
 
 
-	chassis->setPose(0, 0, 0);
-	chassis->moveTo(0, 10, 20000);
+	//chassis->setPose(0, 0, 0);
+	//chassis->moveTo(0, 10, 3000);
+	//chassis->turnTo(5, 8.66, 5000);
 }
 
 /**
@@ -256,7 +262,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-
+	
 	while (true) {
 		robot->pollController(false);
 		

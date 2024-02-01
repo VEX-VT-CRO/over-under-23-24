@@ -20,6 +20,7 @@ class TankRobot
         void autoAim(bool useVision);
         void autoShoot(bool useVision);
         void pollController(bool dualDriver);
+        void start();
 
     private:
         TankDrivetrain drivetrain;

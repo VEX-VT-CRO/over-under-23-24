@@ -29,7 +29,7 @@ pros::Distance distance_sensor(19);
 pros::Motor catapultMotor(15);
 Catapult* catapult;
 
-pros::ADIDigitalOut open_intake_sol('H');
+pros::ADIDigitalOut open_intake_sol('G');
 pros::ADIDigitalOut solenoid('E');
 Indexer* indexer;
 
@@ -185,7 +185,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-
+	robot->start();
 	while (true) {
 		robot->pollController(false);
 		if (catapult->charge_state) {

@@ -8,6 +8,11 @@ TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer* i, VisionSens
     this->catapult = catapult;
 }
 
+void TankRobot::start()
+{
+    indexer->openIntake();
+}
+
 void TankRobot::autoAim(bool useVision)
 {
     Coordinate goal = {122.63, 122.63};
@@ -51,7 +56,7 @@ void TankRobot::pollController(bool dualDriver)
             catapult->charge_state = false;
         }
 
-        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
             indexer->indexDisc();
         }
     }
