@@ -18,6 +18,9 @@ pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
 //16 - Spool
+pros::Motor spoolMotor(16);
+pros::MotorGroup spoolGroup({spoolMotor});
+Spool spool(spoolGroup, 3);
 
 pros::Motor intake1(17);
 pros::MotorGroup riGroup({intake1});
@@ -145,11 +148,10 @@ void initialize() {
 	//vis = new VisionSensor(vision_sensor);
 	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
 
-	robot = new TankRobot(drivetrain, ri, nullptr, turret, nullptr, catapult, team);
+	robot = new TankRobot(drivetrain, ri, nullptr, turret, nullptr, catapult, &spool, team);
 	pros::lcd::initialize();
-
 	
-	pros::Task screenTask1(screen);
+	//pros::Task screenTask1(screen);
 	// pros::Task screenTask2(autoaim);
 }
 
@@ -260,7 +262,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	autonomous();
+	
 	while (true) {
 		robot->pollController(false);
 		

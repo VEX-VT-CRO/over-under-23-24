@@ -8,6 +8,11 @@ TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer* i, VisionSens
     this->catapult = catapult;
 }
 
+void TankRobot::start()
+{
+    indexer->openIntake();
+}
+
 void TankRobot::autoAim(bool useVision)
 {
     Coordinate goal = {122.63, 122.63};
