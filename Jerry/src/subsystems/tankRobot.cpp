@@ -23,7 +23,7 @@ void TankRobot::pollController(bool dualDriver)
 
     if(!dualDriver)
     {
-        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
+        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
         {
             ri.spin(ri.STANDARD_MV);
         }
@@ -36,11 +36,11 @@ void TankRobot::pollController(bool dualDriver)
             ri.spin(0);
         }
     }
-    if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_B)){
-            turret->turnAngle(360);
-    }
+    // if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_B)){
+    //         turret->turnAngle(360);
+    // }
     //Toggle manual aim if driver presses A (once per new press)
-    manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) ? !manualAim : manualAim;
+    manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)) ? !manualAim : manualAim;
     toggle_pneumatics = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) ? !toggle_pneumatics : toggle_pneumatics;
     
     if(!dualDriver){
