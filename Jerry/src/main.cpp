@@ -136,17 +136,13 @@ void screen() {
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
-lemlib::Pose target = lemlib::Pose(-48,0,0);
-
-void autoaim(){
-	turret->updatePosition(chassis->getPose(), target);
-}
+lemlib::Pose target = lemlib::Pose(48,0,0);
 
 void initialize() {
 	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 	chassis->calibrate();
 	chassis->setPose(0,0,0);
-	turret = new Turret(turretMotor1, turretMotor2, rotated, turretGyro);
+	turret = new Turret(turretMotor1, turretMotor2, rotated, turretGyro, *chassis, target);
 	//vis = new VisionSensor(vision_sensor);
 	catapult = new Catapult(&catapultMotor, rotated);
 

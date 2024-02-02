@@ -2,7 +2,7 @@
 #include <cmath>
 #include "lemlib/api.hpp"
 
-Turret::Turret(pros::Motor& motor1, pros::Motor& motor2, pros::Rotation& rotated, pros::IMU& gyro) : turretMotor1{motor1}, turretMotor2{motor2}, imu{gyro}, rotate{rotated}
+Turret::Turret(pros::Motor& motor1, pros::Motor& motor2, pros::Rotation& rotated, pros::IMU& gyro, lemlib::Chassis& chassis, lemlib::Pose target1) : turretMotor1{motor1}, turretMotor2{motor2}, imu{gyro}, rotate{rotated}, chassis_bot{chassis}, target{target1}
 {
    turretMotor1.set_encoder_units(pros::motor_encoder_units_e::E_MOTOR_ENCODER_DEGREES);
    turretMotor2.set_encoder_units(pros::motor_encoder_units_e::E_MOTOR_ENCODER_DEGREES);
@@ -24,12 +24,13 @@ void Turret::turnAngle(int degrees)
     last_rotation = degrees;
 }
 
-void Turret::updatePosition(lemlib::Pose targetpos, lemlib::Pose currentpos)
+void Turret::updatePosition()
 {
-    double goal_Angle = -DEG2RAD * atan2(targetpos.y - currentpos.y, targetpos.x - currentpos.x);
+    lemlib::Pose currentpos = chassis_bot.getPose();
+    double goal_Angle = -DEG2RAD * atan2(target.y - currentpos.y, target.x - currentpos.x);
     double rotated_angle = imu.get_rotation();
     double turn_angle = goal_Angle + rotated_angle;
-    Turret::turnAngle(turn_angle);
+    Turret::turnAngle(-turn_angle);
 }
 
 void Turret::checkRotation(){

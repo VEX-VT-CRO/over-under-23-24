@@ -9,10 +9,10 @@
 class Turret
 {
     public:
-        Turret(pros::Motor& motor1, pros::Motor& motor2, pros::Rotation& rotated, pros::IMU& gyro);
+        Turret(pros::Motor& motor1, pros::Motor& motor2, pros::Rotation& rotated, pros::IMU& gyro, lemlib::Chassis& chassis, lemlib::Pose target1);
 
         //When in autoAim mode, updatePosition does what it says
-        void updatePosition(lemlib::Pose targetpos, lemlib::Pose currentpos);
+        void updatePosition();
         
         //Specifies how much the turret should be powered
         void turnVoltage(int mV);
@@ -23,7 +23,7 @@ class Turret
 
         double rotation;
         double last_rotation;
-
+        double turn_angle;
         void checkRotation();
 
     private:
@@ -32,6 +32,8 @@ class Turret
         pros::IMU& imu;
         pros::Rotation rotate;
         int prevError, totalError;
+        lemlib::Chassis& chassis_bot;
+        lemlib::Pose target;
 };
 
 #endif
