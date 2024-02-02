@@ -111,7 +111,7 @@ void goTo(float x, float y, int timeout, float maxDriveSpeed, float maxTurnSpeed
 	chassis->moveTo(x, y, timeout, maxDriveSpeed, log);
 }
 
-void goTo(float x, float y, int timeout, float maxSpeed = 127.0f, bool reversed = false, bool log = false)
+void goTo(float x, float y, int timeout, float maxSpeed = 100.0f, bool reversed = false, bool log = false)
 {
 	chassis->turnTo(x, y, timeout, reversed, maxSpeed, log);
 	chassis->moveTo(x, y, timeout, maxSpeed, log);
@@ -173,6 +173,33 @@ void disabled() {}
  */
 void competition_initialize() {}
 
+//For use in a qualifier match with Spike
+void spikeQual()
+{
+	chassis->setPose(-12, -60, 90);
+	goTo(36, -60, 5000);
+	goTo(48, -48, 5000);
+	goTo(54, -54, 5000);
+	//INTAKE ALLIANCE TRIBALL
+	chassis->moveTo(48, -48, 5000);
+	goTo(60, -36, 5000);
+	chassis->turnTo(60, -12, 5000);
+	//OUTTAKE
+	chassis->moveTo(60, -40, 5000);
+	chassis->turnTo(60, -32, 5000, true);
+	chassis->moveTo(60, -32, 5000);
+	goTo(60, -36, 5000);
+	goTo(36, -60, 5000);
+	goTo(-36, -60, 5000);
+	goTo(-48, -48, 5000);
+	goTo(-54, -54, 5000);
+	//INTAKE AND SHOOT UNTIL LAST FEW SECONDS
+	chassis->moveTo(-48, -48, 5000);
+	goTo(-36, -60, 5000);
+	goTo(0, -60, 5000);
+	goTo(0, -48, 5000);
+}
+
 /**
  * Runs the user autonomous code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -185,21 +212,13 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
+	spikeQual();
+
 	//TEST AUTON
 	//odom->setPosition({16, 30.5}); //START
 	//odom->setAngle(0);
-	chassis->setPose(-36, -60, 90);
 	//robot->goTo({36, 30.5}, 15000); //
 	//chassis->moveTo(36, -36, 5000, 50);
-	goTo(36, -60, 5000);
-	//robot->goTo({47, 59.75}, 15000); //First triball
-	goTo(48, -48, 5000);
-	//robot->goTo({63.5, 59.75}, 15000); //Second triball
-	goTo(53, -53, 15000);
-	//robot->goTo({28.5, 14}, 15000); //Left of bar
-	goTo(48, -48, 15000);
-	//robot->goTo({99.5, 14}, 15000); //Right of bar
-	goTo(60, -36, 15000);
 	//robot->goTo({108, 29}, 15000); //Get ready for the turn
 	//goTo(108, 29, 15000);
 	//robot->goTo({94, 47}, 15000); //About to go to third triball
@@ -262,7 +281,7 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	
+
 	while (true) {
 		robot->pollController(false);
 		if (catapult->charge_state) {
