@@ -24,11 +24,11 @@ void TankRobot::pollController(bool dualDriver)
 
     if(!dualDriver)
     {
-        if(driver.get_digital(pros::controller_digital_e_t::E_CONTROLLER_DIGITAL_L1))
+        if(driver.get_digital(pros::controller_digital_e_t::E_CONTROLLER_DIGITAL_R1))
         {
             ri.spin(12000);
         }
-        else if(driver.get_digital(pros::controller_digital_e_t::E_CONTROLLER_DIGITAL_L2))
+        else if(driver.get_digital(pros::controller_digital_e_t::E_CONTROLLER_DIGITAL_R2))
         {
             ri.spin(-12000);
         }
@@ -37,11 +37,11 @@ void TankRobot::pollController(bool dualDriver)
             ri.spin(0);
         }
 
-        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1))
+        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
         {
             conveyor->set(12000);
         }
-        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
+        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
         {
             conveyor->set(-12000);
         }
@@ -52,10 +52,10 @@ void TankRobot::pollController(bool dualDriver)
     }
 
     if(!dualDriver){
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B))
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN))
             indexer->indexDisc();
 
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B))
             hood->indexDisc();
     }
 
