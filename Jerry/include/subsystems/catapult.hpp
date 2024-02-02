@@ -7,24 +7,19 @@
 class Catapult
 {
     public:
-        Catapult(pros::Motor* m, pros::ADIDigitalIn* catapult_charged, pros::Distance* distance_sensor);
-        void shoot(int mV);
+        Catapult(pros::Motor* m, pros::Rotation& rotated);
+        void shoot();
         void charge();
-        void findGoalSpeed(Coordinate goal_position, Coordinate current_position);
         void spin(int mV);
+        bool charge_state;
+        bool shoot_state;
+        bool shoot_ready;
+        bool free_move;
+        int triggered;
     private:
         pros::Motor* motor;
-        pros::ADIDigitalIn* charged;
-        pros::Distance* triball_in;
-        double distance;
-        Odometry* odometry;
-        TeamColor color;
-        Coordinate goal_position;
-        Coordinate current_position;
-        int triball_distance;
-        double mV;
-        //number need to be modified
-        const double mV_const = 13.2;
+        pros::Rotation rotate;
+        double angle;
 };
 
 #endif
