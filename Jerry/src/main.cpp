@@ -150,6 +150,9 @@ void initialize() {
 	
 	pros::Task screenTask1(screen);
 	// pros::Task screenTask2(autoaim);
+	turret->turnAngle(180);
+	pros::delay(2000);
+	turretGyro.reset();
 }
 
 /**
