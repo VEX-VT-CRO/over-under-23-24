@@ -21,6 +21,10 @@ class Turret
         //Turns the turret to a particular point on the field (blocking function)
         void aimAt(Coordinate target, Coordinate pos);
 
+        double rotation;
+        double last_rotation;
+
+        void checkRotation();
 
     private:
         pros::Motor& turretMotor1, turretMotor2;

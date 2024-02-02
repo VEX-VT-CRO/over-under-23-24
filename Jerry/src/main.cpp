@@ -125,6 +125,7 @@ void screen() {
         pros::lcd::print(0, "x: %f", pose.x); // print the x position
         pros::lcd::print(1, "y: %f", pose.y); // print the y position
         pros::lcd::print(2, "heading: %f", pose.theta); // print the heading
+		pros::lcd::print(3, "heading: %f", turret->rotation); // print the heading
         pros::delay(10);
     }
 }
@@ -272,6 +273,7 @@ void opcontrol() {
 		if (catapult->shoot_state){
 			catapult->shoot();
 		}
+		turret->checkRotation();
 		pros::delay(10);
 	}
 }
