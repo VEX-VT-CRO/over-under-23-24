@@ -125,7 +125,6 @@ void screen() {
         pros::lcd::print(0, "x: %f", pose.x); // print the x position
         pros::lcd::print(1, "y: %f", pose.y); // print the y position
         pros::lcd::print(2, "heading: %f", pose.theta); // print the heading
-		pros::lcd::print(3, "heading: %f", turret->rotation); // print the heading
         pros::delay(10);
     }
 }
@@ -141,7 +140,7 @@ lemlib::Pose target = lemlib::Pose(48,0,0);
 void initialize() {
 	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 	chassis->calibrate();
-	chassis->setPose(0,0,0);
+	chassis->setPose(-36,-60,90);
 	turret = new Turret(turretMotor1, turretMotor2, rotated, turretGyro, *chassis, target);
 	//vis = new VisionSensor(vision_sensor);
 	catapult = new Catapult(&catapultMotor, rotated);

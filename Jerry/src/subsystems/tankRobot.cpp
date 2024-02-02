@@ -67,6 +67,9 @@ void TankRobot::pollController(bool dualDriver)
     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
             turret->updatePosition();
     }
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
+            turret->reset_angles();
+    }
     //Toggle manual aim if driver presses A (once per new press)
 
     manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) ? !manualAim : manualAim;

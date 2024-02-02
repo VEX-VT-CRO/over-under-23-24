@@ -21,9 +21,10 @@ class Turret
         //Turns the turret to a particular point on the field (blocking function)
         void aimAt(Coordinate target, Coordinate pos);
 
+        void reset_angles();
+
         double rotation;
         double last_rotation;
-        double turn_angle;
         void checkRotation();
 
     private:
@@ -34,6 +35,8 @@ class Turret
         int prevError, totalError;
         lemlib::Chassis& chassis_bot;
         lemlib::Pose target;
+        double offset_angle;
+        double turn_angle;
 };
 
 #endif
