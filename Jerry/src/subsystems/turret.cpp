@@ -8,6 +8,7 @@ Turret::Turret(pros::Motor& motor1, pros::Motor& motor2, pros::Rotation& rotated
    turretMotor2.set_encoder_units(pros::motor_encoder_units_e::E_MOTOR_ENCODER_DEGREES);
    rotation = 0;
    offset_angle = 0;
+   turn_angle = 0;
 }
 
 
@@ -31,7 +32,7 @@ void Turret::updatePosition()
     double goal_angle = 1/DEG2RAD * atan2(target.y - currentpos.y, target.x - currentpos.x);
     double rotated_angle = imu.get_rotation();
     turn_angle = goal_angle + rotated_angle + offset_angle;
-    Turret::turnAngle(-turn_angle);
+    turnAngle(-turn_angle);
 }
 
 void Turret::checkRotation(){
@@ -42,8 +43,14 @@ void Turret::checkRotation(){
     }
 }
 
+void Turret::rotateback(){
+    turretMotor1.move_relative(1.56*(rotation), 200);
+    turretMotor2.move_relative(1.56*(rotation), 200);
+    rotation = 0;
+}
+
 void Turret::reset_angles(){
     updatePosition();
     offset_angle = -turn_angle;
-    updatePosition();
+    turnAngle(-offset_angle);
 }

@@ -23,6 +23,8 @@ class Turret
 
         void reset_angles();
 
+        void rotateback();
+
         double rotation;
         double last_rotation;
         void checkRotation();
