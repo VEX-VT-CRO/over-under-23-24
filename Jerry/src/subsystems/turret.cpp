@@ -2,9 +2,8 @@
 #include <cmath>
 #include "lemlib/api.hpp"
 
-Turret::Turret(pros::Motor& motor1, pros::Motor& motor2, pros::IMU& gyro) : turretMotor1{motor1}, turretMotor2{motor2}, imu{gyro}
+Turret::Turret(pros::Motor& motor1, pros::Motor& motor2, pros::Rotation& rotated, pros::IMU& gyro) : turretMotor1{motor1}, turretMotor2{motor2}, imu{gyro}, rotate{rotated}
 {
-
 }
 
 

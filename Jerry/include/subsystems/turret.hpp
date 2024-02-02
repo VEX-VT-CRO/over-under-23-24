@@ -9,7 +9,7 @@
 class Turret
 {
     public:
-        Turret(pros::Motor& motor1, pros::Motor& motor2, pros::IMU& gyro);
+        Turret(pros::Motor& motor1, pros::Motor& motor2, pros::Rotation& rotated, pros::IMU& gyro);
 
         //When in autoAim mode, updatePosition does what it says
         void updatePosition(lemlib::Pose targetpos, lemlib::Pose currentpos);
@@ -21,11 +21,12 @@ class Turret
         //Turns the turret to a particular point on the field (blocking function)
         void aimAt(Coordinate target, Coordinate pos);
 
+
     private:
         pros::Motor& turretMotor1, turretMotor2;
         PIDConstants kPID;
         pros::IMU& imu;
-
+        pros::Rotation rotate;
         int prevError, totalError;
 };
 
