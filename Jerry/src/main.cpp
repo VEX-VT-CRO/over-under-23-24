@@ -29,6 +29,7 @@ RollerIntake ri(riGroup);
 pros::Motor turretMotor1(2);
 pros::Motor turretMotor2(15);
 pros::IMU turretGyro(5);
+pros::Rotation rotated(3);
 Turret* turret;
 
 //3 - rotation sensor
@@ -144,14 +145,14 @@ void initialize() {
 	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 	chassis->calibrate();
 	chassis->setPose(0,0,0);
-	turret = new Turret(turretMotor1, turretMotor2, turretGyro);
+	turret = new Turret(turretMotor1, turretMotor2, rotated, turretGyro);
 	//vis = new VisionSensor(vision_sensor);
-	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
+	catapult = new Catapult(&catapultMotor, rotated);
 
 	robot = new TankRobot(drivetrain, ri, nullptr, turret, nullptr, catapult, &spool, team);
 	pros::lcd::initialize();
 	
-	//pros::Task screenTask1(screen);
+	pros::Task screenTask1(screen);
 	// pros::Task screenTask2(autoaim);
 }
 
@@ -265,7 +266,12 @@ void opcontrol() {
 	
 	while (true) {
 		robot->pollController(false);
-		
-		pros::delay(20);
+		if (catapult->charge_state) {
+			catapult->charge();
+		}
+		if (catapult->shoot_state){
+			catapult->shoot();
+		}
+		pros::delay(10);
 	}
 }

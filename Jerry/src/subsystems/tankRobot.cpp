@@ -24,7 +24,7 @@ void TankRobot::pollController(bool dualDriver)
 
     if(!dualDriver)
     {
-        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
+        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
         {
             ri.spin(ri.STANDARD_MV);
         }
@@ -37,28 +37,36 @@ void TankRobot::pollController(bool dualDriver)
             ri.spin(0);
         }
 
-        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_X))
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
         {
-            catapult->charge();
+            if (!catapult->shoot_ready){
+                catapult->charge_state = true;
+        }    
+            else{
+                catapult->shoot_state = true; 
+                catapult->shoot_ready = false;
+            }      
         }
-        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
-        {
-            catapult->spin(-6000);
+        else{
+            if(catapult->free_move)
+                if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
+                    catapult->spin(-6000);
+                else
+                    catapult->spin(0);
         }
-        else
-        {
-            catapult->spin(0);
-        }
-
         if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
         {
             spool->moveTo(SpoolPosition::RETRACTED);
         }
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
+            catapult->free_move = !catapult->free_move;
+        }
     }
-    if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_B)){
-            turret->turnAngle(360);
-    }
+    // if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_B)){
+    //         turret->turnAngle(360);
+    // }
     //Toggle manual aim if driver presses A (once per new press)
+
     //manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) ? !manualAim : manualAim;
     //toggle_pneumatics = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) ? !toggle_pneumatics : toggle_pneumatics;
 
