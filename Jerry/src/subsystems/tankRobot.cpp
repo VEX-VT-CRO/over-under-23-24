@@ -52,9 +52,7 @@ void TankRobot::pollController(bool dualDriver)
 
         if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
         {
-            SpoolPosition pos = (spool->getPosition() == SpoolPosition::RETRACTED) ? SpoolPosition::EXTENDED : SpoolPosition::RETRACTED;
-            spool->moveTo(pos);
-            pros::lcd::print(5, "pos: %d", pos);
+            spool->moveTo(SpoolPosition::RETRACTED);
         }
     }
     if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_B)){

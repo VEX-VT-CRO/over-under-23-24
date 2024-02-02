@@ -11,17 +11,14 @@ Spool::Spool(pros::MotorGroup& m, int extendedPosition) : motors{m}
 
 void Spool::moveTo(SpoolPosition pos)
 {
-    switch(pos)
+    position = (position == SpoolPosition::EXTENDED) ? SpoolPosition::RETRACTED : SpoolPosition::EXTENDED;
+    switch(position)
     {
     case RETRACTED:
-        //motors.move_absolute(extendedPos, 200);
-        motors.move_voltage(12000);
-        position = SpoolPosition::EXTENDED;
+        motors.move_absolute(extendedPos, 200);
         break;
     case EXTENDED:
-        //motors.move_absolute(0, 200);
-        motors.move_voltage(-12000);
-        position = SpoolPosition::RETRACTED;
+        motors.move_absolute(0, 200);
         break;
     default:
         break;

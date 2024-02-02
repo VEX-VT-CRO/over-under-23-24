@@ -18,7 +18,7 @@ pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
 pros::Motor conveyor1(3);
-pros::Motor conveyor2(8);
+pros::Motor conveyor2(8, true);
 pros::MotorGroup convGroup({conveyor1, conveyor2});
 Conveyor conveyor(convGroup);
 
