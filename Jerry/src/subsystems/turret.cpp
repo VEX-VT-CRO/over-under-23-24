@@ -2,8 +2,12 @@
 #include <cmath>
 #include "lemlib/api.hpp"
 
-Turret::Turret(pros::Motor& motor1, pros::Motor& motor2, pros::Rotation& rotated, pros::IMU& gyro) : turretMotor1{motor1}, turretMotor2{motor2}, imu{gyro}, rotate{rotated}
+Turret::Turret(pros::Motor& motor1, pros::Motor& motor2, pros::Rotation& rotated, pros::IMU& gyro, lemlib::Chassis& chassis, lemlib::Pose target1) : turretMotor1{motor1}, turretMotor2{motor2}, imu{gyro}, rotate{rotated}, chassis_bot{chassis}, target{target1}
 {
+   turretMotor1.set_encoder_units(pros::motor_encoder_units_e::E_MOTOR_ENCODER_DEGREES);
+   turretMotor2.set_encoder_units(pros::motor_encoder_units_e::E_MOTOR_ENCODER_DEGREES);
+   rotation = 0;
+   offset_angle = 0;
 }
 
 
@@ -15,25 +19,31 @@ void Turret::turnVoltage(int mV)
 
 void Turret::turnAngle(int degrees)
 {
-    float radians = degrees * DEG2RAD;
-    uint32_t startTime = pros::millis();
-    while (true) {
-        if (pros::millis() - startTime > 165*abs(radians)) {
-            turretMotor1.move_voltage(0);
-            turretMotor2.move_voltage(0);
-            break;
-        }
-        turretMotor1.move_voltage(-6000*radians/abs(radians));
-        turretMotor2.move_voltage(-6000*radians/abs(radians));
-    }
-    turretMotor1.set_brake_mode(pros::motor_brake_mode_e::E_MOTOR_BRAKE_HOLD);
-    turretMotor2.set_brake_mode(pros::motor_brake_mode_e::E_MOTOR_BRAKE_HOLD);
+    turretMotor1.move_relative(-1.56*degrees, 200);
+    turretMotor2.move_relative(-1.56*degrees, 200);
+    rotation+=degrees;
+    last_rotation = degrees;
 }
 
-void Turret::updatePosition(lemlib::Pose targetpos, lemlib::Pose currentpos)
+void Turret::updatePosition()
 {
-    double goal_Angle = -DEG2RAD * atan2(targetpos.y - currentpos.y, targetpos.x - currentpos.x);
+    lemlib::Pose currentpos = chassis_bot.getPose();
+    double goal_angle = 1/DEG2RAD * atan2(target.y - currentpos.y, target.x - currentpos.x);
     double rotated_angle = imu.get_rotation();
-    double turn_angle = goal_Angle + rotated_angle;
-    Turret::turnAngle(turn_angle);
+    turn_angle = goal_angle + rotated_angle + offset_angle;
+    Turret::turnAngle(-turn_angle);
+}
+
+void Turret::checkRotation(){
+    if (abs(rotation)>=1080){
+        turretMotor1.move_relative(1.56*(rotation-last_rotation), 200);
+        turretMotor2.move_relative(1.56*(rotation-last_rotation), 200);
+        rotation = 0;
+    }
+}
+
+void Turret::reset_angles(){
+    updatePosition();
+    offset_angle = -turn_angle;
+    updatePosition();
 }
