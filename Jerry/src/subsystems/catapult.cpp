@@ -32,7 +32,7 @@ void Catapult::spin(int mV)
 }
 
 void Catapult::shoot(){
-    motor->move_relative(-40, 300);
+    motor->move_relative(-50, 300);
     triggered++;
     shoot_state = false;
 }

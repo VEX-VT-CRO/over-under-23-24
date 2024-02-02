@@ -190,7 +190,6 @@ void opcontrol() {
 		robot->pollController(false);
 		if (catapult->charge_state) {
             catapult->charge();
-            pros::lcd::print(3, "I am charging");
         }
 		pros::delay(10);
 	}
