@@ -20,8 +20,8 @@ void Turret::turnVoltage(int mV)
 
 void Turret::turnAngle(int degrees)
 {
-    turretMotor1.move_relative(-1.56*degrees, 200);
-    turretMotor2.move_relative(-1.56*degrees, 200);
+    turretMotor1.move_relative(-1.56*degrees, 100);
+    turretMotor2.move_relative(-1.56*degrees, 100);
     rotation+=degrees;
     last_rotation = degrees;
 }

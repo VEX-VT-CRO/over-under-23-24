@@ -70,7 +70,7 @@ void TankRobot::pollController(bool dualDriver)
     if(dualDriver){
         int turretDirection = partner.get_digital(pros::E_CONTROLLER_DIGITAL_L1) - driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
         turret->turnVoltage(TURRET_SPEED * turretDirection);
-        
+
     }
     if(manualAim)
     {
