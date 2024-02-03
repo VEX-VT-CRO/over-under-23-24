@@ -40,13 +40,13 @@ void TankRobot::pollController(bool dualDriver)
             ri.spin(0);
         }
 
-        if (driver.get_digital(pros::E_CONTROLLER_DIGITAL_X)) {
+        if (driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
             if (!catapult->charge_state) {
                 catapult->charge_state = true;
             }
         }
 
-        if (driver.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) {
+        if (driver.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
             catapult->spin(-6000);
         } else {
             catapult->spin(0);
