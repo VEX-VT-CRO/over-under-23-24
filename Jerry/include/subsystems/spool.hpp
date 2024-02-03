@@ -6,6 +6,7 @@
 enum SpoolPosition
 {
     RETRACTED,
+    SWEEP,
     EXTENDED
 };
 
