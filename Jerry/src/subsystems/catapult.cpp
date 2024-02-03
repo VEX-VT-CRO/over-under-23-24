@@ -16,8 +16,8 @@ Catapult::Catapult(pros::Motor* m, pros::Rotation& rotated) : motor{m},rotate{ro
 
 
 void Catapult::charge() {
-    if (rotate.get_position()>29000)
-        motor->move_voltage(-6000);
+    if (rotate.get_position()>29200)
+        motor->move_voltage(-7500);
     else{
         charge_state = false;
         shoot_ready = true;
@@ -32,7 +32,7 @@ void Catapult::spin(int mV)
 }
 
 void Catapult::shoot(){
-    motor->move_relative(-50, 300);
+    motor->move_relative(-70, 300);
     triggered++;
     shoot_state = false;
 }

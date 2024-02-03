@@ -12,80 +12,69 @@ TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer* i, Turret* t,
 void TankRobot::autoAim(bool useVision)
 {
     Coordinate goal = {122.63, 122.63};
-    //Coordinate r = odometry->getPosition();
-    //double angle = std::atan2(goal.y - r.y, goal.x - r.x);
 }
 
 void TankRobot::pollController(bool dualDriver)
 {
     static bool manualAim = false;
-    static bool toggle_pneumatics = false;
+    constexpr int TURRET_SPEED = 6000;
     drivetrain.tankControl(driver);
 
-    if(!dualDriver)
+    if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
     {
-        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
-        {
-            ri.spin(ri.STANDARD_MV);
-        }
-        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
-        {
-            ri.spin(-ri.STANDARD_MV);
-        }
-        else
-        {
-            ri.spin(0);
-        }
-
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
-        {
-            if (!catapult->shoot_ready){
-                catapult->charge_state = true;
-                pros::delay(20);
-                turret->rotateback();
-        }    
-            else{
-                catapult->shoot_state = true; 
-                catapult->shoot_ready = false;
-            }      
-        }
-        else{
-            if(catapult->free_move)
-                if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
-                    catapult->spin(-6000);
-                else
-                    catapult->spin(0);
-        }
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A))
-        {
-            spool->moveTo(SpoolPosition::RETRACTED);
-        }
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
-            catapult->free_move = !catapult->free_move;
-        }
+        ri.spin(-ri.STANDARD_MV);
     }
-    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B)){
+    else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+    {
+        ri.spin(ri.STANDARD_MV);
+    }
+    else
+    {
+        ri.spin(0);
+    }
+
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2))
+    {
+        if (!catapult->shoot_ready){
+            catapult->charge_state = true;
+            pros::delay(20);
+            turret->rotateback();
+        }    
+        else{
+            catapult->shoot_state = true; 
+            catapult->shoot_ready = false;
+        }      
+    }
+
+    if(catapult->free_move)
+        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
+            catapult->spin(-6000);
+        else
+            catapult->spin(0);
+
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1))
+    {
+        spool->moveTo(SpoolPosition::RETRACTED);
+    }
+
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
+        catapult->free_move = !catapult->free_move;
+    }
+
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
             turret->updatePosition();
     }
-    // if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN)){
-    //         turret->reset_angles();
-    // }
-    //Toggle manual aim if driver presses A (once per new press)
-
-    manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) ? !manualAim : manualAim;
-    //toggle_pneumatics = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y)) ? !toggle_pneumatics : toggle_pneumatics;
-
-    /*if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
-        catapult->shoot(3000);
-        pros::delay(10);
-        catapult->charge();
-    }*/
     
+    manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) ? !manualAim : manualAim;
+    
+    if(dualDriver){
+        int turretDirection = partner.get_digital(pros::E_CONTROLLER_DIGITAL_L1) - driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
+        turret->turnVoltage(TURRET_SPEED * turretDirection);
+        
+    }
     if(manualAim)
     {
-        constexpr int TURRET_SPEED = 6000;
-        int turretDirection = driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1) - driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
-        
+        int turretDirection = driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1) - driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1); 
         turret->turnVoltage(TURRET_SPEED * turretDirection);
     }
 
