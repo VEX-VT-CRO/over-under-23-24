@@ -20,8 +20,8 @@ void Turret::turnVoltage(int mV)
 
 void Turret::turnAngle(int degrees)
 {
-    turretMotor1.move_relative(-1.56*degrees, 100);
-    turretMotor2.move_relative(-1.56*degrees, 100);
+    turretMotor1.move_relative(-1.56*degrees, 50);
+    turretMotor2.move_relative(-1.56*degrees, 50);
     rotation+=degrees;
     last_rotation = degrees;
 }
@@ -32,13 +32,17 @@ void Turret::updatePosition()
     double goal_angle = 1/DEG2RAD * atan2(target.y - currentpos.y, target.x - currentpos.x);
     double rotated_angle = imu.get_rotation();
     turn_angle = goal_angle + rotated_angle + offset_angle;
+    if(turn_angle>180)
+        turn_angle = turn_angle - 360;
+    if(turn_angle<-180)
+        turn_angle = turn_angle + 360;
     turnAngle(-turn_angle);
 }
 
 void Turret::checkRotation(){
     if (abs(rotation)>=1080){
-        turretMotor1.move_relative(1.56*(rotation-last_rotation), 200);
-        turretMotor2.move_relative(1.56*(rotation-last_rotation), 200);
+        turretMotor1.move_relative(1.56*(rotation-last_rotation), 100);
+        turretMotor2.move_relative(1.56*(rotation-last_rotation), 100);
         rotation = 0;
     }
 }
@@ -50,7 +54,5 @@ void Turret::rotateback(){
 }
 
 void Turret::reset_angles(){
-    updatePosition();
-    offset_angle = -turn_angle;
-    turnAngle(-offset_angle);
+    chassis_bot.setPose(-22, -90, 90);
 }
