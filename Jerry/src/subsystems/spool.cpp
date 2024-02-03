@@ -15,10 +15,10 @@ void Spool::moveTo(SpoolPosition pos)
     switch(position)
     {
     case RETRACTED:
-        motors.move_absolute(extendedPos, 200);
+        motors.move_absolute(extendedPos, 600);
         break;
     case EXTENDED:
-        motors.move_absolute(0, 200);
+        motors.move_absolute(0, 600);
         break;
     default:
         break;
