@@ -43,7 +43,7 @@ void TankRobot::pollController(bool dualDriver)
                 catapult->charge_state = true;
                 pros::delay(20);
                 turret->rotateback();
-        }    
+            }
             else{
                 catapult->shoot_state = true; 
                 catapult->shoot_ready = false;
