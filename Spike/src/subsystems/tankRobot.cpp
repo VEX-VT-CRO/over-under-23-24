@@ -12,8 +12,6 @@ TankRobot::TankRobot(TankDrivetrain& d, RollerIntake& in, Indexer* i, Hood* hood
 void TankRobot::autoAim(bool useVision)
 {
     Coordinate goal = {122.63, 122.63};
-    //Coordinate r = odometry->getPosition();
-    //double angle = std::atan2(goal.y - r.y, goal.x - r.x);
 }
 
 void TankRobot::pollController(bool dualDriver)
@@ -21,43 +19,33 @@ void TankRobot::pollController(bool dualDriver)
     static bool manualAim = false;
     static bool toggle_intake = false;
     drivetrain.tankControl(driver);
-
-    if(!dualDriver)
+    if(driver.get_digital(pros::controller_digital_e_t::E_CONTROLLER_DIGITAL_R1))
     {
-        if(driver.get_digital(pros::controller_digital_e_t::E_CONTROLLER_DIGITAL_R1))
-        {
-            ri.spin(12000);
-        }
-        else if(driver.get_digital(pros::controller_digital_e_t::E_CONTROLLER_DIGITAL_R2))
-        {
-            ri.spin(-12000);
-        }
-        else
-        {
-            ri.spin(0);
-        }
-
-        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
-        {
-            conveyor->set(12000);
-        }
-        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
-        {
-            conveyor->set(-12000);
-        }
-        else
-        {
-            conveyor->set(0);
-        }
+        ri.spin(12000);
     }
-
-    if(!dualDriver){
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN))
-            indexer->indexDisc();
-
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B))
-            hood->indexDisc();
+    else if(driver.get_digital(pros::controller_digital_e_t::E_CONTROLLER_DIGITAL_R2))
+    {
+        ri.spin(-12000);
     }
-
+    else
+    {
+        ri.spin(0);
+    }
+    if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
+    {
+        conveyor->set(12000);
+    }
+    else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+    {
+        conveyor->set(-12000);
+    }
+    else
+    {
+        conveyor->set(0);
+    }
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN))
+        indexer->indexDisc();
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B))
+        hood->indexDisc();
     pros::lcd::clear();
 }

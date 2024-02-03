@@ -82,6 +82,14 @@ void TankRobot::pollController(bool dualDriver)
         if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
             turret->reset_angles();
         }
+        if(catapult->free_move)
+            if(partner.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
+                catapult->spin(-6000);
+            else
+                catapult->spin(0);
+        if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)){
+            catapult->free_move = !catapult->free_move;
+    }        
     }
     if(manualAim)
     {
