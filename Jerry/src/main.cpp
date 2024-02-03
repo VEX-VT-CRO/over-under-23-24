@@ -20,7 +20,7 @@ pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 //16 - Spool
 pros::Motor spoolMotor(16);
 pros::MotorGroup spoolGroup({spoolMotor});
-Spool spool(spoolGroup, 6);
+Spool spool(spoolGroup, 3);
 
 pros::Motor intake1(17);
 pros::MotorGroup riGroup({intake1});
@@ -152,7 +152,7 @@ void initialize() {
 	// pros::Task screenTask2(autoaim);
 	turret->turnAngle(180);
 	pros::delay(2000);
-	turretGyro.reset();
+	turretGyro.reset(true);
 }
 
 /**
@@ -173,8 +173,8 @@ void disabled() {}
  */
 void competition_initialize() {}
 
-//For use in a qualifier match with Spike
-void spikeQual()
+//For use in a qualifier match with Tom
+void tomQual()
 {
 	chassis->setPose(-12, -60, 90);
 	goTo(36, -60, 5000);
@@ -212,7 +212,7 @@ void spikeQual()
  * from where it left off.
  */
 void autonomous() {
-	spikeQual();
+	tomQual();
 
 	//TEST AUTON
 	//odom->setPosition({16, 30.5}); //START

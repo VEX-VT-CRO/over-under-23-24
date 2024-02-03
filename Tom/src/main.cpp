@@ -102,7 +102,7 @@ void goTo(float x, float y, int timeout, float maxDriveSpeed, float maxTurnSpeed
 	chassis->moveTo(x, y, timeout, maxDriveSpeed, log);
 }
 
-void goTo(float x, float y, int timeout, float maxSpeed = 127.0f, bool reversed = false, bool log = false)
+void goTo(float x, float y, int timeout, float maxSpeed = 50.0f, bool reversed = false, bool log = false)
 {
 	chassis->turnTo(x, y, timeout, reversed, maxSpeed, log);
 	chassis->moveTo(x, y, timeout, maxSpeed, log);
@@ -155,6 +155,31 @@ void disabled() {}
  */
 void competition_initialize() {}
 
+//To be used in a qualifying match with Jerry
+void jerryQual()
+{
+	chassis->setPose(-53.7, 53.7, -135);
+	//RESET CATAPULT TO HALFWAY
+	ri.spin(ri.STANDARD_MV);
+	chassis->moveTo(-48, -48, 5000);
+	goTo(-60, -36, 5000);
+	ri.spin(-ri.STANDARD_MV);
+	chassis->turnTo(-60, -30, 5000, true);
+	ri.spin(0);
+	chassis->moveTo(-60, -30, 5000);
+	chassis->moveTo(-60, -36, 5000);
+	goTo(-36, -36, 5000);
+	ri.spin(ri.STANDARD_MV);
+	goTo(-48, -12, 5000);
+	chassis->turnTo(48, -12, 5000, false);
+	//SHOOT
+	goTo(-9, -12, 5000);
+	chassis->turnTo(48, -12, 5000, true);
+	//SHOOT
+	goTo(-12, -36, 5000);
+	goTo(0, -48, 5000);
+}
+
 /**
  * Runs the user autonomous code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -167,8 +192,7 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	chassis->setPose(0, 0, 0);
-	chassis->moveTo(0, 10, 20000);
+	jerryQual();
 }
 
 /**

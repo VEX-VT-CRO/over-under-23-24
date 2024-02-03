@@ -54,20 +54,20 @@ lemlib::Drivetrain_t LLDrivetrain
 
 pros::IMU gyro(18);
 
-pros::ADIEncoder verticalEncoder('A', 'B');
-pros::ADIEncoder horizontalEncoder('C', 'D');
+//pros::ADIEncoder verticalEncoder('A', 'B');
+//pros::ADIEncoder horizontalEncoder('C', 'D');
 
 //Parameters: ADIEncoder, wheel diameter, distance from center, gear ratio
-lemlib::TrackingWheel verticalWheel(&verticalEncoder, 2.72, 0, 1);
-lemlib::TrackingWheel horizontalWheel(&horizontalEncoder, 2.75, 6, 1);
+lemlib::TrackingWheel leftWheels(&leftSideGroup, 2.72, 0, 1);
+lemlib::TrackingWheel rightWheels(&rightSideGroup, 2.75, 6, 1);
 
 lemlib::OdomSensors_t sensors
 {
+	&leftWheels,
+	&rightWheels,
 	nullptr,
 	nullptr,
-	nullptr,
-	nullptr,
-	nullptr
+	&gyro
 };
 
 lemlib::ChassisController_t driveController
@@ -150,6 +150,15 @@ void disabled() {}
  * starts.
  */
 void competition_initialize() {}
+
+void jerryQual()
+{
+	chassis->setPose(-12, -60, 90);
+	ri.spin(ri.STANDARD_MV);
+	goTo(12, -60, 5000);
+	chassis->turnTo(12, -48, 5000, false);
+	chassis->
+}
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
