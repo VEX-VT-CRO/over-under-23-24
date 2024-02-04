@@ -84,7 +84,7 @@ lemlib::OdomSensors_t sensors
 lemlib::ChassisController_t driveController
 {
 	30, // kP
-    140, // kD
+    40, // kD
     0.25, // smallErrorRange
     250, // smallErrorTimeout
     1, // largeErrorRange
@@ -111,7 +111,7 @@ void goTo(float x, float y, int timeout, float maxDriveSpeed, float maxTurnSpeed
 	chassis->moveTo(x, y, timeout, maxDriveSpeed, log);
 }
 
-void goTo(float x, float y, int timeout, float maxSpeed = 100.0f, bool reversed = false, bool log = false)
+void goTo(float x, float y, int timeout, float maxSpeed = 266.0f, bool reversed = false, bool log = false)
 {
 	chassis->turnTo(x, y, timeout, reversed, maxSpeed, log);
 	chassis->moveTo(x, y, timeout, maxSpeed, log);
@@ -140,7 +140,7 @@ lemlib::Pose target = lemlib::Pose(48,0,0);
 void initialize() {
 	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 	chassis->calibrate();
-	chassis->setPose(-36,-60,90);
+	chassis->setPose(-23.5,-60,90);
 	turret = new Turret(turretMotor1, turretMotor2, rotated, turretGyro, *chassis, target);
 	//vis = new VisionSensor(vision_sensor);
 	catapult = new Catapult(&catapultMotor, rotated);
@@ -153,6 +153,14 @@ void initialize() {
 	turret->turnAngle(180);
 	pros::delay(2000);
 	turretGyro.reset(true);
+
+	turret->rotateback();
+	while(!catapult->shoot_ready)
+	{
+		catapult->charge_state = true;
+		pros::delay(20);
+		catapult->charge();
+	}
 }
 
 /**
@@ -173,31 +181,106 @@ void disabled() {}
  */
 void competition_initialize() {}
 
+void intakeBall(bool pipe = false, float speed = ri.STANDARD_MV)
+{
+	int extendTime = 750;
+	int sweepTime = 250;
+
+	ri.spin(ri.STANDARD_MV);
+	if(pipe)
+	{
+		spool.moveTo(EXTENDED);
+		pros::delay(extendTime);
+		spool.moveTo(RETRACTED);
+		pros::delay(extendTime);
+	}
+	spool.moveTo(SWEEP);
+	pros::delay(sweepTime);
+	spool.moveTo(RETRACTED);
+	pros::delay(sweepTime * 2);
+	ri.spin(0);
+}
+
+void shootBall(bool charge = true)
+{
+	catapult->charge();
+	turret->rotateback();
+	int timer = pros::millis();
+	while(charge && pros::millis() - timer < 1500)
+	{
+		catapult->charge();
+		pros::delay(10);
+	}
+	
+	turret->updatePosition();
+	pros::delay(1000);
+	catapult->shoot();
+	pros::delay(200);
+	catapult->charge();
+	turret->rotateback();
+
+	timer = pros::millis();
+	while(charge && pros::millis() - timer < 1500)
+	{
+		catapult->charge();
+		pros::delay(10);
+	}
+}
+
+void chargeCatapult()
+{
+	catapult->charge();
+	turret->rotateback();
+	int timer = pros::millis();
+	while(pros::millis() - timer < 1500)
+	{
+		catapult->charge();
+		pros::delay(10);
+	}
+}
+
 //For use in a qualifier match with Tom
 void tomQual()
-{
-	chassis->setPose(-12, -60, 90);
+{	
+	leftSideGroup.set_brake_modes(pros::E_MOTOR_BRAKE_BRAKE);
+	rightSideGroup.set_brake_modes(pros::E_MOTOR_BRAKE_BRAKE);
+	chassis->setPose(-23.5, -60, 90);
+	shootBall();
+	ri.spin(ri.STANDARD_MV);
+	goTo(20, -60, 750);
+	intakeBall(false);
+	shootBall(false);
+	catapult->half();
 	goTo(36, -60, 5000);
-	goTo(48, -48, 5000);
-	goTo(54, -54, 5000);
-	//INTAKE ALLIANCE TRIBALL
-	chassis->moveTo(48, -48, 5000);
-	goTo(60, -36, 5000);
-	chassis->turnTo(60, -12, 5000);
-	//OUTTAKE
-	chassis->moveTo(60, -40, 5000);
-	chassis->turnTo(60, -32, 5000, true);
-	chassis->moveTo(60, -32, 5000);
-	goTo(60, -36, 5000);
-	goTo(36, -60, 5000);
+	goTo(48, -48, 1250);
+	ri.spin(ri.STANDARD_MV);
+	spool.moveTo(EXTENDED);
+	goTo(55, -55, 1000);
+	ri.spin(3000);
+	chassis->moveTo(48, -48, 750);
+	spool.moveTo(RETRACTED);
+	goTo(60, -36, 1250);
+	chassis->turnTo(60, -12, 1500);
+	ri.spin(-ri.STANDARD_MV);
+	chassis->moveTo(60, -40, 750);
+	ri.spin(0);
+	chassis->turnTo(60, -32, 1250, true);
+	chassis->moveTo(60, -0, 1000);
+	goTo(60, -36, 750);
+	goTo(36, -60, 1250);
 	goTo(-36, -60, 5000);
-	goTo(-48, -48, 5000);
-	goTo(-54, -54, 5000);
-	//INTAKE AND SHOOT UNTIL LAST FEW SECONDS
-	chassis->moveTo(-48, -48, 5000);
-	goTo(-36, -60, 5000);
-	goTo(0, -60, 5000);
-	goTo(0, -48, 5000);
+	goTo(-48, -48, 1250);
+	chargeCatapult();
+	ri.spin(ri.STANDARD_MV);
+	goTo(-54.25, -54.25, 1000);
+	intakeBall(true);
+	shootBall();
+	chassis->moveTo(-48, -48, 750);
+	goTo(-36, -56, 1250);
+	goTo(0, -60, 1500);
+	goTo(0, -48, 20000);
+	leftSideGroup.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
+	rightSideGroup.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 }
 
 /**

@@ -157,7 +157,6 @@ void jerryQual()
 	ri.spin(ri.STANDARD_MV);
 	goTo(12, -60, 5000);
 	chassis->turnTo(12, -48, 5000, false);
-	chassis->
 }
 
 /**
