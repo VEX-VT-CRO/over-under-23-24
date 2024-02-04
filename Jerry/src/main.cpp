@@ -366,7 +366,7 @@ void autonomous() {
 void opcontrol() {
 
 	while (true) {
-		robot->pollController(false);
+		robot->pollController(true);
 		if (catapult->charge_state) {
 			catapult->charge();
 		}

@@ -52,7 +52,7 @@ void TankRobot::pollController(bool dualDriver)
         else
             catapult->spin(0);
 
-    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1))
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1) && !manualAim)
     {
         SpoolPosition pos = (spool->getPosition() != SpoolPosition::EXTENDED) ? SpoolPosition::EXTENDED : SpoolPosition::RETRACTED;
         spool->moveTo(pos);
@@ -87,7 +87,7 @@ void TankRobot::pollController(bool dualDriver)
                 catapult->spin(-6000);
             else
                 catapult->spin(0);
-        if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1)){
+        if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)){
             catapult->free_move = !catapult->free_move;
     }        
     }

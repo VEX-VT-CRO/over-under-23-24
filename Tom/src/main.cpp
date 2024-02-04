@@ -134,7 +134,7 @@ void initialize() {
 	robot = new TankRobot(drivetrain, ri, indexer, nullptr, catapult, team);
 
 	pros::lcd::initialize();
-	indexer->openIntake();
+	//indexer->openIntake();
 }
 
 /**
@@ -192,7 +192,7 @@ void jerryQual()
  * from where it left off.
  */
 void autonomous() {
-	jerryQual();
+	//jerryQual();
 }
 
 /**
