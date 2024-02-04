@@ -94,7 +94,21 @@ void TankRobot::pollController(bool dualDriver)
         }
     }
     else{
-        
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
+            int extendTime = 750;
+            catapult->charge_state = true;
+            pros::delay(20);
+            turret->rotateback(); 
+            pros::delay(100);
+            spool->moveTo(EXTENDED);
+		    pros::delay(extendTime);
+		    spool->moveTo(RETRACTED);
+		    pros::delay(extendTime);
+            turret->updatePosition();
+            pros::delay(100);
+            catapult->shoot_state = true; 
+            catapult->shoot_ready = false;    
+        }
     }    
     rapidshootmode = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) ? !rapidshootmode : rapidshootmode;
     pros::lcd::clear();
