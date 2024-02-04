@@ -11,6 +11,7 @@ class Catapult
         void shoot();
         void charge();
         void spin(int mV);
+        void half();
         bool charge_state;
         bool shoot_state;
         bool shoot_ready;
