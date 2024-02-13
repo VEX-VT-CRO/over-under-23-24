@@ -6,31 +6,33 @@
 #include <cstdlib>
 #include "lemlib/api.hpp"
 
-pros::Motor leftFront(1, true);
-pros::Motor leftMiddle(2, true);
-pros::Motor leftBack(3, true);
+pros::Motor leftFront(14, true);
+pros::Motor leftMiddle(15, true);
+pros::Motor leftBack(16, true);
 
-pros::Motor rightFront(11, false);
-pros::Motor rightMiddle(12, false);
-pros::Motor rightBack(13, false);
+pros::Motor rightFront(17, false);
+pros::Motor rightMiddle(18, false);
+pros::Motor rightBack(19, false);
 
 pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
 
-pros::Motor intake1(7, false);
-pros::Motor intake2(8, true);
+pros::Motor intake1(11, false);
+pros::Motor intake2(12, true);
 pros::MotorGroup riGroup({intake1, intake2});
 RollerIntake ri(riGroup);
 
 
-pros::ADIDigitalIn catapult_charged('F');
-pros::Distance distance_sensor(19);
-pros::Motor catapultMotor(15);
+pros::ADIDigitalIn catapult_charged('H');
+// pros::Distance distance_sensor(19);
+pros::Motor catapultMotor1(9,true);
+pros::Motor catapultMotor2(10,false);
+// pros::Motor catapult_motors[] = {catapultMotor1, catapultMotor2};
 Catapult* catapult;
 
 pros::ADIDigitalOut open_intake_sol('G');
-pros::ADIDigitalOut solenoid('E');
+pros::ADIDigitalOut solenoid('F');
 Indexer* indexer;
 
 TankDrivetrain drivetrain(leftside, rightside, 3);
@@ -53,10 +55,10 @@ lemlib::Drivetrain_t LLDrivetrain
 	257, //Wheel rpm
 };
 
-pros::IMU gyro(18);
+pros::IMU gyro(20);
 
-pros::ADIEncoder verticalEncoder('A', 'B');
-pros::ADIEncoder horizontalEncoder('C', 'D');
+pros::ADIEncoder verticalEncoder('D', 'E');
+pros::ADIEncoder horizontalEncoder('B', 'C');
 
 //Parameters: ADIEncoder, wheel diameter, distance from center, gear ratio
 lemlib::TrackingWheel verticalWheel(&verticalEncoder, 2.72, 0, 1);
@@ -129,7 +131,7 @@ void initialize() {
 	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 	chassis->calibrate();
 	pros::Task screenTask(screen); // create a task to print the position to the screen
-	catapult = new Catapult(&catapultMotor, &catapult_charged, &distance_sensor);
+	catapult = new Catapult(&catapultMotor1, &catapultMotor2, &catapult_charged, nullptr);
 	indexer = new Indexer(solenoid, open_intake_sol);
 	robot = new TankRobot(drivetrain, ri, indexer, nullptr, catapult, team);
 
