@@ -183,8 +183,8 @@ void competition_initialize() {}
 
 void intakeBall(bool pipe = false, float speed = ri.STANDARD_MV)
 {
-	int extendTime = 750;
-	int sweepTime = 250;
+	int extendTime = 1000;
+	int sweepTime = 400;
 
 	ri.spin(ri.STANDARD_MV);
 	if(pipe)
@@ -201,19 +201,19 @@ void intakeBall(bool pipe = false, float speed = ri.STANDARD_MV)
 	ri.spin(0);
 }
 
-void shootBall(bool charge = true)
+void shootBall(bool charge = true, bool firstCharge = false)
 {
 	catapult->charge();
 	turret->rotateback();
 	int timer = pros::millis();
-	while(charge && pros::millis() - timer < 1500)
+	while(firstCharge && pros::millis() - timer < 1500)
 	{
 		catapult->charge();
 		pros::delay(10);
 	}
 	
-	turret->updatePosition();
-	pros::delay(1000);
+	//turret->updatePosition();
+	//pros::delay(1500);
 	catapult->shoot();
 	pros::delay(200);
 	catapult->charge();
@@ -272,7 +272,7 @@ void tomQual()
 	goTo(-48, -48, 1250);
 	chargeCatapult();
 	ri.spin(ri.STANDARD_MV);
-	goTo(-54.25, -54.25, 1000);
+	goTo(-54, -54, 1000);
 	intakeBall(true);
 	shootBall();
 	chassis->moveTo(-48, -48, 750);
@@ -281,6 +281,55 @@ void tomQual()
 	goTo(0, -48, 20000);
 	leftSideGroup.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 	rightSideGroup.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
+}
+
+void elimQual()
+{
+	chassis->setPose(-54, -54, 90);
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
+	intakeBall(true);
+	shootBall();
 }
 
 /**
@@ -295,7 +344,7 @@ void tomQual()
  * from where it left off.
  */
 void autonomous() {
-	tomQual();
+	elimQual();
 
 	//TEST AUTON
 	//odom->setPosition({16, 30.5}); //START
@@ -366,7 +415,7 @@ void autonomous() {
 void opcontrol() {
 
 	while (true) {
-		robot->pollController(false);
+		robot->pollController(true);
 		if (catapult->charge_state) {
 			catapult->charge();
 		}
