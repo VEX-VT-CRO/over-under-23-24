@@ -16,6 +16,7 @@ class Spool
         const int STANDARD_MV = 12000;
         Spool(pros::MotorGroup& m, int extendedPosition);
         void moveTo(SpoolPosition pos);
+        void spin(int voltage);
         SpoolPosition getPosition();
     private:
         pros::MotorGroup& motors;

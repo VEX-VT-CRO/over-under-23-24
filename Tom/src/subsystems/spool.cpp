@@ -33,3 +33,8 @@ SpoolPosition Spool::getPosition()
 {
     return position;
 }
+
+void Spool::spin(int voltage)
+{
+    motors.move_voltage(voltage);
+}
