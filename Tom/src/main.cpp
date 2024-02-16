@@ -26,8 +26,8 @@ RollerIntake ri(riGroup);
 
 pros::ADIDigitalIn catapult_charged('H');
 // pros::Distance distance_sensor(19);
-pros::Motor catapultMotor1(9,true);
-pros::Motor catapultMotor2(10,false);
+pros::Motor catapultMotor1(9,false);
+pros::Motor catapultMotor2(10,true);
 // pros::Motor catapult_motors[] = {catapultMotor1, catapultMotor2};
 Catapult* catapult;
 
