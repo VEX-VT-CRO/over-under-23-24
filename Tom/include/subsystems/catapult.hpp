@@ -7,7 +7,7 @@
 class Catapult
 {
     public:
-        Catapult(pros::Motor* m, pros::ADIDigitalIn* catapult_charged, pros::Distance* distance_sensor);
+        Catapult(pros::Motor* m1, pros::Motor* m2, pros::ADIDigitalIn* catapult_charged, pros::Distance* distance_sensor);
         void charge();
         void findGoalSpeed(Coordinate goal_position, Coordinate current_position);
         void spin(int mV);
@@ -16,7 +16,8 @@ class Catapult
         bool shoot_state;
         pros::ADIDigitalIn* charged;
     private:
-        pros::Motor* motor;
+        pros::Motor* motor1;
+        pros::Motor* motor2;
         pros::Distance* triball_in;
         double distance;
         Odometry* odometry;
