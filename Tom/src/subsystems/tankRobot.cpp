@@ -48,7 +48,7 @@ void TankRobot::pollController(bool dualDriver)
         }
 
         if (driver.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-            catapult->spin(-6000);
+            catapult->spin(-12000);
         } else {
             catapult->spin(0);
         }

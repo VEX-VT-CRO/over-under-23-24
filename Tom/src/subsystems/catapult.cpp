@@ -27,8 +27,8 @@ void Catapult::charge() {
             charge_state=false;
         }
         else{
-            motor1->move_voltage(-6000);
-            motor2->move_voltage(-6000);
+            motor1->move_voltage(-12000);
+            motor2->move_voltage(-12000);
         }
 }
 
