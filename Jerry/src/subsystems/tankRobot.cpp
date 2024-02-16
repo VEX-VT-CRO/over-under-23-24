@@ -78,7 +78,10 @@ void TankRobot::pollController(bool dualDriver)
     
     if(dualDriver){
         int turretDirection = partner.get_digital(pros::E_CONTROLLER_DIGITAL_L1) - partner.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
-        turret->turnVoltage(TURRET_SPEED * turretDirection);
+        if(turretDirection != 0)
+        {
+            turret->turnVoltage(TURRET_SPEED * turretDirection);
+        }
         if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
             turret->reset_angles();
         }

@@ -66,8 +66,7 @@ lemlib::OdomSensors_t sensors
 {
 	&verticalWheel,
 	nullptr,
-	nullptr,
-	// &horizontalWheel,
+	&horizontalWheel,
 	nullptr,
 	&gyro
 };
@@ -134,7 +133,6 @@ void initialize() {
 	robot = new TankRobot(drivetrain, ri, indexer, nullptr, catapult, team);
 
 	pros::lcd::initialize();
-	//indexer->openIntake();
 }
 
 /**
@@ -155,29 +153,118 @@ void disabled() {}
  */
 void competition_initialize() {}
 
+void charge()
+{
+	catapult->spin(-6000);
+	pros::delay(2500);
+	catapult->spin(0);
+}
+
+void half()
+{
+	catapult->spin(-6000);
+	pros::delay(750);
+	catapult->spin(0);
+}
+
+void shoot()
+{
+	catapult->spin(-6000);
+	pros::delay(800);
+	catapult->spin(0);
+}
+
 //To be used in a qualifying match with Jerry
 void jerryQual()
 {
-	chassis->setPose(-53.7, 53.7, -135);
-	//RESET CATAPULT TO HALFWAY
+	indexer->openIntake();
+	chassis->setPose(-53.7, -53.7, -135);
+	chassis->moveTo(-36, -36, 2000);
+	chassis->turnTo(48, 0, 2000);
+	shoot();
+	half();
+	//BACK TO LOAD
 	ri.spin(ri.STANDARD_MV);
-	chassis->moveTo(-48, -48, 5000);
-	goTo(-60, -36, 5000);
-	ri.spin(-ri.STANDARD_MV);
-	chassis->turnTo(-60, -30, 5000, true);
+	chassis->moveTo(-50, -50, 2000);
 	ri.spin(0);
-	chassis->moveTo(-60, -30, 5000);
-	chassis->moveTo(-60, -36, 5000);
-	goTo(-36, -36, 5000);
+	goTo(-60, -36, 5000);
+	chassis->turnTo(-60, -30, 2000, true);
+	ri.spin(-ri.STANDARD_MV);
+	pros::delay(500);
+	chassis->turnTo(-60, -30, 2000, true);
+	ri.spin(0);
+	chassis->moveTo(-60, -30, 2000);
+	chassis->moveTo(-60, -36, 2000);
+	goTo(-36, -36, 2000);
+	charge();
 	ri.spin(ri.STANDARD_MV);
-	goTo(-48, -12, 5000);
-	chassis->turnTo(48, -12, 5000, false);
-	//SHOOT
-	goTo(-9, -12, 5000);
-	chassis->turnTo(48, -12, 5000, true);
-	//SHOOT
-	goTo(-12, -36, 5000);
-	goTo(0, -48, 5000);
+	goTo(-24, -12, 2000);
+	chassis->turnTo(48, -12, 2000, false);
+	shoot();
+	charge();
+	goTo(-9, -12, 2000);
+	chassis->turnTo(48, -12, 2000, true);
+	shoot();
+	goTo(-12, -36, 2000);
+	goTo(0, -48, 2000);
+}
+
+void elimAuto()
+{
+	indexer->openIntake();
+	chassis->setPose(-53.7, -53.7, -135);
+	chassis->moveTo(-36, -36, 2000);
+	chassis->turnTo(48, 0, 2000, true);
+	ri.spin(ri.STANDARD_MV);
+	shoot();
+	/*half();
+	goTo(-53.7, -53.7, 2000);
+	ri.spin(ri.STANDARD_MV);
+	chassis->moveTo(-48, -48, 2000);
+	ri.spin(0);
+	goTo(-60, -36, 2000);
+	chassis->turnTo(-60, -30, 2000);
+	ri.spin(-ri.STANDARD_MV);
+	pros::delay(1000);
+	chassis->moveTo(-60, -40, 2000);
+	chassis->turnTo(-60, -60, 2000, true);
+	ri.spin(0);
+	chassis->moveTo(-60, -30, 2000);
+	chassis->moveTo(-60, -36, 2000);
+	goTo(-48, -48, 2000);
+	goTo(-53.7, -53.7, 2000);
+	catapult->spin(-6000);
+	pros::delay(1850);
+	catapult->spin(0);
+	ri.spin(ri.STANDARD_MV);
+
+	pros::delay(750);
+	chassis->moveTo(-36, -36, 2000);
+	chassis->turnTo(48, 0, 2000, true);
+	shoot();
+	goTo(-53.7, -53.7, 2000);
+	
+	pros::delay(750);
+	chassis->moveTo(-36, -36, 2000);
+	chassis->turnTo(48, 0, 2000, true);
+	shoot();
+	goTo(-53.7, -53.7, 2000);
+
+	pros::delay(750);
+	chassis->moveTo(-36, -36, 5000);
+	chassis->turnTo(48, 0, 5000, true);
+	shoot();
+	goTo(-53.7, -53.7, 5000);
+
+	chassis->moveTo(-36, -36, 5000);
+	chassis->turnTo(48, 0, 5000, true);
+	shoot();
+	goTo(-53.7, -53.7, 5000);
+
+	chassis->moveTo(-36, -36, 5000);
+	chassis->turnTo(48, 0, 5000, true);
+	shoot();
+	goTo(-53.7, -53.7, 5000);*/
 }
 
 /**
@@ -192,7 +279,7 @@ void jerryQual()
  * from where it left off.
  */
 void autonomous() {
-	//jerryQual();
+	elimAuto();
 }
 
 /**

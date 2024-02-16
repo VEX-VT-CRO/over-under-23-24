@@ -174,9 +174,33 @@ void autonomous() {
 	//TEST AUTON
 	//odom->setPosition({16, 30.5}); //START
 	//odom->setAngle(0);
-	chassis->setPose(36, -60, 0);
+	//chassis->setPose(-12, -60, -90);
 	//robot->goTo({36, 30.5}, 15000); //
-	chassis->moveTo(36, -36, 5000, 50);
+
+	leftSideGroup.move_voltage(-10000);
+	rightSideGroup.move_voltage(-10000);
+	pros::delay(1800);
+	i.indexDisc();
+	leftSideGroup.move_voltage(-10000);
+	rightSideGroup.move_voltage(-7000);
+	pros::delay(2000);
+	leftSideGroup.move_voltage(11000);
+	rightSideGroup.move_voltage(11000);
+	pros::delay(500);
+	leftSideGroup.move_voltage(-11000);
+	rightSideGroup.move_voltage(-11000);
+	pros::delay(500);
+	leftSideGroup.move_voltage(11000);
+	rightSideGroup.move_voltage(11000);
+	pros::delay(500);
+	leftSideGroup.move_voltage(-11000);
+	rightSideGroup.move_voltage(-11000);
+	pros::delay(500);
+	leftSideGroup.move_voltage(11000);
+	rightSideGroup.move_voltage(11000);
+	pros::delay(500);
+	leftSideGroup.move_voltage(0);
+	rightSideGroup.move_voltage(0);
 	//goTo(36, -36, 5000);
 	//robot->goTo({47, 59.75}, 15000); //First triball
 	//goTo(12, 0, 5000);
