@@ -1,47 +1,42 @@
-//TOM
-//Senior robot
+//Spike
+//Pass through robot
 
 #include "main.h"
 #include "subsystems/tankRobot.hpp"
 #include <cstdlib>
 #include "lemlib/api.hpp"
 
-pros::Motor leftFront(14, true);
-pros::Motor leftMiddle(15, true);
-pros::Motor leftBack(16, true);
+pros::Motor leftFront(2, true);
+pros::Motor leftMiddle(1, true);
+pros::Motor leftBack(11, true);
 
-pros::Motor rightFront(17, false);
-pros::Motor rightMiddle(18, false);
-pros::Motor rightBack(19, false);
+pros::Motor rightFront(6, false);
+pros::Motor rightMiddle(10, false);
+pros::Motor rightBack(20, false);
 
 pros::Motor leftside[] = {leftFront, leftMiddle, leftBack};
 pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 
+pros::Motor conveyor1(3);
+pros::Motor conveyor2(8, true);
+pros::MotorGroup convGroup({conveyor1, conveyor2});
+Conveyor conveyor(convGroup);
 
-pros::Motor intake1(11, false);
-pros::Motor intake2(12, true);
-pros::MotorGroup riGroup({intake1, intake2});
+pros::Motor intake(7);
+pros::MotorGroup riGroup({intake});
 RollerIntake ri(riGroup);
 
+pros::ADIDigitalOut indexerSolenoid('H');
+Indexer i(indexerSolenoid);
 
-pros::ADIDigitalIn catapult_charged('H');
-// pros::Distance distance_sensor(19);
-pros::Motor catapultMotor1(9,false);
-pros::Motor catapultMotor2(10,true);
-pros::Motor spoolMotor(13, false);
-pros::MotorGroup spoolGroup({spoolMotor});
-// pros::Motor catapult_motors[] = {catapultMotor1, catapultMotor2};
-Catapult* catapult;
-
-pros::ADIDigitalOut open_intake_sol('G');
-pros::ADIDigitalOut solenoid('F');
-Indexer* indexer;
+pros::ADIDigitalOut hoodSolenoid('F');
+Hood hood(hoodSolenoid);
 
 TankDrivetrain drivetrain(leftside, rightside, 3);
 
 TeamColor team = TeamColor::Blue;
 
-Spool* spool;
+
 TankRobot* robot;
 
 //LEMLIB (https://lemlib.github.io/LemLib/md_docs_tutorials_2_setting_up_the_chassis->html)
@@ -57,33 +52,33 @@ lemlib::Drivetrain_t LLDrivetrain
 	257, //Wheel rpm
 };
 
-pros::IMU gyro(20);
+pros::IMU gyro(18);
 
-pros::ADIEncoder verticalEncoder('D', 'E');
-pros::ADIEncoder horizontalEncoder('B', 'C');
+//pros::ADIEncoder verticalEncoder('A', 'B');
+//pros::ADIEncoder horizontalEncoder('C', 'D');
 
 //Parameters: ADIEncoder, wheel diameter, distance from center, gear ratio
-lemlib::TrackingWheel verticalWheel(&verticalEncoder, 2.72, 0, 1);
-lemlib::TrackingWheel horizontalWheel(&horizontalEncoder, 2.75, 6, 1);
+lemlib::TrackingWheel leftWheels(&leftSideGroup, 2.72, 0, 1);
+lemlib::TrackingWheel rightWheels(&rightSideGroup, 2.75, 6, 1);
 
 lemlib::OdomSensors_t sensors
 {
-	&verticalWheel,
+	&leftWheels,
+	&rightWheels,
 	nullptr,
-	&horizontalWheel,
 	nullptr,
 	&gyro
 };
 
 lemlib::ChassisController_t driveController
 {
-	750, // kP
-    0, // kD
+	8, // kP
+    30, // kD
     1, // smallErrorRange
     100, // smallErrorTimeout
     3, // largeErrorRange
     500, // largeErrorTimeout
-    2 // slew rate
+    5 // slew rate
 };
 
 lemlib::ChassisController_t turnController {
@@ -105,7 +100,7 @@ void goTo(float x, float y, int timeout, float maxDriveSpeed, float maxTurnSpeed
 	chassis->moveTo(x, y, timeout, maxDriveSpeed, log);
 }
 
-void goTo(float x, float y, int timeout, float maxSpeed = 50.0f, bool reversed = false, bool log = false)
+void goTo(float x, float y, int timeout, float maxSpeed = 127.0f, bool reversed = false, bool log = false)
 {
 	chassis->turnTo(x, y, timeout, reversed, maxSpeed, log);
 	chassis->moveTo(x, y, timeout, maxSpeed, log);
@@ -129,15 +124,13 @@ void screen() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
-	chassis->calibrate();
-	pros::Task screenTask(screen); // create a task to print the position to the screen
-	catapult = new Catapult(&catapultMotor1, &catapultMotor2, &catapult_charged, nullptr);
-	indexer = new Indexer(solenoid, open_intake_sol);
-	spool = new Spool(spoolGroup, 0);
-	robot = new TankRobot(drivetrain, ri, indexer, nullptr, catapult, spool, team);
+	robot = new TankRobot(drivetrain, ri, &i, &hood, &conveyor, nullptr, team);
+	//chassis = new lemlib::Chassis(LLDrivetrain, driveController, turnController, sensors);
 
 	pros::lcd::initialize();
+
+	//chassis->calibrate();
+	//pros::Task screenTask(screen); // create a task to print the position to the screen
 }
 
 /**
@@ -158,118 +151,12 @@ void disabled() {}
  */
 void competition_initialize() {}
 
-void charge()
-{
-	catapult->spin(-6000);
-	pros::delay(2500);
-	catapult->spin(0);
-}
-
-void half()
-{
-	catapult->spin(-6000);
-	pros::delay(750);
-	catapult->spin(0);
-}
-
-void shoot()
-{
-	catapult->spin(-6000);
-	pros::delay(800);
-	catapult->spin(0);
-}
-
-//To be used in a qualifying match with Jerry
 void jerryQual()
 {
-	indexer->openIntake();
-	chassis->setPose(-53.7, -53.7, -135);
-	chassis->moveTo(-36, -36, 2000);
-	chassis->turnTo(48, 0, 2000);
-	shoot();
-	half();
-	//BACK TO LOAD
+	chassis->setPose(-12, -60, 90);
 	ri.spin(ri.STANDARD_MV);
-	chassis->moveTo(-50, -50, 2000);
-	ri.spin(0);
-	goTo(-60, -36, 5000);
-	chassis->turnTo(-60, -30, 2000, true);
-	ri.spin(-ri.STANDARD_MV);
-	pros::delay(500);
-	chassis->turnTo(-60, -30, 2000, true);
-	ri.spin(0);
-	chassis->moveTo(-60, -30, 2000);
-	chassis->moveTo(-60, -36, 2000);
-	goTo(-36, -36, 2000);
-	charge();
-	ri.spin(ri.STANDARD_MV);
-	goTo(-24, -12, 2000);
-	chassis->turnTo(48, -12, 2000, false);
-	shoot();
-	charge();
-	goTo(-9, -12, 2000);
-	chassis->turnTo(48, -12, 2000, true);
-	shoot();
-	goTo(-12, -36, 2000);
-	goTo(0, -48, 2000);
-}
-
-void elimAuto()
-{
-	indexer->openIntake();
-	chassis->setPose(-53.7, -53.7, -135);
-	chassis->moveTo(-36, -36, 2000);
-	chassis->turnTo(48, 0, 2000, true);
-	ri.spin(ri.STANDARD_MV);
-	shoot();
-	/*half();
-	goTo(-53.7, -53.7, 2000);
-	ri.spin(ri.STANDARD_MV);
-	chassis->moveTo(-48, -48, 2000);
-	ri.spin(0);
-	goTo(-60, -36, 2000);
-	chassis->turnTo(-60, -30, 2000);
-	ri.spin(-ri.STANDARD_MV);
-	pros::delay(1000);
-	chassis->moveTo(-60, -40, 2000);
-	chassis->turnTo(-60, -60, 2000, true);
-	ri.spin(0);
-	chassis->moveTo(-60, -30, 2000);
-	chassis->moveTo(-60, -36, 2000);
-	goTo(-48, -48, 2000);
-	goTo(-53.7, -53.7, 2000);
-	catapult->spin(-6000);
-	pros::delay(1850);
-	catapult->spin(0);
-	ri.spin(ri.STANDARD_MV);
-
-	pros::delay(750);
-	chassis->moveTo(-36, -36, 2000);
-	chassis->turnTo(48, 0, 2000, true);
-	shoot();
-	goTo(-53.7, -53.7, 2000);
-	
-	pros::delay(750);
-	chassis->moveTo(-36, -36, 2000);
-	chassis->turnTo(48, 0, 2000, true);
-	shoot();
-	goTo(-53.7, -53.7, 2000);
-
-	pros::delay(750);
-	chassis->moveTo(-36, -36, 5000);
-	chassis->turnTo(48, 0, 5000, true);
-	shoot();
-	goTo(-53.7, -53.7, 5000);
-
-	chassis->moveTo(-36, -36, 5000);
-	chassis->turnTo(48, 0, 5000, true);
-	shoot();
-	goTo(-53.7, -53.7, 5000);
-
-	chassis->moveTo(-36, -36, 5000);
-	chassis->turnTo(48, 0, 5000, true);
-	shoot();
-	goTo(-53.7, -53.7, 5000);*/
+	goTo(12, -60, 5000);
+	chassis->turnTo(12, -48, 5000, false);
 }
 
 /**
@@ -284,7 +171,86 @@ void elimAuto()
  * from where it left off.
  */
 void autonomous() {
-	elimAuto();
+	//TEST AUTON
+	//odom->setPosition({16, 30.5}); //START
+	//odom->setAngle(0);
+	//chassis->setPose(-12, -60, -90);
+	//robot->goTo({36, 30.5}, 15000); //
+
+	leftSideGroup.move_voltage(-10000);
+	rightSideGroup.move_voltage(-10000);
+	pros::delay(1800);
+	i.indexDisc();
+	leftSideGroup.move_voltage(-10000);
+	rightSideGroup.move_voltage(-7000);
+	pros::delay(2000);
+	leftSideGroup.move_voltage(11000);
+	rightSideGroup.move_voltage(11000);
+	pros::delay(500);
+	leftSideGroup.move_voltage(-11000);
+	rightSideGroup.move_voltage(-11000);
+	pros::delay(500);
+	leftSideGroup.move_voltage(11000);
+	rightSideGroup.move_voltage(11000);
+	pros::delay(500);
+	leftSideGroup.move_voltage(-11000);
+	rightSideGroup.move_voltage(-11000);
+	pros::delay(500);
+	leftSideGroup.move_voltage(11000);
+	rightSideGroup.move_voltage(11000);
+	pros::delay(500);
+	leftSideGroup.move_voltage(0);
+	rightSideGroup.move_voltage(0);
+	//goTo(36, -36, 5000);
+	//robot->goTo({47, 59.75}, 15000); //First triball
+	//goTo(12, 0, 5000);
+	//robot->goTo({63.5, 59.75}, 15000); //Second triball
+	//goTo(63.5, 59.75, 15000);
+	//robot->goTo({28.5, 14}, 15000); //Left of bar
+	//goTo(28.5, 14, 15000);
+	//robot->goTo({99.5, 14}, 15000); //Right of bar
+	//goTo(99.5, 14, 15000);
+	//robot->goTo({108, 29}, 15000); //Get ready for the turn
+	//goTo(108, 29, 15000);
+	//robot->goTo({94, 47}, 15000); //About to go to third triball
+	//goTo(94, 47, 15000);
+	//robot->goTo({77.5, 47}, 15000); //Third triball
+	//goTo(77.5, 47, 15000);
+	//robot->goTo({110.5, 58.75}, 15000); //Push it in
+	//goTo(110.5, 58.75, 15000);
+	//robot->goTo({75.5, 23.5}, 15000); //Ram the climb post
+	//goTo(75.5, 23.5, 15000);
+
+	//TESTING PID
+	/*while(odom->getPosition().y < 70.5)
+	{
+		leftFront.move_voltage(2250);
+		leftMiddle.move_voltage(2250);
+		leftBack.move_voltage(2250);
+		rightFront.move_voltage(3000);
+		rightMiddle.move_voltage(3000);
+		rightBack.move_voltage(3000);
+		
+		pros::delay(10);
+		odom->update();
+	}
+
+	drivetrain.drive(0);
+
+	pros::delay(1500);
+
+	while(odom->getPosition().y > 0.0)
+	{
+		leftFront.move_voltage(-2700);
+		leftMiddle.move_voltage(-2700);
+		leftBack.move_voltage(-2700);
+		rightFront.move_voltage(-3000);
+		rightMiddle.move_voltage(-3000);
+		rightBack.move_voltage(-3000);
+		
+		pros::delay(10);
+		odom->update();
+	}*/
 }
 
 /**
@@ -301,12 +267,9 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	robot->start();
 	while (true) {
 		robot->pollController(false);
-		if (catapult->charge_state) {
-            catapult->charge();
-        }
+
 		pros::delay(10);
 	}
 }
