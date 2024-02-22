@@ -179,6 +179,27 @@ void shoot()
 	catapult->spin(0);
 }
 
+void regular_qual(){
+	indexer->openIntake();
+	chassis->setPose(-54.85, -56, 135);
+	pros::delay(1000);
+	chassis->turnTo(-35,-60.1, 1000);
+	chassis->turnTo(-39.5,-70,3000);
+	chassis->turnTo(-35,-60.1, 1000);
+	chassis->turnTo(-39.5,-70,3000);
+	chassis->turnTo(-35,-60.1, 1000);
+	chassis->turnTo(-39.5,-70,3000);
+	chassis->turnTo(-35,-60.1, 1000);
+	chassis->turnTo(-39.5,-70,3000);
+	chassis->turnTo(-35,-60.1, 1000);
+	chassis->turnTo(-39.5,-70,3000);
+	chassis->turnTo(-35,-60.1, 1000);
+	chassis->turnTo(-39.5,-70,3000);
+	chassis->turnTo(-35,-60.1, 1000);
+	chassis->turnTo(-39.5,-70,3000);
+	chassis->turnTo(-35,-60.1, 1000);
+	chassis->turnTo(-39.5,-70,3000);
+}
 //To be used in a qualifying match with Jerry
 void jerryQual()
 {
@@ -284,7 +305,7 @@ void elimAuto()
  * from where it left off.
  */
 void autonomous() {
-	elimAuto();
+	regular_qual();
 }
 
 /**
