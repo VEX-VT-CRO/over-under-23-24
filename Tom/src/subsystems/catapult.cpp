@@ -22,13 +22,13 @@ Catapult::Catapult(pros::Motor* m1, pros::Motor* m2, pros::ADIDigitalIn* catapul
 
 void Catapult::charge() {
         if (charged->get_value()) {
-            motor1->move_voltage(0);
-            motor2->move_voltage(0);
+            motor1->move_velocity(0);
+            motor2->move_velocity(0);
             charge_state=false;
         }
         else{
-            motor1->move_voltage(-12000);
-            motor2->move_voltage(-12000);
+            motor1->move_velocity(-200);
+            motor2->move_velocity(-200);
         }
 }
 
