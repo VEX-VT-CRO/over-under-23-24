@@ -8,6 +8,7 @@
 #include "rollerIntake.hpp"
 #include "catapult.hpp"
 #include "indexer.hpp"
+#include "spool.hpp"
 #include "visionsensor.hpp"
 #include "spool.hpp"
 

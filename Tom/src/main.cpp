@@ -28,6 +28,8 @@ pros::ADIDigitalIn catapult_charged('H');
 // pros::Distance distance_sensor(19);
 pros::Motor catapultMotor1(9,false);
 pros::Motor catapultMotor2(10,true);
+pros::Motor spoolMotor(13, false);
+pros::MotorGroup spoolGroup({spoolMotor});
 // pros::Motor catapult_motors[] = {catapultMotor1, catapultMotor2};
 Catapult* catapult;
 
@@ -39,7 +41,7 @@ TankDrivetrain drivetrain(leftside, rightside, 3);
 
 TeamColor team = TeamColor::Blue;
 
-
+Spool* spool;
 TankRobot* robot;
 
 //LEMLIB (https://lemlib.github.io/LemLib/md_docs_tutorials_2_setting_up_the_chassis->html)
@@ -132,7 +134,8 @@ void initialize() {
 	pros::Task screenTask(screen); // create a task to print the position to the screen
 	catapult = new Catapult(&catapultMotor1, &catapultMotor2, &catapult_charged, nullptr);
 	indexer = new Indexer(solenoid, open_intake_sol);
-	robot = new TankRobot(drivetrain, ri, indexer, nullptr, catapult, team);
+	spool = new Spool(spoolGroup, 0);
+	robot = new TankRobot(drivetrain, ri, indexer, nullptr, catapult, spool, team);
 
 	pros::lcd::initialize();
 }
