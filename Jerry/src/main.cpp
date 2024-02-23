@@ -20,7 +20,7 @@ pros::Motor rightside[] = {rightFront, rightMiddle, rightBack};
 //16 - Spool
 pros::Motor spoolMotor(16);
 pros::MotorGroup spoolGroup({spoolMotor});
-Spool spool(spoolGroup, 3);
+Spool spool(spoolGroup, 1);
 
 pros::Motor intake1(17);
 pros::MotorGroup riGroup({intake1});
