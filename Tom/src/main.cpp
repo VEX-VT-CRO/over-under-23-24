@@ -174,31 +174,47 @@ void half()
 
 void shoot()
 {
-	catapult->spin(-6000);
-	pros::delay(800);
+	catapult->spin(-12000);
+	pros::delay(300);
 	catapult->spin(0);
 }
 
 void regular_qual(){
-	indexer->openIntake();
-	chassis->setPose(-54.85, -56, 135);
-	pros::delay(1000);
-	chassis->turnTo(-35,-60.1, 1000);
-	chassis->turnTo(-39.5,-70,3000);
-	chassis->turnTo(-35,-60.1, 1000);
-	chassis->turnTo(-39.5,-70,3000);
-	chassis->turnTo(-35,-60.1, 1000);
-	chassis->turnTo(-39.5,-70,3000);
-	chassis->turnTo(-35,-60.1, 1000);
-	chassis->turnTo(-39.5,-70,3000);
-	chassis->turnTo(-35,-60.1, 1000);
-	chassis->turnTo(-39.5,-70,3000);
-	chassis->turnTo(-35,-60.1, 1000);
-	chassis->turnTo(-39.5,-70,3000);
-	chassis->turnTo(-35,-60.1, 1000);
-	chassis->turnTo(-39.5,-70,3000);
-	chassis->turnTo(-35,-60.1, 1000);
-	chassis->turnTo(-39.5,-70,3000);
+	indexer->indexDisc();
+	chassis->setPose(-53, -53, 150);
+	pros::delay(500);
+	ri.spin(12000);
+	chassis->turnTo(-45,-60.1, 1000);
+	chassis->turnTo(-44,-69.3,2500);
+	chassis->turnTo(-45,-60.1, 1000);
+	chassis->turnTo(-44,-69.3,2500);
+	chassis->turnTo(-45,-60.1, 1000);
+	chassis->turnTo(-44,-69.3,2500);
+	chassis->turnTo(-45,-60.1, 1000);
+	chassis->turnTo(-44,-69.3,2500);
+	chassis->turnTo(-45,-60.1, 1000);
+	chassis->turnTo(-44,-69.3,2500);
+	chassis->turnTo(-45,-60.1, 1000);
+	chassis->turnTo(-44,-69.3,2500);
+	chassis->turnTo(-45,-60.1, 1000);
+	chassis->turnTo(-44,-69.3,2500);
+	chassis->turnTo(-45,-60.1, 1000);
+	chassis->turnTo(-44,-69.3,2500);
+	chassis->turnTo(-45,-60.1, 1000);
+	chassis->turnTo(-44,-69.3,1000);
+	ri.spin(0);
+	indexer->indexDisc();
+	goTo(-43, -56, 1000);
+	ri.spin(-12000);
+	goTo(-38,-18,1750);
+	pros::delay(500);
+	chassis->turnTo(44, -62, 1000, true);
+	ri.spin(0);
+	shoot();
+	ri.spin(12000);
+	goTo(-6,-51.5,1800);
+	pros::delay(500);
+	ri.spin(0);
 }
 //To be used in a qualifying match with Jerry
 void jerryQual()
