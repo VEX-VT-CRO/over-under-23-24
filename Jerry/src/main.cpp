@@ -213,7 +213,7 @@ void shootBall(bool charge = true, bool firstCharge = false)
 	}
 	
 	//turret->updatePosition();
-	//pros::delay(1500);
+	//pros::delay(1000);
 	catapult->shoot();
 	pros::delay(200);
 	catapult->charge();
@@ -283,9 +283,9 @@ void tomQual()
 	rightSideGroup.set_brake_modes(pros::E_MOTOR_BRAKE_COAST);
 }
 
-void elimQual()
+void skillsAuto()
 {
-	chassis->setPose(-54, -54, 90);
+	chassis->setPose(-54, 54, -45);
 	intakeBall(true);
 	shootBall();
 	intakeBall(true);
@@ -344,7 +344,7 @@ void elimQual()
  * from where it left off.
  */
 void autonomous() {
-	elimQual();
+	skillsAuto();
 
 	//TEST AUTON
 	//odom->setPosition({16, 30.5}); //START
