@@ -26,10 +26,10 @@ pros::Motor intake(7);
 pros::MotorGroup riGroup({intake});
 RollerIntake ri(riGroup);
 
-pros::ADIDigitalOut indexerSolenoid('H');
+pros::ADIDigitalOut indexerSolenoid('F');
 Indexer i(indexerSolenoid);
 
-pros::ADIDigitalOut hoodSolenoid('F');
+pros::ADIDigitalOut hoodSolenoid('H');
 Hood hood(hoodSolenoid);
 
 TankDrivetrain drivetrain(leftside, rightside, 3);
@@ -47,9 +47,9 @@ lemlib::Drivetrain_t LLDrivetrain
 {
 	&leftSideGroup,
 	&rightSideGroup,
-	12, //Track width (space between groups in inches)
-	4.14, //Wheel diameter
-	257, //Wheel rpm
+	11, //Track width (space between groups in inches)
+	3.25, //Wheel diameter
+	267, //Wheel rpm
 };
 
 pros::IMU gyro(18);
@@ -58,13 +58,13 @@ pros::IMU gyro(18);
 //pros::ADIEncoder horizontalEncoder('C', 'D');
 
 //Parameters: ADIEncoder, wheel diameter, distance from center, gear ratio
-lemlib::TrackingWheel leftWheels(&leftSideGroup, 2.72, 0, 1);
-lemlib::TrackingWheel rightWheels(&rightSideGroup, 2.75, 6, 1);
+//lemlib::TrackingWheel leftWheels(&leftSideGroup, 2.72, 0, 1);
+//lemlib::TrackingWheel rightWheels(&rightSideGroup, 2.75, 6, 1);
 
 lemlib::OdomSensors_t sensors
 {
-	&leftWheels,
-	&rightWheels,
+	nullptr,
+	nullptr,
 	nullptr,
 	nullptr,
 	&gyro
@@ -171,36 +171,116 @@ void jerryQual()
  * from where it left off.
  */
 void autonomous() {
+	//Match Auto (Marco)
+	
+	// chassis->setPose({-32, -60, 0});
+	// chassis->moveTo(-32, -50, 10000);
+	
+	//wait for TOM
+	leftSideGroup.move_voltage(0);
+	rightSideGroup.move_voltage(0);
+	pros::delay(35000);
+
+	//First curve
+	leftSideGroup.move_voltage(-8000);
+	rightSideGroup.move_voltage(-5000);
+	pros::delay(1700);
+	leftSideGroup.move_voltage(0);
+	rightSideGroup.move_voltage(0);
+	pros::delay(200);
+
+	//Straight under the bar
+	leftSideGroup.move_voltage(-9000);
+	rightSideGroup.move_voltage(-9300);
+	i.indexDisc();
+	pros::delay(1900);
+
+	
+	//2nd curve
+	leftSideGroup.move_voltage(-8000);
+	rightSideGroup.move_voltage(-6175);
+	pros::delay(1250);
+	i.indexDisc();
+
+	//pause
+	leftSideGroup.move_voltage(0);
+	rightSideGroup.move_voltage(0);
+	pros::delay(100);
+
+	//face goal
+	leftSideGroup.move_voltage(-6000);
+	rightSideGroup.move_voltage(6000);
+	pros::delay(375);
+
+	leftSideGroup.move_voltage(0);
+	rightSideGroup.move_voltage(0);
+	pros::delay(200);
+
+	//score
+	leftSideGroup.move_voltage(-12000);
+	rightSideGroup.move_voltage(-12000);
+	pros::delay(700);
+	
+	leftSideGroup.move_voltage(0);
+	rightSideGroup.move_voltage(0);
+	pros::delay(200);
+
+	leftSideGroup.move_voltage(12000);
+	rightSideGroup.move_voltage(10000);
+	pros::delay(350);
+
+	leftSideGroup.move_voltage(0);
+	rightSideGroup.move_voltage(0);
+	pros::delay(800);
+
+	leftSideGroup.move_voltage(-12000);
+	rightSideGroup.move_voltage(-12000);
+	pros::delay(600);
+	
+	leftSideGroup.move_voltage(0);
+	rightSideGroup.move_voltage(0);
+	pros::delay(100);
+
+	leftSideGroup.move_voltage(10000);
+	rightSideGroup.move_voltage(12000);
+	pros::delay(300);
+
+	leftSideGroup.move_voltage(0);
+	rightSideGroup.move_voltage(0);
+	pros::delay(1000);
+
 	//TEST AUTON
 	//odom->setPosition({16, 30.5}); //START
 	//odom->setAngle(0);
 	//chassis->setPose(-12, -60, -90);
 	//robot->goTo({36, 30.5}, 15000); //
 
-	leftSideGroup.move_voltage(-10000);
-	rightSideGroup.move_voltage(-10000);
-	pros::delay(1800);
-	i.indexDisc();
-	leftSideGroup.move_voltage(-10000);
-	rightSideGroup.move_voltage(-7000);
-	pros::delay(2000);
-	leftSideGroup.move_voltage(11000);
-	rightSideGroup.move_voltage(11000);
-	pros::delay(500);
-	leftSideGroup.move_voltage(-11000);
-	rightSideGroup.move_voltage(-11000);
-	pros::delay(500);
-	leftSideGroup.move_voltage(11000);
-	rightSideGroup.move_voltage(11000);
-	pros::delay(500);
-	leftSideGroup.move_voltage(-11000);
-	rightSideGroup.move_voltage(-11000);
-	pros::delay(500);
-	leftSideGroup.move_voltage(11000);
-	rightSideGroup.move_voltage(11000);
-	pros::delay(500);
-	leftSideGroup.move_voltage(0);
-	rightSideGroup.move_voltage(0);
+	// leftSideGroup.move_voltage(-10000);
+	// rightSideGroup.move_voltage(-10000);
+	// pros::delay(1800);
+	// i.indexDisc();
+	// leftSideGroup.move_voltage(-10000);
+	// rightSideGroup.move_voltage(-7000);
+	// pros::delay(2000);
+	// leftSideGroup.move_voltage(11000);
+	// rightSideGroup.move_voltage(11000);
+	// pros::delay(500);
+	// leftSideGroup.move_voltage(-11000);
+	// rightSideGroup.move_voltage(-11000);
+	// pros::delay(500);
+	// leftSideGroup.move_voltage(11000);
+	// rightSideGroup.move_voltage(11000);
+	// pros::delay(500);
+	// leftSideGroup.move_voltage(-11000);
+	// rightSideGroup.move_voltage(-11000);
+	// pros::delay(500);
+	// leftSideGroup.move_voltage(11000);
+	// rightSideGroup.move_voltage(11000);
+	// pros::delay(500);
+	// leftSideGroup.move_voltage(0);
+	// rightSideGroup.move_voltage(0);
+
+
 	//goTo(36, -36, 5000);
 	//robot->goTo({47, 59.75}, 15000); //First triball
 	//goTo(12, 0, 5000);
