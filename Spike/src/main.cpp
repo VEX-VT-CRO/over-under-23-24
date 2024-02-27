@@ -179,10 +179,10 @@ void autonomous() {
 	//wait for TOM
 	leftSideGroup.move_voltage(0);
 	rightSideGroup.move_voltage(0);
-	// pros::delay(35000);
+	pros::delay(35000);
 
 	//First curve
-	leftSideGroup.move_voltage(-8500);
+	leftSideGroup.move_voltage(-8800);
 	rightSideGroup.move_voltage(-5000);
 	pros::delay(1700);
 	leftSideGroup.move_voltage(0);

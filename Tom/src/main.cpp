@@ -211,10 +211,6 @@ void regular_qual(){
 	chassis->turnTo(44, -62, 1000, true);
 	ri.spin(0);
 	shoot();
-	ri.spin(12000);
-	goTo(-6,-51.5,1800);
-	pros::delay(500);
-	ri.spin(0);
 }
 
 void skills_qual(){
