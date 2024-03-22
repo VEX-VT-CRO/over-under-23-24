@@ -8,7 +8,6 @@ Indexer::Indexer(pros::ADIDigitalOut& s, pros::ADIDigitalOut& st) : solenoid{s},
 }
 
 void Indexer::openIntake(){
-    pros::delay(3000);
     start.set_value(1);
     open = true;
 }
