@@ -1,5 +1,34 @@
 #include "main.h"
 
+constexpr int8_t frontLeftPort        = 1;
+constexpr int8_t middleFrontLeftPort  = 2;
+constexpr int8_t middleBackLeftPort   = 3;
+constexpr int8_t backLeftPort         = 4;
+constexpr int8_t frontRightPort       = 5;
+constexpr int8_t middleFrontRightPort = 6;
+constexpr int8_t middleBackRightPort  = 7;
+constexpr int8_t backRightPort        = 8;
+
+constexpr int8_t intake1Port = 9;
+constexpr int8_t intake2Port = 10;
+
+constexpr int8_t climb1Port = 11;
+constexpr int8_t climb2Port = 12;
+constexpr int8_t climb3Port = 13;
+constexpr int8_t climb4Port = 14;
+
+pros::Motor frontLeft(frontLeftPort);
+pros::Motor middleFrontLeft(middleFrontLeftPort);
+pros::Motor middleBackLeft(middleBackLeftPort);
+pros::Motor backLeft(backLeftPort);
+pros::Motor frontRight(frontRightPort);
+pros::Motor middleFrontRight(middleFrontRightPort);
+pros::Motor middleBackRight(middleBackRightPort);
+pros::Motor backRight(backRightPort);
+
+pros::Motor_Group leftSide({frontLeft, middleFrontLeft, middleBackLeft, backLeft});
+pros::Motor_Group rightSide({frontRight, middleFrontRight, middleBackRight, backRight});
+
 /**
  * A callback function for LLEMU's center button.
  *
@@ -58,7 +87,9 @@ void competition_initialize() {}
  * will be stopped. Re-enabling the robot will restart the task, not re-start it
  * from where it left off.
  */
-void autonomous() {}
+void autonomous() {
+	
+}
 
 /**
  * Runs the operator control code. This function will be started in its own task
