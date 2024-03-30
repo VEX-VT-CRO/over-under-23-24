@@ -1,5 +1,11 @@
 #include "main.h"
 
+#define PB
+//define J
+
+#define QUAL_AUTO
+//#define MATCH_AUTO
+
 constexpr int8_t frontLeftPort        = 1;
 constexpr int8_t middleFrontLeftPort  = 2;
 constexpr int8_t middleBackLeftPort   = 3;
@@ -29,21 +35,7 @@ pros::Motor backRight(backRightPort);
 pros::Motor_Group leftSide({frontLeft, middleFrontLeft, middleBackLeft, backLeft});
 pros::Motor_Group rightSide({frontRight, middleFrontRight, middleBackRight, backRight});
 
-/**
- * A callback function for LLEMU's center button.
- *
- * When this callback is fired, it will toggle line 2 of the LCD text between
- * "I was pressed!" and nothing.
- */
-void on_center_button() {
-	static bool pressed = false;
-	pressed = !pressed;
-	if (pressed) {
-		pros::lcd::set_text(2, "I was pressed!");
-	} else {
-		pros::lcd::clear_line(2);
-	}
-}
+
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -52,10 +44,7 @@ void on_center_button() {
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
-	pros::lcd::initialize();
-	pros::lcd::set_text(1, "Hello PROS User!");
 
-	pros::lcd::register_btn1_cb(on_center_button);
 }
 
 /**
@@ -76,6 +65,26 @@ void disabled() {}
  */
 void competition_initialize() {}
 
+void qualPB()
+{
+
+}
+
+void matcnPB()
+{
+
+}
+
+void qualJ()
+{
+
+}
+
+void matchJ()
+{
+	
+}
+
 /**
  * Runs the user autonomous code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -88,7 +97,23 @@ void competition_initialize() {}
  * from where it left off.
  */
 void autonomous() {
-	
+#if defined(PB)
+
+	#if defined(QUAL_AUTO)
+		qualPB();
+	#elif defined(MATCH_AUTO)
+		matchPB();
+	#endif
+
+#elif defined(J)
+
+	#if defined(QUAL_AUTO)
+		qualJ();
+	#elif defined(MATCH_AUTO)
+		matchJ();
+	#endif
+
+#endif
 }
 
 /**
@@ -105,20 +130,109 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	pros::Controller master(pros::E_CONTROLLER_MASTER);
-	pros::Motor left_mtr(1);
-	pros::Motor right_mtr(2);
+	static bool manualAim = false;
+    static bool rapidshootmode = false;
+    constexpr int TURRET_SPEED = 6000;
+    drivetrain.tankControl(driver);
 
-	while (true) {
-		pros::lcd::print(0, "%d %d %d", (pros::lcd::read_buttons() & LCD_BTN_LEFT) >> 2,
-		                 (pros::lcd::read_buttons() & LCD_BTN_CENTER) >> 1,
-		                 (pros::lcd::read_buttons() & LCD_BTN_RIGHT) >> 0);
-		int left = master.get_analog(ANALOG_LEFT_Y);
-		int right = master.get_analog(ANALOG_RIGHT_Y);
 
-		left_mtr = left;
-		right_mtr = right;
+    if(!rapidshootmode){
+        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
+        {
+            ri.spin(-ri.STANDARD_MV);
+        }
+        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+        {
+            ri.spin(ri.STANDARD_MV);
+        }
+        else
+        {
+            ri.spin(0);
+        }
 
-		pros::delay(20);
-	}
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2))
+        {
+            if (!catapult->shoot_ready){
+                catapult->charge_state = true;
+                pros::delay(20);
+                turret->rotateback();
+            }    
+            else{
+                catapult->shoot_state = true; 
+                catapult->shoot_ready = false;
+            }      
+        }
+
+        if(catapult->free_move)
+            if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
+                catapult->spin(-6000);
+            else
+                catapult->spin(0);
+
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1) && !manualAim)
+        {
+            SpoolPosition pos = (spool->getPosition() != SpoolPosition::EXTENDED) ? SpoolPosition::EXTENDED : SpoolPosition::RETRACTED;
+            spool->moveTo(pos);
+        }
+        else if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN))
+        {
+            SpoolPosition pos = (spool->getPosition() != SpoolPosition::SWEEP) ? SpoolPosition::SWEEP : SpoolPosition::RETRACTED;
+            spool->moveTo(pos);
+        }
+
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
+            catapult->free_move = !catapult->free_move;
+        }
+
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
+                turret->updatePosition();
+        }
+        
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+            turret->reset_angles();
+        }
+        manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) ? !manualAim : manualAim;
+        
+        if(dualDriver && manualAim){
+            int turretDirection = partner.get_digital(pros::E_CONTROLLER_DIGITAL_L1) - partner.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
+            turret->turnVoltage(TURRET_SPEED * turretDirection);
+            if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+                turret->reset_angles();
+            }
+            if(catapult->free_move)
+                if(partner.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
+                    catapult->spin(-6000);
+                else
+                    catapult->spin(0);
+            if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)){
+                catapult->free_move = !catapult->free_move;
+        }        
+        }
+        if(manualAim)
+        {
+            //int turretDirection = driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1) - driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1); 
+            //turret->turnVoltage(TURRET_SPEED * turretDirection);
+        }
+
+    }else{
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
+            int extendTime = 750;
+            catapult->charge_state = true;
+            pros::delay(20);
+            turret->rotateback(); 
+            pros::delay(100);
+            spool->moveTo(EXTENDED);
+		    pros::delay(extendTime);
+		    spool->moveTo(RETRACTED);
+		    pros::delay(extendTime);
+            turret->updatePosition();
+            pros::delay(100);
+            catapult->shoot_state = true; 
+            catapult->shoot_ready = false;    
+        }
+    }    
+    //rapidshootmode = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) ? !rapidshootmode : rapidshootmode;
+    rapidshootmode = false;
+
+    //pros::lcd::clear();
 }
