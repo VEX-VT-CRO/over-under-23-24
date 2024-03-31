@@ -1,5 +1,6 @@
 #include "main.h"
 
+#include "lemlib/api.hpp"
 #include "subsystems/drivetrain.hpp"
 
 #define PB
@@ -8,38 +9,105 @@
 #define QUAL_AUTO
 //#define MATCH_AUTO
 
-constexpr int8_t frontLeftPort        = 1;
-constexpr int8_t middleFrontLeftPort  = 2;
-constexpr int8_t middleBackLeftPort   = 3;
-constexpr int8_t backLeftPort         = 4;
-constexpr int8_t frontRightPort       = 5;
-constexpr int8_t middleFrontRightPort = 6;
-constexpr int8_t middleBackRightPort  = 7;
-constexpr int8_t backRightPort        = 8;
+constexpr int8_t FRONT_LEFT_PORT         = 1;
+constexpr int8_t MIDDLE_FRONT_LEFT_PORT  = 2;
+constexpr int8_t MIDDLE_BACK_LEFT_PORT   = 3;
+constexpr int8_t BACK_LEFT_PORT          = 4;
+constexpr int8_t FRONT_RIGHT_PORT        = 5;
+constexpr int8_t MIDDLE_FRONT_RIGHT_PORT = 6;
+constexpr int8_t MIDDLE_BACK_RIGHT_PORT  = 7;
+constexpr int8_t BACK_RIGHT_PORT         = 8;
 
-constexpr int8_t intake1Port = 9;
-constexpr int8_t intake2Port = 10;
+constexpr int8_t INTAKE_1_PORT = 9;
+constexpr int8_t INTAKE_2_PORT = 10;
 
-constexpr int8_t climb1Port = 11;
-constexpr int8_t climb2Port = 12;
-constexpr int8_t climb3Port = 13;
-constexpr int8_t climb4Port = 14;
+constexpr int8_t CLIMB_1_PORT = 11;
+constexpr int8_t CLIMB_2_PORT = 12;
+constexpr int8_t CLIMB_3_PORT = 13;
+constexpr int8_t CLIMB_4_PORT = 14;
+
+constexpr int8_t HORIZONTAL_POD_PORT = 15;
+constexpr int8_t VERTICAL_POD_PORT = 16;
+constexpr int8_t GYRO_PORT = 17;
+
+constexpr int ODOM_WHEEL_DIAMETER = 2;
+constexpr int HORIZONTAL_WHEEL_DISTANCE = 0;
+constexpr int VERTICAL_WHEEL_DISTANCE = 0;
+
+constexpr int TRACK_WIDTH = 12;
+constexpr int WHEEL_DIAMETER = 3;
+constexpr int DRIVE_RPM = 600;
+constexpr int CHASE_POWER = 2;
 
 pros::Controller driver(pros::controller_id_e_t::E_CONTROLLER_MASTER);
 
-pros::Motor frontLeft(frontLeftPort);
-pros::Motor middleFrontLeft(middleFrontLeftPort);
-pros::Motor middleBackLeft(middleBackLeftPort);
-pros::Motor backLeft(backLeftPort);
-pros::Motor frontRight(frontRightPort);
-pros::Motor middleFrontRight(middleFrontRightPort);
-pros::Motor middleBackRight(middleBackRightPort);
-pros::Motor backRight(backRightPort);
+//DRIVETRAIN MOTORS
+
+pros::Motor frontLeft(FRONT_LEFT_PORT);
+pros::Motor middleFrontLeft(MIDDLE_FRONT_LEFT_PORT);
+pros::Motor middleBackLeft(MIDDLE_BACK_LEFT_PORT);
+pros::Motor backLeft(BACK_LEFT_PORT);
+pros::Motor frontRight(FRONT_RIGHT_PORT);
+pros::Motor middleFrontRight(MIDDLE_FRONT_RIGHT_PORT);
+pros::Motor middleBackRight(MIDDLE_BACK_RIGHT_PORT);
+pros::Motor backRight(BACK_RIGHT_PORT);
 
 pros::Motor_Group leftSide({frontLeft, middleFrontLeft, middleBackLeft, backLeft});
 pros::Motor_Group rightSide({frontRight, middleFrontRight, middleBackRight, backRight});
 
-TankDrivetrain drivetrain(leftSide, rightSide);
+//SENSORS
+
+pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
+pros::Rotation verticalPod(VERTICAL_POD_PORT);
+pros::IMU gyro(GYRO_PORT);
+
+//LEMLIB STRUCTURES
+
+lemlib::TrackingWheel horizontalWheel(&horizontalPod, ODOM_WHEEL_DIAMETER, HORIZONTAL_WHEEL_DISTANCE);
+lemlib::TrackingWheel verticalWheel(&horizontalPod, ODOM_WHEEL_DIAMETER, VERTICAL_WHEEL_DISTANCE);
+
+lemlib::Drivetrain LLDrivetrain(
+    &leftSide,
+    &rightSide,
+    TRACK_WIDTH,
+    WHEEL_DIAMETER,
+    DRIVE_RPM,
+    CHASE_POWER
+);
+
+lemlib::ControllerSettings linearController(
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+);
+
+lemlib::ControllerSettings angularController(
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+);
+
+lemlib::OdomSensors sensors(
+    &verticalWheel,
+    nullptr,
+    &horizontalWheel,
+    nullptr,
+    &gyro
+);
+
+lemlib::Chassis chassis(LLDrivetrain, linearController, angularController, sensors);
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -134,7 +202,9 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-    drivetrain.tankControl(driver);
+    int l = driver.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+    int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+    chassis.tank(l, r);
 
 //TODO: Control intake
 /*
