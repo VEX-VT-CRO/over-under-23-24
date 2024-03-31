@@ -1,5 +1,7 @@
 #include "main.h"
 
+#include "subsystems/drivetrain.hpp"
+
 #define PB
 //define J
 
@@ -23,6 +25,8 @@ constexpr int8_t climb2Port = 12;
 constexpr int8_t climb3Port = 13;
 constexpr int8_t climb4Port = 14;
 
+pros::Controller driver(pros::controller_id_e_t::E_CONTROLLER_MASTER);
+
 pros::Motor frontLeft(frontLeftPort);
 pros::Motor middleFrontLeft(middleFrontLeftPort);
 pros::Motor middleBackLeft(middleBackLeftPort);
@@ -35,7 +39,7 @@ pros::Motor backRight(backRightPort);
 pros::Motor_Group leftSide({frontLeft, middleFrontLeft, middleBackLeft, backLeft});
 pros::Motor_Group rightSide({frontRight, middleFrontRight, middleBackRight, backRight});
 
-
+TankDrivetrain drivetrain(leftSide, rightSide);
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -130,109 +134,21 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-	static bool manualAim = false;
-    static bool rapidshootmode = false;
-    constexpr int TURRET_SPEED = 6000;
     drivetrain.tankControl(driver);
 
-
-    if(!rapidshootmode){
-        if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
-        {
-            ri.spin(-ri.STANDARD_MV);
-        }
-        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
-        {
-            ri.spin(ri.STANDARD_MV);
-        }
-        else
-        {
-            ri.spin(0);
-        }
-
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2))
-        {
-            if (!catapult->shoot_ready){
-                catapult->charge_state = true;
-                pros::delay(20);
-                turret->rotateback();
-            }    
-            else{
-                catapult->shoot_state = true; 
-                catapult->shoot_ready = false;
-            }      
-        }
-
-        if(catapult->free_move)
-            if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
-                catapult->spin(-6000);
-            else
-                catapult->spin(0);
-
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L1) && !manualAim)
-        {
-            SpoolPosition pos = (spool->getPosition() != SpoolPosition::EXTENDED) ? SpoolPosition::EXTENDED : SpoolPosition::RETRACTED;
-            spool->moveTo(pos);
-        }
-        else if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN))
-        {
-            SpoolPosition pos = (spool->getPosition() != SpoolPosition::SWEEP) ? SpoolPosition::SWEEP : SpoolPosition::RETRACTED;
-            spool->moveTo(pos);
-        }
-
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
-            catapult->free_move = !catapult->free_move;
-        }
-
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
-                turret->updatePosition();
-        }
-        
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-            turret->reset_angles();
-        }
-        manualAim = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_UP)) ? !manualAim : manualAim;
-        
-        if(dualDriver && manualAim){
-            int turretDirection = partner.get_digital(pros::E_CONTROLLER_DIGITAL_L1) - partner.get_digital(pros::E_CONTROLLER_DIGITAL_R1);
-            turret->turnVoltage(TURRET_SPEED * turretDirection);
-            if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-                turret->reset_angles();
-            }
-            if(catapult->free_move)
-                if(partner.get_digital(pros::E_CONTROLLER_DIGITAL_R2))
-                    catapult->spin(-6000);
-                else
-                    catapult->spin(0);
-            if(partner.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_L2)){
-                catapult->free_move = !catapult->free_move;
-        }        
-        }
-        if(manualAim)
-        {
-            //int turretDirection = driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1) - driver.get_digital(pros::E_CONTROLLER_DIGITAL_R1); 
-            //turret->turnVoltage(TURRET_SPEED * turretDirection);
-        }
-
-    }else{
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
-            int extendTime = 750;
-            catapult->charge_state = true;
-            pros::delay(20);
-            turret->rotateback(); 
-            pros::delay(100);
-            spool->moveTo(EXTENDED);
-		    pros::delay(extendTime);
-		    spool->moveTo(RETRACTED);
-		    pros::delay(extendTime);
-            turret->updatePosition();
-            pros::delay(100);
-            catapult->shoot_state = true; 
-            catapult->shoot_ready = false;    
-        }
-    }    
-    //rapidshootmode = (driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X)) ? !rapidshootmode : rapidshootmode;
-    rapidshootmode = false;
-
-    //pros::lcd::clear();
+//TODO: Control intake
+/*
+    if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
+    {
+        ri.spin(-ri.STANDARD_MV);
+    }
+    else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+    {
+        ri.spin(ri.STANDARD_MV);
+    }
+    else
+    {
+        ri.spin(0);
+    }
+*/
 }
