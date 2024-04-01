@@ -46,10 +46,10 @@ pros::Controller driver(pros::controller_id_e_t::E_CONTROLLER_MASTER);
 pros::Motor frontLeft(FRONT_LEFT_PORT);
 pros::Motor middleFrontLeft(MIDDLE_FRONT_LEFT_PORT);
 pros::Motor middleBackLeft(MIDDLE_BACK_LEFT_PORT);
-pros::Motor backLeft(BACK_LEFT_PORT);
-pros::Motor frontRight(FRONT_RIGHT_PORT);
-pros::Motor middleFrontRight(MIDDLE_FRONT_RIGHT_PORT);
-pros::Motor middleBackRight(MIDDLE_BACK_RIGHT_PORT);
+pros::Motor backLeft(BACK_LEFT_PORT, true);
+pros::Motor frontRight(FRONT_RIGHT_PORT, true);
+pros::Motor middleFrontRight(MIDDLE_FRONT_RIGHT_PORT, true);
+pros::Motor middleBackRight(MIDDLE_BACK_RIGHT_PORT, true);
 pros::Motor backRight(BACK_RIGHT_PORT);
 
 pros::Motor_Group leftSide({frontLeft, middleFrontLeft, middleBackLeft, backLeft});
@@ -100,11 +100,14 @@ lemlib::ControllerSettings angularController(
 );
 
 lemlib::OdomSensors sensors(
-    &verticalWheel,
+    //&verticalWheel,
     nullptr,
-    &horizontalWheel,
     nullptr,
-    &gyro
+    //&horizontalWheel,
+    nullptr,
+    nullptr,
+    //&gyro
+    nullptr
 );
 
 lemlib::Chassis chassis(LLDrivetrain, linearController, angularController, sensors);
@@ -202,9 +205,14 @@ void autonomous() {
  * task, not resume it from where it left off.
  */
 void opcontrol() {
-    int l = driver.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-    int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
-    chassis.tank(l, r);
+    while(true)
+    {
+        int l = driver.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
+        int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+        chassis.tank(l, r);
+
+        pros::delay(10);
+    }
 
 //TODO: Control intake
 /*
