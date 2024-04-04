@@ -1,13 +1,17 @@
 #include "main.h"
 
 #include "lemlib/api.hpp"
-#include "subsystems/drivetrain.hpp"
+#include "subsystems/rollerintake.hpp"
+#include "subsystems/indexer.hpp"
 
 #define PB
-//define J
+//#define J
 
 #define QUAL_AUTO
 //#define MATCH_AUTO
+
+// #define ARCADE
+#define TANK
 
 constexpr int8_t FRONT_LEFT_PORT         = 1;
 constexpr int8_t MIDDLE_FRONT_LEFT_PORT  = 2;
@@ -51,10 +55,22 @@ pros::Motor frontRight(FRONT_RIGHT_PORT, true);
 pros::Motor middleFrontRight(MIDDLE_FRONT_RIGHT_PORT, true);
 pros::Motor middleBackRight(MIDDLE_BACK_RIGHT_PORT, true);
 pros::Motor backRight(BACK_RIGHT_PORT);
+pros::Motor intake1(INTAKE_1_PORT);
+pros::Motor intake2(INTAKE_2_PORT, true);
+pros::Motor climb1(CLIMB_1_PORT);
+pros::Motor climb2(CLIMB_2_PORT);
+pros::Motor climb3(CLIMB_3_PORT, true);
+pros::Motor climb4(CLIMB_4_PORT, true);
+pros::ADIDigitalOut solenoid1('A');
+pros::ADIDigitalOut solenoid2('B');
+pros::ADIDigitalOut solenoid3('C');
+pros::ADIDigitalOut solenoid4('D');
+pros::ADIDigitalOut solenoid5('E');
 
 pros::Motor_Group leftSide({frontLeft, middleFrontLeft, middleBackLeft, backLeft});
 pros::Motor_Group rightSide({frontRight, middleFrontRight, middleBackRight, backRight});
-
+pros::MotorGroup riGroup({intake1, intake2});
+pros::MotorGroup climbGroup({climb1, climb2, climb3, climb4});
 //SENSORS
 
 pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
@@ -64,7 +80,7 @@ pros::IMU gyro(GYRO_PORT);
 //LEMLIB STRUCTURES
 
 lemlib::TrackingWheel horizontalWheel(&horizontalPod, ODOM_WHEEL_DIAMETER, HORIZONTAL_WHEEL_DISTANCE);
-lemlib::TrackingWheel verticalWheel(&horizontalPod, ODOM_WHEEL_DIAMETER, VERTICAL_WHEEL_DISTANCE);
+lemlib::TrackingWheel verticalWheel(&verticalPod, ODOM_WHEEL_DIAMETER, VERTICAL_WHEEL_DISTANCE);
 
 lemlib::Drivetrain LLDrivetrain(
     &leftSide,
@@ -76,27 +92,27 @@ lemlib::Drivetrain LLDrivetrain(
 );
 
 lemlib::ControllerSettings linearController(
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    10, // proportional gain (kP)
+    0, // integral gain (kI)
+    3, // derivative gain (kD)
+    3, // anti windup
+    1, // small error range, in inches
+    100, // small error range timeout, in milliseconds
+    3, // large error range, in inches
+    500, // large error range timeout, in milliseconds
+    20 // maximum acceleration (slew)
 );
 
 lemlib::ControllerSettings angularController(
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0
+    2, // proportional gain (kP)
+    0, // integral gain (kI)
+    10, // derivative gain (kD)
+    3, // anti windup
+    1, // small error range, in degrees
+    100, // small error range timeout, in milliseconds
+    3, // large error range, in degrees
+    500, // large error range timeout, in milliseconds
+    0 // maximum acceleration (slew)
 );
 
 lemlib::OdomSensors sensors(
@@ -110,8 +126,21 @@ lemlib::OdomSensors sensors(
     nullptr
 );
 
+// lemlib::ExpoDriveCurve throttleCurve(3, // joystick deadband out of 127
+//                                      10, // minimum output where drivetrain will move out of 127
+//                                      1.019 // expo curve gain
+// );
+
+// lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
+//                                   10, // minimum output where drivetrain will move out of 127
+//                                   1.019 // expo curve gain
+// );
+
+// lemlib::Chassis chassis(LLDrivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
 lemlib::Chassis chassis(LLDrivetrain, linearController, angularController, sensors);
 
+RollerIntake ri(riGroup);
+Indexer ind(solenoid1, solenoid2, solenoid3, solenoid4, solenoid5);
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -119,7 +148,38 @@ lemlib::Chassis chassis(LLDrivetrain, linearController, angularController, senso
  * to keep execution time for this mode under a few seconds.
  */
 void initialize() {
+    pros::lcd::initialize();
+    chassis.calibrate();
 
+    pros::Task screenTask([&]() {
+        lemlib::Pose pose(0, 0, 0);
+        while (true) {
+            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
+            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
+            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+            lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
+            pros::delay(50);
+        }
+    });
+}
+
+void pollController()
+{
+    if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
+        {
+            ri.spin(ri.STANDARD_MV);
+        }
+        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+        {
+            ri.spin(-ri.STANDARD_MV);
+        }
+        else
+        {
+            ri.spin(0);
+        }
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+            ind.indexDisc();
+        }    
 }
 
 /**
@@ -207,26 +267,15 @@ void autonomous() {
 void opcontrol() {
     while(true)
     {
+        pollController();
         int l = driver.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
-        chassis.tank(l, r);
+        #if defined(ARCADE)
+		    chassis.arcade(l, r);
+	    #elif defined(TANK)
+		    chassis.tank(l, r);
+	    #endif
 
         pros::delay(10);
     }
-
-//TODO: Control intake
-/*
-    if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
-    {
-        ri.spin(-ri.STANDARD_MV);
-    }
-    else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
-    {
-        ri.spin(ri.STANDARD_MV);
-    }
-    else
-    {
-        ri.spin(0);
-    }
-*/
 }

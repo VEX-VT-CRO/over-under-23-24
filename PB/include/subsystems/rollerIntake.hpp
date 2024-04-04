@@ -9,7 +9,6 @@ class RollerIntake
         const int STANDARD_MV = 12000;
         RollerIntake(pros::MotorGroup& m);
         void spin(int mV);
-        //void switchColor(bool useOptical);
     private:
         pros::MotorGroup& motors;
 };
