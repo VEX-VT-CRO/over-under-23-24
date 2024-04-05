@@ -2,32 +2,46 @@
 #include "pros/rtos.hpp"
 
 // Use initializer list to initialize the solenoids and member variables
-Indexer::Indexer(pros::ADIDigitalOut& s1, pros::ADIDigitalOut& s2, pros::ADIDigitalOut& s3, pros::ADIDigitalOut& s4, pros::ADIDigitalOut& s5) : solenoid1(s1), solenoid2(s2), solenoid3(s3), solenoid4(s4), solenoid5(s5)
+Indexer::Indexer(pros::ADIDigitalOut& s1, pros::ADIDigitalOut& s2, pros::ADIDigitalOut& s3, pros::ADIDigitalOut& s4, pros::ADIDigitalOut& s5) : back_right_solenoid(s1), back_left_solenoid(s2), front_right_solenoid(s3), front_left_solenoid(s4), odometry_solenoid(s5)
 {
-   open = false;
+   open_front = false;
+   open_back = false;
    open_odometry = false;
 }
 
-void Indexer::indexDisc()
+void Indexer::openFront()
 {
-    if (!open) {
-        solenoid1.set_value(1);
-        open = true; 
+    if (!open_front) {
+        front_right_solenoid.set_value(1);
+        front_left_solenoid.set_value(1);
+        open_front = true; 
     } else {
-        solenoid1.set_value(0);
-        open = false;
+        front_right_solenoid.set_value(0);
+        front_left_solenoid.set_value(0);
+        open_front = false;
     }
 }
 
-void Indexer::Odometry()
+void Indexer::openBack()
+{
+    if (!open_back) {
+        back_right_solenoid.set_value(1);
+        back_left_solenoid.set_value(1);
+        open_back = true; 
+    } else {
+        back_left_solenoid.set_value(0);
+        back_right_solenoid.set_value(0);
+        open_back = false;
+    }
+}
+
+void Indexer::openOdometry()
 {
     if (!open_odometry) {
-        solenoid4.set_value(1);
-        solenoid5.set_value(1);
+        odometry_solenoid.set_value(1);
         open_odometry = true; 
     } else {
-        solenoid4.set_value(0);
-        solenoid5.set_value(0);
+        odometry_solenoid.set_value(0);
         open_odometry = false;
     }
 }

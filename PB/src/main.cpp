@@ -4,7 +4,9 @@
 #include "subsystems/rollerintake.hpp"
 #include "subsystems/indexer.hpp"
 
+//First robot to push balls
 #define PB
+//Second robot to push balls
 //#define J
 
 #define QUAL_AUTO
@@ -43,6 +45,12 @@ constexpr int WHEEL_DIAMETER = 3;
 constexpr int DRIVE_RPM = 600;
 constexpr int CHASE_POWER = 2;
 
+constexpr char BACK_LEFT_SOLENOID = 'A';
+constexpr char BACK_RIGHT_SOLENOID = 'B';
+constexpr char FRONT_LEFT_SOLENOID = 'C';
+constexpr char FRONT_RIGHT_SOLENOID = 'D';
+constexpr char ODOMETRY_SOLENOID = 'E';
+
 pros::Controller driver(pros::controller_id_e_t::E_CONTROLLER_MASTER);
 
 //DRIVETRAIN MOTORS
@@ -61,11 +69,11 @@ pros::Motor climb1(CLIMB_1_PORT);
 pros::Motor climb2(CLIMB_2_PORT);
 pros::Motor climb3(CLIMB_3_PORT, true);
 pros::Motor climb4(CLIMB_4_PORT, true);
-pros::ADIDigitalOut solenoid1('A');
-pros::ADIDigitalOut solenoid2('B');
-pros::ADIDigitalOut solenoid3('C');
-pros::ADIDigitalOut solenoid4('D');
-pros::ADIDigitalOut solenoid5('E');
+pros::ADIDigitalOut back_right_solenoid(BACK_RIGHT_SOLENOID);
+pros::ADIDigitalOut back_left_solenoid(BACK_LEFT_SOLENOID);
+pros::ADIDigitalOut front_right_solenoid(FRONT_RIGHT_SOLENOID);
+pros::ADIDigitalOut front_left_solenoid(FRONT_LEFT_SOLENOID);
+pros::ADIDigitalOut odometry_solenoid(ODOMETRY_SOLENOID);
 
 pros::Motor_Group leftSide({frontLeft, middleFrontLeft, middleBackLeft, backLeft});
 pros::Motor_Group rightSide({frontRight, middleFrontRight, middleBackRight, backRight});
@@ -140,7 +148,7 @@ lemlib::OdomSensors sensors(
 lemlib::Chassis chassis(LLDrivetrain, linearController, angularController, sensors);
 
 RollerIntake ri(riGroup);
-Indexer ind(solenoid1, solenoid2, solenoid3, solenoid4, solenoid5);
+Indexer ind(back_right_solenoid, back_left_solenoid, front_right_solenoid, front_left_solenoid, odometry_solenoid);
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -177,9 +185,15 @@ void pollController()
         {
             ri.spin(0);
         }
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
+            ind.openFront();
+    }    
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
+            ind.openBack();
+    }
     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-            ind.indexDisc();
-        }    
+            ind.openOdometry();
+    }
 }
 
 /**
@@ -200,12 +214,46 @@ void disabled() {}
  */
 void competition_initialize() {}
 
+ASSET(path_txt);
+
 void qualPB()
 {
-
+    chassis.setPose({-54, -54, 135});
+    for (int i = 0; i < 4; i++){
+        leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    }
+    pros::delay(100);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(500);
+    for (int i = 0; i < 4; i++){
+        leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    }
+    front_left_solenoid.set_value(1);
+    pros::delay(500);
+    chassis.follow(path_txt, 15, 5000);
 }
 
-void matcnPB()
+void matchPB()
 {
 
 }
