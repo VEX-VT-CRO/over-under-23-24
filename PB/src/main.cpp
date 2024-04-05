@@ -124,14 +124,14 @@ lemlib::ControllerSettings angularController(
 );
 
 lemlib::OdomSensors sensors(
-    //&verticalWheel,
+    &verticalWheel,
+    // nullptr,
     nullptr,
+    &horizontalWheel,
+    // nullptr,
     nullptr,
-    //&horizontalWheel,
-    nullptr,
-    nullptr,
-    //&gyro
-    nullptr
+    &gyro
+    // nullptr
 );
 
 // lemlib::ExpoDriveCurve throttleCurve(3, // joystick deadband out of 127
@@ -250,7 +250,7 @@ void qualPB()
     }
     front_left_solenoid.set_value(1);
     pros::delay(500);
-    chassis.follow(path_txt, 15, 5000);
+    chassis.follow(path_txt, 15, 10000);
 }
 
 void matchPB()
