@@ -35,6 +35,10 @@ constexpr int8_t CLIMB_4_PORT = 14;
 constexpr int8_t HORIZONTAL_POD_PORT = 15;
 constexpr int8_t VERTICAL_POD_PORT = 16;
 constexpr int8_t GYRO_PORT = 17;
+constexpr int8_t BALL_DISTANCE_PORT = 18;
+
+constexpr int32_t BALL_PRESENT_DISTANCE = 150;
+constexpr int INTAKE_INTAKING_DIRECTION = 1;
 
 constexpr int ODOM_WHEEL_DIAMETER = 2;
 constexpr int HORIZONTAL_WHEEL_DISTANCE = 0;
@@ -84,6 +88,7 @@ pros::MotorGroup climbGroup({climb1, climb2, climb3, climb4});
 pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
 pros::Rotation verticalPod(VERTICAL_POD_PORT);
 pros::IMU gyro(GYRO_PORT);
+pros::Distance ballDistance(BALL_DISTANCE_PORT);
 
 //LEMLIB STRUCTURES
 
@@ -171,20 +176,38 @@ void initialize() {
     });
 }
 
+void autoIntakeManager()
+{
+    while(!pros::competition::is_autonomous())
+    {
+        pros::delay(10);
+    }
+    while(pros::competition::is_autonomous())
+    {
+        if(ballDistance.get() < BALL_PRESENT_DISTANCE && riGroup.get_directions()[0] == INTAKE_INTAKING_DIRECTION)
+        {
+            riGroup.move(0);
+        }
+
+        pros::delay(10);
+    }
+}
+
 void pollController()
 {
     if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
-        {
-            ri.spin(ri.STANDARD_MV);
-        }
-        else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
-        {
-            ri.spin(-ri.STANDARD_MV);
-        }
-        else
-        {
-            ri.spin(0);
-        }
+    {
+        ri.spin(ri.STANDARD_MV);
+    }
+    else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+    {
+        ri.spin(-ri.STANDARD_MV);
+    }
+    else
+    {
+        ri.spin(0);
+    }
+
     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
             ind.openFront();
     }    
@@ -280,6 +303,8 @@ void matchJ()
  * from where it left off.
  */
 void autonomous() {
+    pros::Task intakeTask(autoIntakeManager);
+
 #if defined(PB)
 
 	#if defined(QUAL_AUTO)
