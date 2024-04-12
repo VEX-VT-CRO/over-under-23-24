@@ -3,6 +3,7 @@
 #include "lemlib/api.hpp"
 #include "subsystems/rollerintake.hpp"
 #include "subsystems/indexer.hpp"
+#include "subsystems/climb.hpp"
 
 //First robot to push balls
 #define PB
@@ -81,8 +82,8 @@ pros::ADIDigitalOut odometry_solenoid(ODOMETRY_SOLENOID);
 
 pros::Motor_Group leftSide({frontLeft, middleFrontLeft, middleBackLeft, backLeft});
 pros::Motor_Group rightSide({frontRight, middleFrontRight, middleBackRight, backRight});
-pros::MotorGroup riGroup({intake1, intake2});
-pros::MotorGroup climbGroup({climb1, climb2, climb3, climb4});
+pros::Motor_Group riGroup({intake1, intake2});
+pros::Motor_Group climbGroup({climb1, climb2, climb3, climb4});
 //SENSORS
 
 pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
@@ -154,6 +155,7 @@ lemlib::Chassis chassis(LLDrivetrain, linearController, angularController, senso
 
 RollerIntake ri(riGroup);
 Indexer ind(back_right_solenoid, back_left_solenoid, front_right_solenoid, front_left_solenoid, odometry_solenoid);
+Climb climb(climbGroup);
 /**
  * Runs initialization code. This occurs as soon as the program is started.
  *
@@ -209,13 +211,26 @@ void pollController()
     }
 
     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
-            ind.openFront();
+        ind.openFront();
     }    
     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
-            ind.openBack();
+        ind.openBack();
     }
     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-            ind.openOdometry();
+        ind.openOdometry();
+    }
+
+    if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
+    {
+        climb.moveClimb(12000);
+    }
+    else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN))
+    {
+        climb.moveClimb(-12000);
+    }
+    else
+    {
+        climb.moveClimb(0);
     }
 }
 
