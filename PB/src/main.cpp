@@ -6,9 +6,9 @@
 #include "subsystems/climb.hpp"
 
 //First robot to push balls
-#define PB
+// #define PB
 //Second robot to push balls
-//#define J
+#define J
 
 #define QUAL_AUTO
 //#define MATCH_AUTO
@@ -16,39 +16,61 @@
 // #define ARCADE
 #define TANK
 
-constexpr int8_t FRONT_LEFT_PORT         = 1;
-constexpr int8_t MIDDLE_FRONT_LEFT_PORT  = 2;
-constexpr int8_t MIDDLE_BACK_LEFT_PORT   = 3;
-constexpr int8_t BACK_LEFT_PORT          = 4;
-constexpr int8_t FRONT_RIGHT_PORT        = 5;
-constexpr int8_t MIDDLE_FRONT_RIGHT_PORT = 6;
-constexpr int8_t MIDDLE_BACK_RIGHT_PORT  = 7;
-constexpr int8_t BACK_RIGHT_PORT         = 8;
 
-constexpr int8_t INTAKE_1_PORT = 9;
-constexpr int8_t INTAKE_2_PORT = 10;
+#if defined(PB)
+    constexpr int8_t FRONT_LEFT_PORT         = 1;
+    constexpr int8_t MIDDLE_FRONT_LEFT_PORT  = 2;
+    constexpr int8_t MIDDLE_BACK_LEFT_PORT   = 3;
+    constexpr int8_t BACK_LEFT_PORT          = 4;
+    constexpr int8_t FRONT_RIGHT_PORT        = 5;
+    constexpr int8_t MIDDLE_FRONT_RIGHT_PORT = 6;
+    constexpr int8_t MIDDLE_BACK_RIGHT_PORT  = 7;
+    constexpr int8_t BACK_RIGHT_PORT         = 8;
 
-constexpr int8_t CLIMB_1_PORT = 11;
-constexpr int8_t CLIMB_2_PORT = 12;
-constexpr int8_t CLIMB_3_PORT = 13;
-constexpr int8_t CLIMB_4_PORT = 14;
+    constexpr int8_t INTAKE_PORT = 9;
 
-constexpr int8_t HORIZONTAL_POD_PORT = 15;
-constexpr int8_t VERTICAL_POD_PORT = 16;
-constexpr int8_t GYRO_PORT = 17;
-constexpr int8_t BALL_DISTANCE_PORT = 18;
+    constexpr int8_t CLIMB_1_PORT = 11;
+    constexpr int8_t CLIMB_2_PORT = 12;
+    constexpr int8_t CLIMB_3_PORT = 13;
+    constexpr int8_t CLIMB_4_PORT = 14;
 
-constexpr int32_t BALL_PRESENT_DISTANCE = 150;
-constexpr int INTAKE_INTAKING_DIRECTION = 1;
+    constexpr int8_t HORIZONTAL_POD_PORT = 15;
+    constexpr int8_t VERTICAL_POD_PORT = 16;
+    constexpr int8_t GYRO_PORT = 17;
+    constexpr int8_t BALL_DISTANCE_PORT = 18;
 
-constexpr int ODOM_WHEEL_DIAMETER = 2;
-constexpr int HORIZONTAL_WHEEL_DISTANCE = 0;
-constexpr int VERTICAL_WHEEL_DISTANCE = 0;
+#elif defined(J)
+    constexpr int8_t FRONT_LEFT_PORT         = 1;
+    constexpr int8_t MIDDLE_FRONT_LEFT_PORT  = 2;
+    constexpr int8_t MIDDLE_BACK_LEFT_PORT   = 15;
+    constexpr int8_t BACK_LEFT_PORT          = 13;
+    constexpr int8_t FRONT_RIGHT_PORT        = 10;
+    constexpr int8_t MIDDLE_FRONT_RIGHT_PORT = 9;
+    constexpr int8_t MIDDLE_BACK_RIGHT_PORT  = 16;
+    constexpr int8_t BACK_RIGHT_PORT         = 18;
+
+    constexpr int8_t INTAKE_PORT = 6;
+
+    constexpr int8_t CLIMB_1_PORT = 11;
+    constexpr int8_t CLIMB_2_PORT = 20;
+
+    constexpr int8_t HORIZONTAL_POD_PORT = 14;
+    constexpr int8_t VERTICAL_POD_PORT = 17;
+    constexpr int8_t GYRO_PORT = 5;
+    constexpr int8_t BALL_DISTANCE_PORT = 3;
+#endif    
 
 constexpr int TRACK_WIDTH = 12;
 constexpr int WHEEL_DIAMETER = 3;
 constexpr int DRIVE_RPM = 600;
 constexpr int CHASE_POWER = 2;
+
+constexpr int32_t BALL_PRESENT_DISTANCE = 150;
+constexpr int INTAKE_INTAKING_DIRECTION = 1;
+
+constexpr int ODOM_WHEEL_DIAMETER = 2;
+constexpr int HORIZONTAL_WHEEL_DISTANCE = 1.5625;
+constexpr int VERTICAL_WHEEL_DISTANCE = -4.0625;
 
 constexpr char BACK_LEFT_SOLENOID = 'A';
 constexpr char BACK_RIGHT_SOLENOID = 'B';
@@ -68,12 +90,17 @@ pros::Motor frontRight(FRONT_RIGHT_PORT, true);
 pros::Motor middleFrontRight(MIDDLE_FRONT_RIGHT_PORT, true);
 pros::Motor middleBackRight(MIDDLE_BACK_RIGHT_PORT, true);
 pros::Motor backRight(BACK_RIGHT_PORT);
-pros::Motor intake1(INTAKE_1_PORT);
-pros::Motor intake2(INTAKE_2_PORT, true);
-pros::Motor climb1(CLIMB_1_PORT);
-pros::Motor climb2(CLIMB_2_PORT);
-pros::Motor climb3(CLIMB_3_PORT, true);
-pros::Motor climb4(CLIMB_4_PORT, true);
+pros::Motor intake(INTAKE_PORT);
+#if defined(PB)
+    pros::Motor climb1(CLIMB_1_PORT);
+    pros::Motor climb2(CLIMB_2_PORT);
+    pros::Motor climb3(CLIMB_3_PORT, true);
+    pros::Motor climb4(CLIMB_4_PORT, true);
+#elif defined(J)
+    pros::Motor climb1(CLIMB_1_PORT);
+    pros::Motor climb2(CLIMB_2_PORT, true);
+#endif
+
 pros::ADIDigitalOut back_right_solenoid(BACK_RIGHT_SOLENOID);
 pros::ADIDigitalOut back_left_solenoid(BACK_LEFT_SOLENOID);
 pros::ADIDigitalOut front_right_solenoid(FRONT_RIGHT_SOLENOID);
@@ -82,10 +109,15 @@ pros::ADIDigitalOut odometry_solenoid(ODOMETRY_SOLENOID);
 
 pros::Motor_Group leftSide({frontLeft, middleFrontLeft, middleBackLeft, backLeft});
 pros::Motor_Group rightSide({frontRight, middleFrontRight, middleBackRight, backRight});
-pros::Motor_Group riGroup({intake1, intake2});
-pros::Motor_Group climbGroup({climb1, climb2, climb3, climb4});
-//SENSORS
+pros::Motor_Group riGroup({intake});
 
+#if defined(PB)
+    pros::Motor_Group climbGroup({climb1, climb2, climb3, climb4});
+#elif defined(J)
+    pros::Motor_Group climbGroup({climb1, climb2});
+#endif
+
+//SENSORS
 pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
 pros::Rotation verticalPod(VERTICAL_POD_PORT);
 pros::IMU gyro(GYRO_PORT);
@@ -167,11 +199,21 @@ void initialize() {
     chassis.calibrate();
 
     pros::Task screenTask([&]() {
-        lemlib::Pose pose(0, 0, 0);
+        chassis.setPose({-50.5, -55, 125});
         while (true) {
             pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
             pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
             pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+            #if defined(PB)
+                pros::lcd::print(3, "PB");
+            #elif defined(J)
+                pros::lcd::print(3, "J");
+            #endif
+            #if defined(QUAL_AUTO)
+                pros::lcd::print(4, "QUAL");
+            #elif defined(MATCH_AUTO)
+                pros::lcd::print(4, "MATCH");
+            #endif                
             lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
             pros::delay(50);
         }
@@ -222,11 +264,11 @@ void pollController()
 
     if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
     {
-        climb.moveClimb(12000);
+        climb.moveClimb(-12000);
     }
     else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN))
     {
-        climb.moveClimb(-12000);
+        climb.moveClimb(12000);
     }
     else
     {
@@ -256,7 +298,7 @@ ASSET(path_txt);
 
 void qualPB()
 {
-    chassis.setPose({-54, -54, 135});
+    chassis.setPose({-50.5, -55, 125});
     for (int i = 0; i < 4; i++){
         leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
         rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
