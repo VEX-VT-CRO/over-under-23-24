@@ -16,6 +16,11 @@
 // #define ARCADE
 #define TANK
 
+enum class RobotState {
+    Driving,
+    Intaking,
+    Climbing
+};
 
 #if defined(PB)
     constexpr int8_t FRONT_LEFT_PORT         = 1;
@@ -79,6 +84,8 @@ constexpr char FRONT_RIGHT_SOLENOID = 'D';
 constexpr char ODOMETRY_SOLENOID = 'E';
 
 pros::Controller driver(pros::controller_id_e_t::E_CONTROLLER_MASTER);
+
+RobotState robotState = RobotState::Driving;
 
 //DRIVETRAIN MOTORS
 
@@ -194,6 +201,20 @@ Climb climb(climbGroup);
  * All other competition modes are blocked by initialize; it is recommended
  * to keep execution time for this mode under a few seconds.
  */
+
+const char* toString(RobotState state) {
+    switch(state) {
+        case RobotState::Driving:
+            return "Driving";
+        case RobotState::Intaking:
+            return "Intaking";
+        case RobotState::Climbing:
+            return "Climbing";
+        default:
+            return "Unknown State";
+    }
+}
+
 void initialize() {
     pros::lcd::initialize();
     chassis.calibrate();
@@ -213,7 +234,8 @@ void initialize() {
                 pros::lcd::print(4, "QUAL");
             #elif defined(MATCH_AUTO)
                 pros::lcd::print(4, "MATCH");
-            #endif                
+            #endif
+            pros::lcd::print(6, "Robot State: %s", toString(robotState));        
             lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
             pros::delay(50);
         }
@@ -237,15 +259,95 @@ void autoIntakeManager()
     }
 }
 
+void setcurrentstate(RobotState state)
+{
+
+    if (state == RobotState::Driving)
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            leftSide[i].set_current_limit(2500);
+            rightSide[i].set_current_limit(2500);
+        }
+        intake.set_current_limit(0);
+        #if defined(PB)
+            for(int i = 0; i < 4; i++)
+            {
+                climbGroup[i].set_current_limit(0);
+            }
+        #elif defined(J)
+            for(int i = 0; i < 2; i++)
+            {
+                climbGroup[i].set_current_limit(0);
+            }
+        #endif        
+    }
+
+    if (state == RobotState::Intaking)
+    {
+        for(int i = 0; i < 4; i++)
+        {
+            leftSide[i].set_current_limit(2200);
+            rightSide[i].set_current_limit(2200);
+        }
+        intake.set_current_limit(2400);
+        #if defined(PB)
+            for(int i = 0; i < 4; i++)
+            {
+                climbGroup[i].set_current_limit(0);
+            }
+        #elif defined(J)
+            for(int i = 0; i < 2; i++)
+            {
+                climbGroup[i].set_current_limit(0);
+            }
+        #endif
+    }
+
+    if (state == RobotState::Climbing)
+    {
+        intake.set_current_limit(0);
+        #if defined(PB)
+            for(int i = 0; i < 4; i++)
+            {
+                climbGroup[i].set_current_limit(2500);
+            }
+            for(int i = 0; i < 4; i++)
+            {
+                leftSide[i].set_current_limit(1250);
+                rightSide[i].set_current_limit(1250);
+            }
+        #elif defined(J)
+            for(int i = 0; i < 2; i++)
+            {
+                climbGroup[i].set_current_limit(2500);
+            }
+            for(int i = 0; i < 4; i++)
+            {
+                leftSide[i].set_current_limit(1875);
+                rightSide[i].set_current_limit(1875);
+            }
+        #endif
+    }
+}
+
 void pollController()
 {
     if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
     {
         ri.spin(ri.STANDARD_MV);
+        if (robotState != RobotState::Intaking){
+            robotState = RobotState::Intaking;
+            setcurrentstate(robotState);
+        }
     }
     else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
     {
         ri.spin(-ri.STANDARD_MV);
+        if (robotState != RobotState::Intaking){
+            robotState = RobotState::Intaking;
+            setcurrentstate(robotState);
+        }
     }
     else
     {
@@ -265,14 +367,33 @@ void pollController()
     if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
     {
         climb.moveClimb(-12000);
+        if (robotState != RobotState::Climbing){
+            robotState = RobotState::Climbing;
+            setcurrentstate(robotState);
+        }
     }
     else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN))
     {
         climb.moveClimb(12000);
+        if (robotState != RobotState::Climbing){
+            robotState = RobotState::Climbing;
+            setcurrentstate(robotState);
+        }
     }
     else
     {
         climb.moveClimb(0);
+    }
+
+    if (!driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && 
+        !driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2) &&
+        !driver.get_digital(pros::E_CONTROLLER_DIGITAL_UP) && 
+        !driver.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN))
+    {
+        if (robotState != RobotState::Driving){
+            robotState = RobotState::Driving;
+            setcurrentstate(robotState);
+        }
     }
 }
 
@@ -405,7 +526,6 @@ void opcontrol() {
 	    #elif defined(TANK)
 		    chassis.tank(l, r);
 	    #endif
-
         pros::delay(10);
     }
 }
