@@ -548,10 +548,11 @@ void opcontrol() {
     {
         pollController();
         int l = driver.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
         #if defined(ARCADE)
+            int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
 		    chassis.arcade(l, r);
 	    #elif defined(TANK)
+            int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
 		    chassis.tank(l, r);
 	    #endif
         pros::delay(10);
