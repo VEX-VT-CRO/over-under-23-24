@@ -443,6 +443,8 @@ void disabled() {}
 void competition_initialize() {}
 
 ASSET(path_txt);
+ASSET(pathJ_1_txt);
+ASSET(pathJ_2_txt);
 
 void qualPB()
 {
@@ -503,11 +505,23 @@ void qualJ()
 
 void matchJ()
 {
-    chassis.setPose({0, 0, 0});
-    chassis.turnToHeading(180, 3000);
-    chassis.turnToHeading(0, 3000);
-    chassis.turnToHeading(180, 3000);
-    chassis.turnToHeading(0, 3000);
+    chassis.setPose({-34, -64, 0});
+    chassis.follow(pathJ_1_txt, 15, 1500);
+    pros::delay(1500);
+    ri.spin(12000);
+    chassis.follow(pathJ_2_txt, 15, 1000);
+    pros::delay(1000);
+    ri.spin(0);
+    chassis.turnToHeading(90, 400);
+    pros::delay(400);
+    ri.spin(-12000);
+    chassis.moveToPose(-15, -12, 90, 1500);
+    pros::delay(1500);
+    ri.spin(0);
+    // chassis.turnToHeading(180, 3000);
+    // chassis.turnToHeading(0, 3000);
+    // chassis.turnToHeading(180, 3000);
+    // chassis.turnToHeading(0, 3000);
 }
 
 /**
