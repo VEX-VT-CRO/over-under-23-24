@@ -170,21 +170,21 @@ lemlib::Drivetrain LLDrivetrain(
     );
 #elif defined(J)
     lemlib::ControllerSettings linearController(
-        20, // proportional gain (kP)
+        50, // proportional gain (kP)
         0, // integral gain (kI)
-        10, // derivative gain (kD)
+        175, // derivative gain (kD)
         3, // anti windup
         1, // small error range, in inches
         100, // small error range timeout, in milliseconds
         3, // large error range, in inches
         500, // large error range timeout, in milliseconds
-        25 // maximum acceleration (slew)
+        20 // maximum acceleration (slew)
     );
 
     lemlib::ControllerSettings angularController(
-        2, // proportional gain (kP)
+        4, // proportional gain (kP)
         0, // integral gain (kI)
-        10, // derivative gain (kD)
+        42, // derivative gain (kD)
         3, // anti windup
         1, // small error range, in degrees
         100, // small error range timeout, in milliseconds
@@ -494,7 +494,10 @@ void qualJ()
 void matchJ()
 {
     chassis.setPose({0, 0, 0});
-	chassis.moveToPose(0, 20, 0, 10000);
+    chassis.turnToHeading(180, 3000);
+    chassis.turnToHeading(0, 3000);
+    chassis.turnToHeading(180, 3000);
+    chassis.turnToHeading(0, 3000);
 }
 
 /**
