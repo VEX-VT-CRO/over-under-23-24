@@ -10,8 +10,8 @@
 //Second robot to push balls
 // #define J
 
-// #define QUAL_AUTO
-#define MATCH_AUTO
+#define QUAL_AUTO
+// #define MATCH_AUTO
 
 // #define ARCADE
 #define TANK
@@ -146,21 +146,21 @@ lemlib::Drivetrain LLDrivetrain(
 
 #if defined(PB)
     lemlib::ControllerSettings linearController(
-        400, // proportional gain (kP)
+        10, // proportional gain (kP)
         0, // integral gain (kI)
-        5, // derivative gain (kD)
+        120, // derivative gain (kD)
         3, // anti windup
         1, // small error range, in inches
         100, // small error range timeout, in milliseconds
         3, // large error range, in inches
         500, // large error range timeout, in milliseconds
-        0 // maximum acceleration (slew)
+        10 // maximum acceleration (slew)
     );
 
     lemlib::ControllerSettings angularController(
-        0, // proportional gain (kP)
+        6, // proportional gain (kP)
         0, // integral gain (kI)
-        0, // derivative gain (kD)
+        50, // derivative gain (kD)
         3, // anti windup
         1, // small error range, in degrees
         100, // small error range timeout, in milliseconds
@@ -170,21 +170,21 @@ lemlib::Drivetrain LLDrivetrain(
     );
 #elif defined(J)
     lemlib::ControllerSettings linearController(
-        50, // proportional gain (kP)
+        10, // proportional gain (kP)
         0, // integral gain (kI)
-        175, // derivative gain (kD)
+        120, // derivative gain (kD)
         3, // anti windup
         1, // small error range, in inches
         100, // small error range timeout, in milliseconds
         3, // large error range, in inches
         500, // large error range timeout, in milliseconds
-        20 // maximum acceleration (slew)
+        10 // maximum acceleration (slew)
     );
 
     lemlib::ControllerSettings angularController(
-        4, // proportional gain (kP)
+        2, // proportional gain (kP)
         0, // integral gain (kI)
-        42, // derivative gain (kD)
+        10, // derivative gain (kD)
         3, // anti windup
         1, // small error range, in degrees
         100, // small error range timeout, in milliseconds
@@ -450,38 +450,51 @@ ASSET(pathJ_4_txt);
 void qualPB()
 {
     chassis.setPose({-50.5, -55, 125});
-    for (int i = 0; i < 4; i++){
-        leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-        rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    }
-    pros::delay(100);
-    front_right_solenoid.set_value(1);
+    // for (int i = 0; i < 4; i++){
+    //     leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    //     rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    // }
+    // pros::delay(3000);
+    // front_right_solenoid.set_value(1);
+    // pros::delay(500);
+    // front_right_solenoid.set_value(0);
+    // pros::delay(2000);
+    // front_right_solenoid.set_value(1);
+    // pros::delay(500);
+    // front_right_solenoid.set_value(0);
+    // pros::delay(2000);
+    // front_right_solenoid.set_value(1);
+    // pros::delay(500);
+    // front_right_solenoid.set_value(0);
+    // pros::delay(2000);
+    // front_right_solenoid.set_value(1);
+    // pros::delay(500);
+    // front_right_solenoid.set_value(0);
+    // pros::delay(2000);
+    // front_right_solenoid.set_value(1);
+    // pros::delay(500);
+    // front_right_solenoid.set_value(0);
+    // pros::delay(2000);
+    // front_right_solenoid.set_value(1);
+    // pros::delay(500);
+    // front_right_solenoid.set_value(0);
+    // pros::delay(2000);
+    // front_right_solenoid.set_value(1);
+    // pros::delay(500);
+    // front_right_solenoid.set_value(0);
+    // pros::delay(2000);
+    // front_right_solenoid.set_value(1);
+    // pros::delay(500);
+    // front_right_solenoid.set_value(0);
+    // pros::delay(500);
+    // for (int i = 0; i < 4; i++){
+    //     leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    //     rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    // }
+    // front_left_solenoid.set_value(1);
     pros::delay(500);
-    front_right_solenoid.set_value(0);
-    pros::delay(2000);
-    front_right_solenoid.set_value(1);
-    pros::delay(500);
-    front_right_solenoid.set_value(0);
-    pros::delay(2000);
-    front_right_solenoid.set_value(1);
-    pros::delay(500);
-    front_right_solenoid.set_value(0);
-    pros::delay(2000);
-    front_right_solenoid.set_value(1);
-    pros::delay(500);
-    front_right_solenoid.set_value(0);
-    pros::delay(2000);
-    front_right_solenoid.set_value(1);
-    pros::delay(500);
-    front_right_solenoid.set_value(0);
-    pros::delay(500);
-    for (int i = 0; i < 4; i++){
-        leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-        rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    }
-    front_left_solenoid.set_value(1);
-    pros::delay(500);
-    chassis.follow(path_txt, 15, 10000);
+    chassis.follow(path_txt, 30, 10000);
+    pros::delay(10000);
 }
 
 void matchPB()
@@ -562,8 +575,7 @@ void matchPB()
 
 void qualJ()
 {
-    chassis.setPose({0, 0, 0});
-	chassis.moveToPose(0, -20, 0, 10000,{false});
+
 }
 
 void matchJ()
