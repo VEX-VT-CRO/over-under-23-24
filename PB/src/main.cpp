@@ -65,17 +65,17 @@ enum class RobotState {
     constexpr int8_t BALL_DISTANCE_PORT = 3;
 #endif    
 
-constexpr int TRACK_WIDTH = 12;
-constexpr int WHEEL_DIAMETER = 3;
-constexpr int DRIVE_RPM = 600;
-constexpr int CHASE_POWER = 2;
+constexpr double TRACK_WIDTH = 12;
+constexpr double WHEEL_DIAMETER = 3;
+constexpr double DRIVE_RPM = 600;
+constexpr double CHASE_POWER = 2;
 
 constexpr int32_t BALL_PRESENT_DISTANCE = 150;
 constexpr int INTAKE_INTAKING_DIRECTION = 1;
 
-constexpr int ODOM_WHEEL_DIAMETER = 2;
-constexpr int HORIZONTAL_WHEEL_DISTANCE = 1.5625;
-constexpr int VERTICAL_WHEEL_DISTANCE = -4.0625;
+constexpr double ODOM_WHEEL_DIAMETER = 2;
+constexpr double HORIZONTAL_WHEEL_DISTANCE = 1.5625;
+constexpr double VERTICAL_WHEEL_DISTANCE = -4.0625;
 
 constexpr char BACK_LEFT_SOLENOID = 'A';
 constexpr char BACK_RIGHT_SOLENOID = 'B';
@@ -442,6 +442,8 @@ void disabled() {}
 void competition_initialize() {}
 
 ASSET(path_txt);
+ASSET(pathJ_1_txt);
+ASSET(pathJ_2_txt);
 
 void qualPB()
 {
@@ -493,11 +495,23 @@ void qualJ()
 
 void matchJ()
 {
-    chassis.setPose({0, 0, 0});
-    chassis.turnToHeading(180, 3000);
-    chassis.turnToHeading(0, 3000);
-    chassis.turnToHeading(180, 3000);
-    chassis.turnToHeading(0, 3000);
+    chassis.setPose({-34, -64, 0});
+    chassis.follow(pathJ_1_txt, 15, 1500);
+    pros::delay(1500);
+    ri.spin(12000);
+    chassis.follow(pathJ_2_txt, 15, 1000);
+    pros::delay(1000);
+    ri.spin(0);
+    chassis.turnToHeading(90, 400);
+    pros::delay(400);
+    ri.spin(-12000);
+    chassis.moveToPose(-15, -12, 90, 1500);
+    pros::delay(1500);
+    ri.spin(0);
+    // chassis.turnToHeading(180, 3000);
+    // chassis.turnToHeading(0, 3000);
+    // chassis.turnToHeading(180, 3000);
+    // chassis.turnToHeading(0, 3000);
 }
 
 /**
