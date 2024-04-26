@@ -6,9 +6,9 @@
 #include "subsystems/climb.hpp"
 
 //First robot to push balls
-// #define PB
+#define PB
 //Second robot to push balls
-#define J
+// #define J
 
 // #define QUAL_AUTO
 #define MATCH_AUTO
@@ -39,8 +39,8 @@ enum class RobotState {
     constexpr int8_t CLIMB_3_PORT = 13;
     constexpr int8_t CLIMB_4_PORT = 14;
 
-    constexpr int8_t HORIZONTAL_POD_PORT = 15;
-    constexpr int8_t VERTICAL_POD_PORT = 16;
+    constexpr int8_t HORIZONTAL_POD_PORT = 16;
+    constexpr int8_t VERTICAL_POD_PORT = 15;
     constexpr int8_t GYRO_PORT = 17;
     constexpr int8_t BALL_DISTANCE_PORT = 18;
 
@@ -65,17 +65,17 @@ enum class RobotState {
     constexpr int8_t BALL_DISTANCE_PORT = 3;
 #endif    
 
-constexpr int TRACK_WIDTH = 12;
-constexpr int WHEEL_DIAMETER = 3;
-constexpr int DRIVE_RPM = 600;
-constexpr int CHASE_POWER = 2;
+constexpr double TRACK_WIDTH = 12;
+constexpr double WHEEL_DIAMETER = 3;
+constexpr double DRIVE_RPM = 600;
+constexpr double CHASE_POWER = 2;
 
 constexpr int32_t BALL_PRESENT_DISTANCE = 150;
 constexpr int INTAKE_INTAKING_DIRECTION = 1;
 
-constexpr int ODOM_WHEEL_DIAMETER = 2;
-constexpr int HORIZONTAL_WHEEL_DISTANCE = 1.5625;
-constexpr int VERTICAL_WHEEL_DISTANCE = -4.0625;
+constexpr double ODOM_WHEEL_DIAMETER = 2;
+constexpr double HORIZONTAL_WHEEL_DISTANCE = 1.5625;
+constexpr double VERTICAL_WHEEL_DISTANCE = -4.0625;
 
 constexpr char BACK_LEFT_SOLENOID = 'A';
 constexpr char BACK_RIGHT_SOLENOID = 'B';
@@ -125,7 +125,7 @@ pros::Motor_Group riGroup({intake});
 #endif
 
 //SENSORS
-pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
+pros::Rotation horizontalPod(HORIZONTAL_POD_PORT, true);
 pros::Rotation verticalPod(VERTICAL_POD_PORT);
 pros::IMU gyro(GYRO_PORT);
 pros::Distance ballDistance(BALL_DISTANCE_PORT);
@@ -158,9 +158,9 @@ lemlib::Drivetrain LLDrivetrain(
     );
 
     lemlib::ControllerSettings angularController(
-        2, // proportional gain (kP)
+        4, // proportional gain (kP)
         0, // integral gain (kI)
-        10, // derivative gain (kD)
+        42, // derivative gain (kD)
         3, // anti windup
         1, // small error range, in degrees
         100, // small error range timeout, in milliseconds
@@ -245,8 +245,9 @@ void initialize() {
     pros::lcd::initialize();
     chassis.calibrate();
 
+    chassis.setPose({0, 0, 0});
+
     pros::Task screenTask([&]() {
-        chassis.setPose({-50.5, -55, 125});
         while (true) {
             pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
             pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
@@ -482,7 +483,16 @@ void qualPB()
 
 void matchPB()
 {
+    for(int i = 0; i < 4; i++)
+    {
+        leftSide[i].set_current_limit(2500);
+        rightSide[i].set_current_limit(2500);
+        climbGroup[i].set_current_limit(0);
+    }
+    intake.set_current_limit(0);
 
+    chassis.setPose({0, 0, 0});
+	chassis.moveToPose(0, 20, 0, 10000);
 }
 
 void qualJ()
