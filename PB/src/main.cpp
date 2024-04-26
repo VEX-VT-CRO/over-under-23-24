@@ -39,8 +39,8 @@ enum class RobotState {
     constexpr int8_t CLIMB_3_PORT = 13;
     constexpr int8_t CLIMB_4_PORT = 14;
 
-    constexpr int8_t HORIZONTAL_POD_PORT = 16;
-    constexpr int8_t VERTICAL_POD_PORT = 15;
+    constexpr int8_t HORIZONTAL_POD_PORT = 15;
+    constexpr int8_t VERTICAL_POD_PORT = 16;
     constexpr int8_t GYRO_PORT = 17;
     constexpr int8_t BALL_DISTANCE_PORT = 18;
 
@@ -125,7 +125,7 @@ pros::Motor_Group riGroup({intake});
 #endif
 
 //SENSORS
-pros::Rotation horizontalPod(HORIZONTAL_POD_PORT, true);
+pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
 pros::Rotation verticalPod(VERTICAL_POD_PORT);
 pros::IMU gyro(GYRO_PORT);
 pros::Distance ballDistance(BALL_DISTANCE_PORT);
@@ -241,51 +241,6 @@ const char* toString(RobotState state) {
     }
 }
 
-void initialize() {
-    pros::lcd::initialize();
-    chassis.calibrate();
-
-    pros::Task screenTask([&]() {
-        chassis.setPose({0, 0, 0});
-
-        while (true) {
-            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
-            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
-            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
-            #if defined(PB)
-                pros::lcd::print(3, "PB");
-            #elif defined(J)
-                pros::lcd::print(3, "J");
-            #endif
-            #if defined(QUAL_AUTO)
-                pros::lcd::print(4, "QUAL");
-            #elif defined(MATCH_AUTO)
-                pros::lcd::print(4, "MATCH");
-            #endif
-            pros::lcd::print(6, "Robot State: %s", toString(robotState));        
-            lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
-            pros::delay(50);
-        }
-    });
-}
-
-void autoIntakeManager()
-{
-    while(!pros::competition::is_autonomous())
-    {
-        pros::delay(10);
-    }
-    while(pros::competition::is_autonomous())
-    {
-        if(ballDistance.get() < BALL_PRESENT_DISTANCE && riGroup.get_directions()[0] == INTAKE_INTAKING_DIRECTION)
-        {
-            riGroup.move(0);
-        }
-
-        pros::delay(10);
-    }
-}
-
 void setcurrentstate(RobotState state)
 {
 
@@ -357,6 +312,50 @@ void setcurrentstate(RobotState state)
         #endif
     }
 }
+
+void initialize() {
+    pros::lcd::initialize();
+    chassis.calibrate();
+    pros::Task screenTask([&]() {
+    chassis.setPose({0, 0, 0});
+        while (true) {
+            pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
+            pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
+            pros::lcd::print(2, "Theta: %f", chassis.getPose().theta); // heading
+            #if defined(PB)
+                pros::lcd::print(3, "PB");
+            #elif defined(J)
+                pros::lcd::print(3, "J");
+            #endif
+            #if defined(QUAL_AUTO)
+                pros::lcd::print(4, "QUAL");
+            #elif defined(MATCH_AUTO)
+                pros::lcd::print(4, "MATCH");
+            #endif
+            pros::lcd::print(6, "Robot State: %s", toString(robotState));        
+            lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
+            pros::delay(50);
+        }
+    });
+}
+
+void autoIntakeManager()
+{
+    while(!pros::competition::is_autonomous())
+    {
+        pros::delay(10);
+    }
+    while(pros::competition::is_autonomous())
+    {
+        if(ballDistance.get() < BALL_PRESENT_DISTANCE && riGroup.get_directions()[0] == INTAKE_INTAKING_DIRECTION)
+        {
+            riGroup.move(0);
+        }
+
+        pros::delay(10);
+    }
+}
+
 
 void pollController()
 {
@@ -445,6 +444,8 @@ void competition_initialize() {}
 ASSET(path_txt);
 ASSET(pathJ_1_txt);
 ASSET(pathJ_2_txt);
+ASSET(pathJ_3_txt);
+ASSET(pathJ_4_txt);
 
 void qualPB()
 {
@@ -485,16 +486,67 @@ void qualPB()
 
 void matchPB()
 {
-    for(int i = 0; i < 4; i++)
-    {
-        leftSide[i].set_current_limit(2500);
-        rightSide[i].set_current_limit(2500);
-        climbGroup[i].set_current_limit(0);
+    chassis.setPose({-34, -64, 0});
+    chassis.moveToPose(-34, -18, 0, 3000);
+    pros::delay(3000);
+    chassis.turnToHeading(45, 1000);
+    ri.spin(12000);
+    chassis.moveToPose(-28, -12, 45, 1500);
+    pros::delay(1750);
+    ri.spin(0);
+    pros::delay(250);
+    chassis.turnToHeading(90, 800);
+    pros::delay(800);
+    chassis.moveToPose(-20, -12, 90, 1000);
+    pros::delay(1000);
+    ri.spin(-12000);
+    chassis.moveToPose(-12, -12, 90, 1500);
+    pros::delay(1500);
+    ri.spin(0);
+    pros::delay(250);
+    chassis.setPose({-7, -12.5, 90});
+    chassis.moveToPose(-20, -12.5, 90, 1000, {false});
+    pros::delay(1000);
+    chassis.turnToHeading(210, 1500);
+    pros::delay(1500);
+    pros::delay(250);
+    chassis.setPose({-20, -12.5, 210});
+    chassis.follow(pathJ_3_txt, 40, 4000);
+    pros::delay(4000);
+    chassis.turnToHeading(135, 1500);
+    chassis.follow(pathJ_4_txt, 20, 2000);
+    pros::delay(2000);
+    for (int i = 0; i < 4; i++){
+        leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     }
-    intake.set_current_limit(0);
-
-    chassis.setPose({0, 0, 0});
-	chassis.moveToPose(0, 24, 0, 10000);
+    pros::delay(500);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(500);
+    for (int i = 0; i < 4; i++){
+        leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    }
+    front_left_solenoid.set_value(1);
+    pros::delay(500);
 }
 
 void qualJ()
@@ -506,18 +558,90 @@ void qualJ()
 void matchJ()
 {
     chassis.setPose({-34, -64, 0});
-    chassis.follow(pathJ_1_txt, 15, 1500);
-    pros::delay(1500);
+    chassis.moveToPose(-34, -18, 0, 3000);
+    pros::delay(3000);
+    chassis.turnToHeading(45, 1000);
     ri.spin(12000);
-    chassis.follow(pathJ_2_txt, 15, 1000);
-    pros::delay(1000);
+    chassis.moveToPose(-28, -12, 45, 1500);
+    pros::delay(1750);
     ri.spin(0);
-    chassis.turnToHeading(90, 400);
-    pros::delay(400);
+    pros::delay(250);
+    chassis.turnToHeading(90, 800);
+    pros::delay(800);
+    chassis.moveToPose(-20, -12, 90, 1000);
+    pros::delay(1000);
     ri.spin(-12000);
-    chassis.moveToPose(-15, -12, 90, 1500);
+    chassis.moveToPose(-12, -12, 90, 1500);
     pros::delay(1500);
     ri.spin(0);
+    pros::delay(250);
+    chassis.setPose({-7, -12.5, 90});
+    chassis.moveToPose(-20, -12.5, 90, 1000, {false});
+    pros::delay(1000);
+    chassis.turnToHeading(210, 1500);
+    pros::delay(1500);
+    pros::delay(250);
+    chassis.setPose({-20, -12.5, 210});
+    chassis.follow(pathJ_3_txt, 40, 4000);
+    pros::delay(4000);
+    chassis.turnToHeading(135, 1500);
+    chassis.follow(pathJ_4_txt, 20, 2000);
+    pros::delay(2000);
+    for (int i = 0; i < 4; i++){
+        leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    }
+    pros::delay(500);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(500);
+    for (int i = 0; i < 4; i++){
+        leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    }
+    front_left_solenoid.set_value(1);
+    pros::delay(500);
+    // chassis.setPose({-34, -64, 0});
+    // chassis.follow(pathJ_1_txt, 40, 1500);
+    // pros::delay(1500);
+    // ri.spin(12000);
+    // chassis.follow(pathJ_2_txt, 15, 1000);
+    // pros::delay(1000);
+    // ri.spin(0);
+    // pros::delay(250);
+    // chassis.setPose({-24, -14, chassis.getPose().theta});
+    // chassis.turnToHeading(90, 800);
+    // pros::delay(800);
+    // chassis.moveToPose(-20, -14, 90, 1000);
+    // pros::delay(1000);
+    // ri.spin(-12000);
+    // chassis.moveToPose(-12, -14, 90, 1500);
+    // pros::delay(1500);
+    // ri.spin(0);
+    // pros::delay(5000); //TEMPORARY
+    // pros::delay(250);
+    // chassis.setPose({-24, -14, 7});
+    // chassis.moveToPose(-17, -15.862, 90, 1000, {false});
+    // pros::delay(1000);
+    // chassis.turnToHeading(210, 1500);
+    // pros::delay(1500);
     // chassis.turnToHeading(180, 3000);
     // chassis.turnToHeading(0, 3000);
     // chassis.turnToHeading(180, 3000);
