@@ -316,6 +316,10 @@ void setcurrentstate(RobotState state)
 void initialize() {
     pros::lcd::initialize();
     chassis.calibrate();
+
+    leftSide.set_brake_modes(pros::motor_brake_mode_e_t::E_MOTOR_BRAKE_BRAKE);
+    rightSide.set_brake_modes(pros::motor_brake_mode_e_t::E_MOTOR_BRAKE_BRAKE);
+
     pros::Task screenTask([&]() {
     chassis.setPose({0, 0, 0});
         while (true) {
@@ -447,9 +451,14 @@ ASSET(pathJ_2_txt);
 ASSET(pathJ_3_txt);
 ASSET(pathJ_4_txt);
 
+ASSET(PB_M_1_txt);
+ASSET(PB_M_2_txt);
+ASSET(PB_M_3_txt);
+
 void qualPB()
 {
     chassis.setPose({-50.5, -55, 125});
+
     // for (int i = 0; i < 4; i++){
     //     leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
     //     rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
@@ -493,8 +502,19 @@ void qualPB()
     // }
     // front_left_solenoid.set_value(1);
     pros::delay(500);
-    chassis.follow(path_txt, 30, 10000);
-    pros::delay(10000);
+    chassis.follow(PB_M_1_txt, 30, 10000, true, false);
+    leftSide.brake();
+    rightSide.brake();
+    pros::delay(500);
+    chassis.follow(PB_M_2_txt, 30, 10000, false, false);
+    leftSide.brake();
+    rightSide.brake();
+    pros::delay(500);
+    chassis.turnToHeading(270, 10000, false);
+    pros::delay(500);
+    chassis.follow(PB_M_3_txt, 30, 10000, false, false);
+    leftSide.brake();
+    rightSide.brake();
 }
 
 void matchPB()
