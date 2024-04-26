@@ -146,9 +146,9 @@ lemlib::Drivetrain LLDrivetrain(
 
 #if defined(PB)
     lemlib::ControllerSettings linearController(
-        10, // proportional gain (kP)
+        1, // proportional gain (kP)
         0, // integral gain (kI)
-        3, // derivative gain (kD)
+        0, // derivative gain (kD)
         3, // anti windup
         1, // small error range, in inches
         100, // small error range timeout, in milliseconds
@@ -245,9 +245,9 @@ void initialize() {
     pros::lcd::initialize();
     chassis.calibrate();
 
-    chassis.setPose({0, 0, 0});
-
     pros::Task screenTask([&]() {
+        chassis.setPose({0, 0, 0});
+
         while (true) {
             pros::lcd::print(0, "X: %f", chassis.getPose().x); // x
             pros::lcd::print(1, "Y: %f", chassis.getPose().y); // y
@@ -494,7 +494,7 @@ void matchPB()
     intake.set_current_limit(0);
 
     chassis.setPose({0, 0, 0});
-	chassis.moveToPose(0, 20, 0, 10000);
+	chassis.moveToPose(0, 24, 0, 10000);
 }
 
 void qualJ()
