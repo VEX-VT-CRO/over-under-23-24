@@ -457,10 +457,7 @@ void qualPB()
     chassis.setPose({-50.5, -55, 125});
     pros::delay(1000);
     climb.moveClimb(12000);
-    front_left_solenoid.set_value(1);
     pros::delay(200);
-    climb.moveClimb(-12000);
-    pros::delay(400);
     climb.moveClimb(0);
     ri.spin(-ri.STANDARD_MV);
     pros::delay(500);
@@ -479,6 +476,11 @@ void qualPB()
     pros::delay(2000);
     front_right_solenoid.set_value(1);
     pros::delay(500);
+    front_left_solenoid.set_value(1);
+    pros::delay(100);
+    climb.moveClimb(-12000);
+    pros::delay(200);
+    climb.moveClimb(0);
     front_right_solenoid.set_value(0);
     pros::delay(2000);
     front_right_solenoid.set_value(1);
@@ -629,7 +631,9 @@ void qualJ()
     pros::delay(3000);
     chassis.turnToHeading(90, 2000);
     pros::delay(2000);
-    pros::delay(30000);
+    chassis.moveToPoint(-25, -40, 2000);
+    pros::delay(2000);
+    pros::delay(27000);
     chassis.moveToPoint(-65, -40, 3000, {false});
     pros::delay(3000);
     chassis.turnToHeading(-30, 2000);
