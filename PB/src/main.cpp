@@ -6,9 +6,9 @@
 #include "subsystems/climb.hpp"
 
 //First robot to push balls
-// #define PB
+#define PB
 //Second robot to push balls
-#define J
+// #define J
 
 #define QUAL_AUTO
 // #define MATCH_AUTO
@@ -444,12 +444,6 @@ void disabled() {}
  * starts.
  */
 void competition_initialize() {}
-
-ASSET(path_txt);
-ASSET(pathJ_1_txt);
-ASSET(pathJ_2_txt);
-ASSET(pathJ_3_txt);
-ASSET(pathJ_4_txt);
 
 ASSET(PB_M_1_txt);
 ASSET(PB_M_2_txt);
