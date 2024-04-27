@@ -13,8 +13,8 @@
 // #define QUAL_AUTO
 #define MATCH_AUTO
 
-// #define ARCADE
-#define TANK
+#define ARCADE
+// #define TANK
 
 enum class RobotState {
     Driving,
@@ -462,48 +462,72 @@ void qualPB()
 {
     chassis.setPose({-50.5, -55, 125});
 
-    // for (int i = 0; i < 4; i++){
-    //     leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    //     rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    // }
-    // pros::delay(3000);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(2000);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(2000);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(2000);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(2000);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(2000);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(2000);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(2000);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(500);
-    // for (int i = 0; i < 4; i++){
-    //     leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    //     rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    // }
-    // front_left_solenoid.set_value(1);
+    climb.moveClimb(12000);
+    front_left_solenoid.set_value(1);
+    pros::delay(200);
+    climb.moveClimb(-12000);
+    pros::delay(400);
+    climb.moveClimb(0);
+    ri.spin(-ri.STANDARD_MV);
+    pros::delay(500);
+
+    for (int i = 0; i < 4; i++){
+        leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    }
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(2000);
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    pros::delay(500);
+    front_left_solenoid.set_value(0);
+
+    leftSide.set_brake_modes(pros::motor_brake_mode_e_t::E_MOTOR_BRAKE_BRAKE);
+    rightSide.set_brake_modes(pros::motor_brake_mode_e_t::E_MOTOR_BRAKE_BRAKE);
+
     pros::delay(500);
     chassis.follow(PB_M_1_txt, 30, 10000, true, false);
     leftSide.brake();
@@ -512,12 +536,19 @@ void qualPB()
     chassis.follow(PB_M_2_txt, 30, 10000, false, false);
     leftSide.brake();
     rightSide.brake();
+    ri.spin(0);
     pros::delay(500);
-    chassis.turnToHeading(270, 10000, false);
+    chassis.turnToHeading(0, 10000, true);
+    chassis.turnToHeading(-90, 10000, false);
     pros::delay(500);
     chassis.follow(PB_M_3_txt, 30, 10000, false, false);
     leftSide.brake();
     rightSide.brake();
+
+    for (int i = 0; i < 4; i++){
+        leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    }
 }
 
 void matchPB()
