@@ -363,6 +363,12 @@ void autoIntakeManager()
 
 void pollController()
 {
+    // #if defined(PB)
+    //     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
+    //     {
+    //         qualPB();
+    //     }
+    // #endif    
     if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
     {
         ri.spin(ri.STANDARD_MV);
@@ -449,6 +455,8 @@ ASSET(PB_M_1_txt);
 ASSET(PB_M_2_txt);
 ASSET(PB_M_3_txt);
 ASSET(PB_M_4_txt);
+ASSET(PB_M_3_1_txt);
+ASSET(PB_M_1_1_txt);
 
 ASSET(J_M_1_txt);
 ASSET(J_M_2_txt);
@@ -503,9 +511,7 @@ void qualPB()
     rightSide.set_brake_modes(pros::motor_brake_mode_e_t::E_MOTOR_BRAKE_BRAKE);
 
     //Push balls into alley
-    chassis.follow(PB_M_1_txt, 30, 5000, true, false);
-    leftSide.brake();
-    rightSide.brake();
+    chassis.follow(PB_M_1_1_txt, 30, 5000, true, false);
     pros::delay(10);
     leftSide.brake();
     rightSide.brake();
@@ -513,6 +519,7 @@ void qualPB()
     
     //Back up for a spin
     chassis.follow(PB_M_2_txt, 30, 5000, false, false);
+    pros::delay(10);
     leftSide.brake();
     rightSide.brake();
     ri.spin(0);
@@ -524,7 +531,7 @@ void qualPB()
     pros::delay(500);
 
     //Push all the balls into the goal
-    chassis.follow(PB_M_3_txt, 30, 6000, false, true);
+    chassis.follow(PB_M_3_1_txt, 30, 6000, false, true);
     pros::delay(950);
     back_right_solenoid.set_value(1);
     // pros::delay(900);
@@ -532,7 +539,8 @@ void qualPB()
     // pros::delay(500);
     // back_left_solenoid.set_value(0);
     // pros::delay(3550);
-    pros::delay(4050);
+    pros::delay(5050);
+    pros::delay(10);
     leftSide.brake();
     rightSide.brake();
 
