@@ -8,7 +8,8 @@ class Climb
     public:
         Climb(pros::Motor_Group& climbMotors);
         void moveClimb(int mV);
-
+        void deployClimb_PB();
+        void deployClimb_J();
     private:
         pros::Motor_Group& climbMotors;
 };
