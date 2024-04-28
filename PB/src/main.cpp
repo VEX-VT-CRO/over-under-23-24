@@ -716,7 +716,7 @@ void qualJ()
     chassis.turnToHeading(-90, 2000, false);
     leftSide.move(100);
     rightSide.move(100);
-    pros::delay(500);
+    pros::delay(550);
     leftSide.brake();
     rightSide.brake();
     pros::delay(200);
@@ -741,7 +741,7 @@ void qualJ()
     chassis.turnToHeading(270, 2000, false);
     leftSide.move(100);
     rightSide.move(100);
-    pros::delay(700);
+    pros::delay(600);
     leftSide.brake();
     rightSide.brake();
 }
