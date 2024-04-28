@@ -199,26 +199,12 @@ lemlib::Drivetrain LLDrivetrain(
 
 lemlib::OdomSensors sensors(
     &verticalWheel,
-    // nullptr,
     nullptr,
     &horizontalWheel,
-    // nullptr,
     nullptr,
     &gyro
-    // nullptr
 );
 
-// lemlib::ExpoDriveCurve throttleCurve(3, // joystick deadband out of 127
-//                                      10, // minimum output where drivetrain will move out of 127
-//                                      1.019 // expo curve gain
-// );
-
-// lemlib::ExpoDriveCurve steerCurve(3, // joystick deadband out of 127
-//                                   10, // minimum output where drivetrain will move out of 127
-//                                   1.019 // expo curve gain
-// );
-
-// lemlib::Chassis chassis(LLDrivetrain, linearController, angularController, sensors, &throttleCurve, &steerCurve);
 lemlib::Chassis chassis(LLDrivetrain, linearController, angularController, sensors);
 
 RollerIntake ri(riGroup);
@@ -339,8 +325,7 @@ void initialize() {
             #elif defined(MATCH_AUTO)
                 pros::lcd::print(4, "MATCH");
             #endif
-            pros::lcd::print(5, "Ball Distance: %f", climbGroup[0].get_position());
-            pros::lcd::print(6, "Robot State: %s", toString(robotState));        
+            pros::lcd::print(5, "Robot State: %s", toString(robotState));        
             lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
             pros::delay(50);
         }
@@ -388,19 +373,19 @@ void pollController()
 {  
     if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
     {
-        ri.spin(ri.STANDARD_MV);
         if (robotState != RobotState::Intaking){
             robotState = RobotState::Intaking;
             setcurrentstate(robotState);
         }
+        ri.spin(ri.STANDARD_MV);
     }
     else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
     {
-        ri.spin(-ri.STANDARD_MV);
         if (robotState != RobotState::Intaking){
             robotState = RobotState::Intaking;
             setcurrentstate(robotState);
         }
+        ri.spin(-ri.STANDARD_MV);
     }
     else
     {
@@ -439,11 +424,7 @@ void pollController()
             robotState = RobotState::Climbing;
             setcurrentstate(robotState);
         }
-        #if defined(PB)
-            climb.deployClimb_PB();
-        #elif defined(J)
-            climb.deployClimb_J();  
-        #endif
+        climb.deployClimb_PB();
         auto_climb_state = true;
     }
     else{
@@ -463,28 +444,22 @@ void pollController()
 }
 #elif defined(J)
 void pollController()
-{
-    // #if defined(PB)
-    //     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
-    //     {
-    //         qualPB();
-    //     }
-    // #endif    
+{ 
     if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
     {
-        ri.spin(ri.STANDARD_MV);
         if (robotState != RobotState::Intaking){
             robotState = RobotState::Intaking;
             setcurrentstate(robotState);
         }
+        ri.spin(ri.STANDARD_MV);
     }
     else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
     {
-        ri.spin(-ri.STANDARD_MV);
         if (robotState != RobotState::Intaking){
             robotState = RobotState::Intaking;
             setcurrentstate(robotState);
         }
+        ri.spin(-ri.STANDARD_MV);
     }
     else
     {
@@ -504,23 +479,30 @@ void pollController()
         ind.openBack();
     }
 
-    //R2 set climb height
-
     if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_A))
     {
-        climb.moveClimb(-12000);
         if (robotState != RobotState::Climbing){
             robotState = RobotState::Climbing;
             setcurrentstate(robotState);
         }
+        climb.moveClimb(-12000);
     }
     else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT))
     {
+         if (robotState != RobotState::Climbing){
+            robotState = RobotState::Climbing;
+            setcurrentstate(robotState);
+        }
         climb.moveClimb(12000);
+    }
+    else if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2))
+    {
         if (robotState != RobotState::Climbing){
             robotState = RobotState::Climbing;
             setcurrentstate(robotState);
         }
+        climb.deployClimb_J();  
+        auto_climb_state = true;
     }
     else
     {
@@ -695,80 +677,7 @@ void qualPB()
 }
 
 void matchPB()
-{
-    // chassis.setPose({-34, -64, 0});
-    // chassis.moveToPose(-34, -18, 0, 3000);
-    // pros::delay(3000);
-    // chassis.turnToHeading(45, 1000);
-    // ri.spin(12000);
-    // chassis.moveToPose(-28, -12, 45, 1500);
-    // pros::delay(1750);
-    // ri.spin(0);
-    // pros::delay(250);
-    // chassis.turnToHeading(90, 800);
-    // pros::delay(800);
-    // chassis.moveToPose(-20, -12, 90, 1000);
-    // pros::delay(1000);
-    // ri.spin(-12000);
-    // chassis.moveToPose(-12, -12, 90, 1500);
-    // pros::delay(1500);
-    // ri.spin(0);
-    // pros::delay(250);
-    // chassis.setPose({-7, -12.5, 90});
-    // chassis.moveToPose(-20, -12.5, 90, 1000, {false});
-    // pros::delay(1000);
-    // chassis.turnToHeading(210, 1500);
-    // pros::delay(1500);
-    // pros::delay(250);
-    // chassis.setPose({-20, -12.5, 210});
-    // chassis.follow(pathJ_3_txt, 40, 4000);
-    // pros::delay(4000);
-    // chassis.turnToHeading(135, 1500);
-    // chassis.follow(pathJ_4_txt, 20, 2000);
-    // pros::delay(2000);
-    // for (int i = 0; i < 4; i++){
-    //     leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    //     rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
-    // }
-    // pros::delay(500);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(2000);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(2000);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(2000);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(2000);
-    // front_right_solenoid.set_value(1);
-    // pros::delay(500);
-    // front_right_solenoid.set_value(0);
-    // pros::delay(500);
-    // for (int i = 0; i < 4; i++){
-    //     leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    //     rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-    // }
-    // front_left_solenoid.set_value(1);
-    // pros::delay(500);
-
-    // for(int i = 0; i < 4; i++)
-    // {
-    //     leftSide[i].set_current_limit(2500);
-    //     rightSide[i].set_current_limit(2500);
-    //     climbGroup[i].set_current_limit(0);
-    // }
-    // intake.set_current_limit(0);
-
-    // chassis.setPose({0, 0, 0});
-	// chassis.moveToPose(0, 24, 0, 1000000);
-    
+{   
     qualPB();
 }
 
@@ -776,62 +685,6 @@ void matchPB()
 
 void qualJ()
 {
-    // ri.spin(12000);
-    // chassis.moveToPose(-28, -12, 45, 1500);
-    // pros::delay(1750);
-    // ri.spin(0);
-    // pros::delay(250);
-    // chassis.turnToHeading(90, 800);
-    // pros::delay(800);
-    // chassis.moveToPose(-20, -12, 90, 1000);
-    // pros::delay(1000);
-    // ri.spin(-12000);
-    // chassis.moveToPose(-12, -12, 90, 1500);
-    // pros::delay(1500);
-    // ri.spin(0);
-    // pros::delay(250);
-    // chassis.setPose({-7, -12.5, 90});
-    // chassis.moveToPose(-20, -12.5, 90, 1000, {false});
-    // pros::delay(1000);
-    // chassis.turnToHeading(210, 1500);
-    // pros::delay(1500);
-    // pros::delay(250);
-    // chassis.setPose({-20, -12.5, 210});
-    // chassis.follow(pathJ_3_txt, 40, 4000);
-    // pros::delay(4000);
-    // chassis.turnToHeading(135, 1500);
-    // chassis.follow(pathJ_4_txt, 20, 2000);
-    // pros::delay(2000);
-
-    // chassis.setPose({-34, -64, 0});
-    // chassis.follow(pathJ_1_txt, 40, 1500);
-    // pros::delay(1500);
-    // ri.spin(12000);
-    // chassis.follow(pathJ_2_txt, 15, 1000);
-    // pros::delay(1000);
-    // ri.spin(0);
-    // pros::delay(250);
-    // chassis.setPose({-24, -14, chassis.getPose().theta});
-    // chassis.turnToHeading(90, 800);
-    // pros::delay(800);
-    // chassis.moveToPose(-20, -14, 90, 1000);
-    // pros::delay(1000);
-    // ri.spin(-12000);
-    // chassis.moveToPose(-12, -14, 90, 1500);
-    // pros::delay(1500);
-    // ri.spin(0);
-    // pros::delay(5000); //TEMPORARY
-    // pros::delay(250);
-    // chassis.setPose({-24, -14, 7});
-    // chassis.moveToPose(-17, -15.862, 90, 1000, {false});
-    // pros::delay(1000);
-    // chassis.turnToHeading(210, 1500);
-    // pros::delay(1500);
-    // chassis.turnToHeading(180, 3000);
-    // chassis.turnToHeading(0, 3000);
-    // chassis.turnToHeading(180, 3000);
-    // chassis.turnToHeading(0, 3000);
-
     chassis.setPose({-11.698, -62.532, 90});
 
     ri.spin(12000);
@@ -895,62 +748,6 @@ void qualJ()
 
 void matchJ()
 {
-    // ri.spin(12000);
-    // chassis.moveToPose(-28, -12, 45, 1500);
-    // pros::delay(1750);
-    // ri.spin(0);
-    // pros::delay(250);
-    // chassis.turnToHeading(90, 800);
-    // pros::delay(800);
-    // chassis.moveToPose(-20, -12, 90, 1000);
-    // pros::delay(1000);
-    // ri.spin(-12000);
-    // chassis.moveToPose(-12, -12, 90, 1500);
-    // pros::delay(1500);
-    // ri.spin(0);
-    // pros::delay(250);
-    // chassis.setPose({-7, -12.5, 90});
-    // chassis.moveToPose(-20, -12.5, 90, 1000, {false});
-    // pros::delay(1000);
-    // chassis.turnToHeading(210, 1500);
-    // pros::delay(1500);
-    // pros::delay(250);
-    // chassis.setPose({-20, -12.5, 210});
-    // chassis.follow(pathJ_3_txt, 40, 4000);
-    // pros::delay(4000);
-    // chassis.turnToHeading(135, 1500);
-    // chassis.follow(pathJ_4_txt, 20, 2000);
-    // pros::delay(2000);
-
-    // chassis.setPose({-34, -64, 0});
-    // chassis.follow(pathJ_1_txt, 40, 1500);
-    // pros::delay(1500);
-    // ri.spin(12000);
-    // chassis.follow(pathJ_2_txt, 15, 1000);
-    // pros::delay(1000);
-    // ri.spin(0);
-    // pros::delay(250);
-    // chassis.setPose({-24, -14, chassis.getPose().theta});
-    // chassis.turnToHeading(90, 800);
-    // pros::delay(800);
-    // chassis.moveToPose(-20, -14, 90, 1000);
-    // pros::delay(1000);
-    // ri.spin(-12000);
-    // chassis.moveToPose(-12, -14, 90, 1500);
-    // pros::delay(1500);
-    // ri.spin(0);
-    // pros::delay(5000); //TEMPORARY
-    // pros::delay(250);
-    // chassis.setPose({-24, -14, 7});
-    // chassis.moveToPose(-17, -15.862, 90, 1000, {false});
-    // pros::delay(1000);
-    // chassis.turnToHeading(210, 1500);
-    // pros::delay(1500);
-    // chassis.turnToHeading(180, 3000);
-    // chassis.turnToHeading(0, 3000);
-    // chassis.turnToHeading(180, 3000);
-    // chassis.turnToHeading(0, 3000);
-
     chassis.setPose({-34, -64, 0});
     pros::delay(100);
     chassis.moveToPoint(-34, -38, 3000);
