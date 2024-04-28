@@ -7,15 +7,15 @@
 #include "subsystems/climb.hpp"
 
 //First robot to push balls
-// #define PB
+#define PB
 //Second robot to push balls
-#define J
+// #define J
 
 #define QUAL_AUTO
 // #define MATCH_AUTO
 
-// #define ARCADE
-#define TANK
+#define ARCADE
+// #define TANK
 
 enum class RobotState {
     Driving,

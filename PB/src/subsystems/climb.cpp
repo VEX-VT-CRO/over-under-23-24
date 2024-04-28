@@ -13,8 +13,8 @@ void Climb::moveClimb(int mV)
 
 void Climb::deployClimb_PB()
 {
-    climbMotors.move_absolute(4.6, 200);
-    pros::delay(1200);
+    climbMotors.move_absolute(4.4, 200);
+    pros::delay(1320);
 }
 
 void Climb::deployClimb_J()
