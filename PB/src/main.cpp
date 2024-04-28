@@ -361,6 +361,7 @@ void autoIntakeManager()
 }
 
 
+#if defined(PB)
 void pollController()
 {
     // #if defined(PB)
@@ -432,6 +433,79 @@ void pollController()
         }
     }
 }
+#elif defined(J)
+void pollController()
+{
+    // #if defined(PB)
+    //     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
+    //     {
+    //         qualPB();
+    //     }
+    // #endif    
+    if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
+    {
+        ri.spin(ri.STANDARD_MV);
+        if (robotState != RobotState::Intaking){
+            robotState = RobotState::Intaking;
+            setcurrentstate(robotState);
+        }
+    }
+    else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
+    {
+        ri.spin(-ri.STANDARD_MV);
+        if (robotState != RobotState::Intaking){
+            robotState = RobotState::Intaking;
+            setcurrentstate(robotState);
+        }
+    }
+    else
+    {
+        ri.spin(0);
+    }
+
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
+        ind.openFront();
+    }    
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
+        ind.openBack();
+    }
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
+        ind.openOdometry();
+    }
+
+    if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
+    {
+        climb.moveClimb(-12000);
+        if (robotState != RobotState::Climbing){
+            robotState = RobotState::Climbing;
+            setcurrentstate(robotState);
+        }
+    }
+    else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN))
+    {
+        climb.moveClimb(12000);
+        if (robotState != RobotState::Climbing){
+            robotState = RobotState::Climbing;
+            setcurrentstate(robotState);
+        }
+    }
+    else
+    {
+        climb.moveClimb(0);
+    }
+
+    if (!driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && 
+        !driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2) &&
+        !driver.get_digital(pros::E_CONTROLLER_DIGITAL_UP) && 
+        !driver.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN))
+    {
+        if (robotState != RobotState::Driving){
+            robotState = RobotState::Driving;
+            setcurrentstate(robotState);
+        }
+    }
+}
+#endif
 
 /**
  * Runs while the robot is in the disabled state of Field Management System or
@@ -465,6 +539,7 @@ ASSET(J_Q_1_txt);
 ASSET(J_Q_2_txt);
 ASSET(J_Q_3_txt);
 
+#if defined(PB)
 void qualPB()
 {
     chassis.setPose({-50.5, -55, 125});
@@ -663,6 +738,8 @@ void matchPB()
     
     qualPB();
 }
+
+#elif defined(J)
 
 void qualJ()
 {
@@ -890,6 +967,7 @@ void matchJ()
     chassis.moveToPoint(50, 30, 3000);
     pros::delay(3000);
 }
+#endif
 
 /**
  * Runs the user autonomous code. This function will be started in its own task
