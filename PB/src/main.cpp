@@ -1,14 +1,15 @@
 #include "main.h"
 
 #include "lemlib/api.hpp"
+#include "lemlib/util.hpp"
 #include "subsystems/rollerintake.hpp"
 #include "subsystems/indexer.hpp"
 #include "subsystems/climb.hpp"
 
 //First robot to push balls
-// #define PB
+#define PB
 //Second robot to push balls
-#define J
+// #define J
 
 #define QUAL_AUTO
 // #define MATCH_AUTO
@@ -358,6 +359,24 @@ void autoIntakeManager()
 
         pros::delay(10);
     }
+}
+
+//Link to curve
+//https://www.desmos.com/calculator/umicbymbnl
+double deadband = 0;
+double minOutput = 0;
+float expCurve(float input, float curveGain) {
+    // return 0 if input is within deadzone
+    if (fabs(input) <= deadband) return 0;
+    // g is the output of g(x) as defined in the Desmos graph
+    const float g = fabs(input) - deadband;
+    // g127 is the output of g(127) as defined in the Desmos graph
+    const float g127 = 127 - deadband;
+    // i is the output of i(x) as defined in the Desmos graph
+    const float i = pow(curveGain, g - 127) * g * lemlib::sgn(input);
+    // i127 is the output of i(127) as defined in the Desmos graph
+    const float i127 = pow(curveGain, g127 - 127) * g127;
+    return (127.0 - minOutput) / (127) * i * 127 / i127 + minOutput * lemlib::sgn(input);
 }
 
 
@@ -1027,6 +1046,7 @@ void opcontrol() {
         int l = driver.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         #if defined(ARCADE)
             int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+            r = expCurve(r, 1.015);
 		    chassis.arcade(l, r);
 	    #elif defined(TANK)
             int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
