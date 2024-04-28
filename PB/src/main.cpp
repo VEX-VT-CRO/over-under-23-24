@@ -7,15 +7,15 @@
 #include "subsystems/climb.hpp"
 
 //First robot to push balls
-#define PB
+// #define PB
 //Second robot to push balls
-// #define J
+#define J
 
 #define QUAL_AUTO
 // #define MATCH_AUTO
 
-#define ARCADE
-// #define TANK
+// #define ARCADE
+#define TANK
 
 enum class RobotState {
     Driving,
@@ -853,19 +853,29 @@ void opcontrol() {
         else
             if(abs(climbGroup[0].get_position() - climbGroup[0].get_target_position()) < 0.5)   
                 auto_climb_state = false; 
-        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
+
+#if defined(PB)
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B))
         {
             auto_climb_state = false;
         }
+#elif defined(J)
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2))
+        {
+            auto_climb_state = false;
+        }
+#endif
+
         int l = driver.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
-        #if defined(ARCADE)
-            int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-            r = expCurve(r, 1.015);
-		    chassis.arcade(l, r);
-	    #elif defined(TANK)
-            int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
-		    chassis.tank(l, r);
-	    #endif
+#if defined(ARCADE)
+        int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
+        r = expCurve(r, 1.015);
+        chassis.arcade(l, r);
+#elif defined(TANK)
+        int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
+        chassis.tank(l, r);
+#endif
+
         pros::delay(10);
     }
 }
