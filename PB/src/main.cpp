@@ -22,6 +22,8 @@ enum class RobotState {
     Climbing
 };
 
+bool auto_climb_state = false;
+
 #if defined(PB)
     constexpr int8_t FRONT_LEFT_PORT         = 1;
     constexpr int8_t MIDDLE_FRONT_LEFT_PORT  = 2;
@@ -104,8 +106,8 @@ pros::Motor intake(INTAKE_PORT);
     pros::Motor climb3(CLIMB_3_PORT, true);
     pros::Motor climb4(CLIMB_4_PORT, true);
 #elif defined(J)
-    pros::Motor climb1(CLIMB_1_PORT);
-    pros::Motor climb2(CLIMB_2_PORT, true);
+    pros::Motor climb1(CLIMB_1_PORT, true);
+    pros::Motor climb2(CLIMB_2_PORT);
 #endif
 
 pros::ADIDigitalOut back_right_solenoid(BACK_RIGHT_SOLENOID);
@@ -336,6 +338,7 @@ void initialize() {
             #elif defined(MATCH_AUTO)
                 pros::lcd::print(4, "MATCH");
             #endif
+            pros::lcd::print(5, "Ball Distance: %f", climbGroup[0].get_position());
             pros::lcd::print(6, "Robot State: %s", toString(robotState));        
             lemlib::telemetrySink()->info("Chassis pose: {}", chassis.getPose());
             pros::delay(50);
@@ -362,13 +365,7 @@ void autoIntakeManager()
 
 
 void pollController()
-{
-    // #if defined(PB)
-    //     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_X))
-    //     {
-    //         qualPB();
-    //     }
-    // #endif    
+{  
     if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1))
     {
         ri.spin(ri.STANDARD_MV);
@@ -402,22 +399,34 @@ void pollController()
 
     if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
     {
-        climb.moveClimb(-12000);
-        if (robotState != RobotState::Climbing){
+         if (robotState != RobotState::Climbing){
             robotState = RobotState::Climbing;
             setcurrentstate(robotState);
         }
+        climb.moveClimb(12000);
     }
     else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN))
     {
-        climb.moveClimb(12000);
         if (robotState != RobotState::Climbing){
             robotState = RobotState::Climbing;
             setcurrentstate(robotState);
         }
+        climb.moveClimb(-12000);
     }
-    else
+    else if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B))
     {
+        if (robotState != RobotState::Climbing){
+            robotState = RobotState::Climbing;
+            setcurrentstate(robotState);
+        }
+        #if defined(PB)
+            climb.deployClimb_PB();
+        #elif defined(J)
+            climb.deployClimb_J();  
+        #endif
+        auto_climb_state = true;
+    }
+    else{
         climb.moveClimb(0);
     }
 
@@ -940,7 +949,15 @@ void autonomous() {
 void opcontrol() {
     while(true)
     {
-        pollController();
+        if(!auto_climb_state)
+            pollController();
+        else
+            if(abs(climbGroup[0].get_position() - climbGroup[0].get_target_position()) < 0.5)   
+                auto_climb_state = false; 
+        if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_Y))
+        {
+            auto_climb_state = false;
+        }
         int l = driver.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
         #if defined(ARCADE)
             int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
