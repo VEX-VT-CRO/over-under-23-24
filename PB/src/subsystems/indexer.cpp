@@ -24,10 +24,7 @@ void Indexer::openBack()
 
 void Indexer::openOdometry()
 {
-    openBackLeft();
-    openBackRight();
-    openFrontLeft();
-    openFrontRight();
+    
 }
 
 void Indexer::openBackLeft()

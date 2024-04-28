@@ -463,17 +463,22 @@ void pollController()
         ri.spin(0);
     }
 
-    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R2)){
-        ind.openFront();
-    }    
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_DOWN))
+    {
+        ind.openFrontLeft();
+    }
+    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_B))
+    {
+        ind.openFrontRight();
+    }
+
     if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_R1)){
         ind.openBack();
     }
-    if(driver.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)){
-        ind.openOdometry();
-    }
 
-    if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
+    //R2 set climb height
+
+    if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_A))
     {
         climb.moveClimb(-12000);
         if (robotState != RobotState::Climbing){
@@ -481,7 +486,7 @@ void pollController()
             setcurrentstate(robotState);
         }
     }
-    else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN))
+    else if(driver.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT))
     {
         climb.moveClimb(12000);
         if (robotState != RobotState::Climbing){
@@ -496,8 +501,8 @@ void pollController()
 
     if (!driver.get_digital(pros::E_CONTROLLER_DIGITAL_L1) && 
         !driver.get_digital(pros::E_CONTROLLER_DIGITAL_L2) &&
-        !driver.get_digital(pros::E_CONTROLLER_DIGITAL_UP) && 
-        !driver.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN))
+        !driver.get_digital(pros::E_CONTROLLER_DIGITAL_A) && 
+        !driver.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT))
     {
         if (robotState != RobotState::Driving){
             robotState = RobotState::Driving;
