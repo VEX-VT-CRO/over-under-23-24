@@ -7,15 +7,15 @@
 #include "subsystems/climb.hpp"
 
 //First robot to push balls
-#define PB
+// #define PB
 //Second robot to push balls
-// #define J
+#define J
 
-// #define QUAL_AUTO
-#define MATCH_AUTO
+#define QUAL_AUTO
+// #define MATCH_AUTO
 
-#define ARCADE
-// #define TANK
+// #define ARCADE
+#define TANK
 
 enum class RobotState {
     Driving,
@@ -128,13 +128,8 @@ pros::Motor_Group riGroup({intake});
 #endif
 
 //SENSORS
-#if defined(J)
-    pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
-    pros::Rotation verticalPod(VERTICAL_POD_PORT, true);
-#elif defined(PB)
-    pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
-    pros::Rotation verticalPod(VERTICAL_POD_PORT);
-#endif       
+pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
+pros::Rotation verticalPod(VERTICAL_POD_PORT, true);
 pros::IMU gyro(GYRO_PORT);
 pros::Distance ballDistance(BALL_DISTANCE_PORT);
 
@@ -584,7 +579,7 @@ void qualPB()
 
     //Flick 12 triballs
     //Flick 11 in a loop
-    constexpr int MAX_FLICKS = 12;
+    constexpr int MAX_FLICKS = 11;
     for(int i = 0; i < MAX_FLICKS - 1; ++i)
     {
         front_right_solenoid.set_value(1);
@@ -628,26 +623,12 @@ void qualPB()
     chassis.follow(PB_M_3_1_txt, 30, 6000, false, true);
     pros::delay(950);
     back_right_solenoid.set_value(1);
-    // pros::delay(900);
-    // back_left_solenoid.set_value(1);
-    // pros::delay(500);
-    // back_left_solenoid.set_value(0);
-    // pros::delay(3550);
     pros::delay(5050);
     pros::delay(10);
     leftSide.brake();
     rightSide.brake();
-
-    //Ram once
-    // leftSide.move(50);
-    // rightSide.move(50);
-    // pros::delay(500);
-    // leftSide.move(-127);
-    // rightSide.move(-107);
-    // pros::delay(1000);
-    // leftSide.brake();
-    // rightSide.brake();
-    // pros::delay(200);
+    pros::delay(100);
+    ri.spin(-12000);
 
     //Drive away from goal to post
     chassis.setPose(59.728, -30.914, 180);
@@ -688,78 +669,69 @@ void matchPB()
 
 void qualJ()
 {
-    chassis.setPose({-11.698, -62.532, 90});
+    chassis.setPose({-15.5, -62, 90});
 
     ri.spin(12000);
 
-    chassis.follow(J_Q_1_txt, 30, 5000, true, false);
+    chassis.follow(J_Q_1_txt, 30, 5000);
+    pros::delay(5000);
     leftSide.brake();
     rightSide.brake();
     pros::delay(500);
 
     ri.spin(-12000);
     pros::delay(500);
-    front_right_solenoid.set_value(1);
+    back_right_solenoid.set_value(1);
     pros::delay(500);
-    front_right_solenoid.set_value(0);
+    chassis.turnToHeading(-45, 2000);
+    pros::delay(2000);
+    back_right_solenoid.set_value(0);
     pros::delay(500);
-
-    chassis.follow(J_Q_2_txt, 30, 5000, true, false);
-    leftSide.brake();
-    rightSide.brake();
+    chassis.turnToHeading(-135, 3000, {true, 50});
+    pros::delay(3000);
     pros::delay(500);
+    back_right_solenoid.set_value(1);
 
-    ri.spin(0);
-    leftSide.move(-100);
-    rightSide.move(-100);
-    pros::delay(100);
-    leftSide.brake();
-    rightSide.brake();
-    pros::delay(200);
-    chassis.turnToHeading(-90, 2000, false);
-    leftSide.move(100);
-    rightSide.move(100);
-    pros::delay(550);
-    leftSide.brake();
-    rightSide.brake();
-    pros::delay(200);
-    chassis.turnToHeading(-180, 2000, false);
-    leftSide.brake();
-    rightSide.brake();
-    pros::delay(200);
-    leftSide.move(-80);
-    rightSide.move(-80);
-    pros::delay(600);
-    leftSide.brake();
-    rightSide.brake();
-
-    pros::delay(30000);
-
-    leftSide.move(80);
-    rightSide.move(80);
-    pros::delay(1200);
-    leftSide.brake();
-    rightSide.brake();
-    pros::delay(200);
-    chassis.turnToHeading(270, 2000, false);
-    leftSide.move(100);
-    rightSide.move(100);
-    pros::delay(600);
-    leftSide.brake();
-    rightSide.brake();
+    chassis.setPose({53, -48, -135});
+    chassis.moveToPoint(60.4, -40.6, 2000, {false});
+    pros::delay(2000);
+    chassis.turnToHeading(-180, 2000);
+    pros::delay(2000);
+    pros::delay(500);
+    chassis.setPose({0, 0, 180});
+    chassis.moveToPoint(0, 30, 2000, {false, 127, 100});
+    pros::delay(2000);
+    chassis.moveToPoint(0, 0, 2000);
+    pros::delay(2000);
+    pros::delay(500);
+    back_right_solenoid.set_value(0);
+    chassis.turnToHeading(-90, 2000);
+    pros::delay(2000);
+    chassis.moveToPoint(-18, 0, 2000);
+    pros::delay(2000);
+    chassis.turnToHeading(0, 2000);
+    pros::delay(2000);
+    chassis.moveToPoint(-18, 10, 2000);
+    pros::delay(2000);
+    pros::delay(1000);
+    chassis.moveToPoint(-18, -35, 2000, {false});
+    pros::delay(2000);
+    chassis.turnToHeading(-90, 2000);
+    chassis.setPose({0, 0, 0});
+    chassis.moveToPoint(0, 25, 2000);
 }
 
 void matchJ()
 {
     chassis.setPose({-34, -64, 0});
     pros::delay(100);
-    chassis.moveToPoint(-34, -36, 3000);
+    chassis.moveToPoint(-34, -35, 3000);
     pros::delay(3000);
     chassis.turnToHeading(90, 2000);
     pros::delay(2000);
-    chassis.moveToPoint(-25, -40, 2000);
+    chassis.moveToPoint(-25, -38, 2000);
     pros::delay(2000);
-    pros::delay(20000);
+    pros::delay(21000);
     chassis.moveToPoint(-65, -40, 2000, {false, 80});
     pros::delay(2000);
     chassis.turnToHeading(-30, 1000);
@@ -770,11 +742,11 @@ void matchJ()
     chassis.setPose({36, -60.5, 260});
     chassis.turnToHeading(225, 2000);
     pros::delay(2000);
+    back_right_solenoid.set_value(1);
     chassis.follow(J_M_2_txt, 20, 2500, {false});
     pros::delay(2500);
     chassis.turnToHeading(175, 1500);
     pros::delay(1500);
-    back_right_solenoid.set_value(1);
     back_left_solenoid.set_value(1);
     pros::delay(250);
     chassis.setPose({58, -36, 180});
