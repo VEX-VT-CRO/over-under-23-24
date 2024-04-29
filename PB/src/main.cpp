@@ -7,15 +7,15 @@
 #include "subsystems/climb.hpp"
 
 //First robot to push balls
-#define PB
+// #define PB
 //Second robot to push balls
-// #define J
+#define J
 
-#define QUAL_AUTO
-// #define MATCH_AUTO
+// #define QUAL_AUTO
+#define MATCH_AUTO
 
-#define ARCADE
-// #define TANK
+// #define ARCADE
+#define TANK
 
 enum class RobotState {
     Driving,
@@ -554,7 +554,6 @@ ASSET(J_Q_1_txt);
 ASSET(J_Q_2_txt);
 ASSET(J_Q_3_txt);
 
-#if defined(PB)
 void qualPB()
 {
     chassis.setPose({-50.5, -55, 125});
@@ -681,7 +680,6 @@ void matchPB()
     qualPB();
 }
 
-#elif defined(J)
 
 void qualJ()
 {
@@ -757,11 +755,11 @@ void matchJ()
     chassis.moveToPoint(-25, -40, 2000);
     pros::delay(2000);
     pros::delay(27000);
-    chassis.moveToPoint(-65, -40, 3000, {false});
+    chassis.moveToPoint(-65, -40, 3000, {false, 80});
     pros::delay(3000);
     chassis.turnToHeading(-30, 2000);
     pros::delay(2000);
-    back_left_solenoid.set_value(1);
+    back_right_solenoid.set_value(1);
     chassis.setPose({-54, -40.4, -30});
     chassis.follow(J_M_1_txt, 30, 5000, {false});
     pros::delay(5000);
@@ -797,8 +795,6 @@ void matchJ()
     chassis.moveToPoint(50, 30, 3000);
     pros::delay(3000);
 }
-#endif
-
 /**
  * Runs the user autonomous code. This function will be started in its own task
  * with the default priority and stack size whenever the robot is enabled via
@@ -869,7 +865,7 @@ void opcontrol() {
         int l = driver.get_analog(pros::E_CONTROLLER_ANALOG_LEFT_Y);
 #if defined(ARCADE)
         int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_X);
-        r = expCurve(r, 1.015);
+        // r = expCurve(r, 1.015);
         chassis.arcade(l, r);
 #elif defined(TANK)
         int r = driver.get_analog(pros::E_CONTROLLER_ANALOG_RIGHT_Y);
