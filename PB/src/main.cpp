@@ -7,15 +7,15 @@
 #include "subsystems/climb.hpp"
 
 //First robot to push balls
-// #define PB
+#define PB
 //Second robot to push balls
-#define J
+// #define J
 
 // #define QUAL_AUTO
 #define MATCH_AUTO
 
-// #define ARCADE
-#define TANK
+#define ARCADE
+// #define TANK
 
 enum class RobotState {
     Driving,
@@ -128,8 +128,13 @@ pros::Motor_Group riGroup({intake});
 #endif
 
 //SENSORS
-pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
-pros::Rotation verticalPod(VERTICAL_POD_PORT);
+#if defined(J)
+    pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
+    pros::Rotation verticalPod(VERTICAL_POD_PORT, true);
+#elif defined(PB)
+    pros::Rotation horizontalPod(HORIZONTAL_POD_PORT);
+    pros::Rotation verticalPod(VERTICAL_POD_PORT);
+#endif       
 pros::IMU gyro(GYRO_PORT);
 pros::Distance ballDistance(BALL_DISTANCE_PORT);
 
@@ -748,44 +753,44 @@ void matchJ()
 {
     chassis.setPose({-34, -64, 0});
     pros::delay(100);
-    chassis.moveToPoint(-34, -38, 3000);
+    chassis.moveToPoint(-34, -36, 3000);
     pros::delay(3000);
     chassis.turnToHeading(90, 2000);
     pros::delay(2000);
     chassis.moveToPoint(-25, -40, 2000);
     pros::delay(2000);
-    pros::delay(27000);
-    chassis.moveToPoint(-65, -40, 3000, {false, 80});
-    pros::delay(3000);
-    chassis.turnToHeading(-30, 2000);
+    pros::delay(20000);
+    chassis.moveToPoint(-65, -40, 2000, {false, 80});
     pros::delay(2000);
-    back_right_solenoid.set_value(1);
+    chassis.turnToHeading(-30, 1000);
+    pros::delay(1000);
     chassis.setPose({-54, -40.4, -30});
-    chassis.follow(J_M_1_txt, 30, 5000, {false});
-    pros::delay(5000);
+    chassis.follow(J_M_1_txt, 30, 3500, {false});
+    pros::delay(3500);
     chassis.setPose({36, -60.5, 260});
     chassis.turnToHeading(225, 2000);
     pros::delay(2000);
     chassis.follow(J_M_2_txt, 20, 2500, {false});
     pros::delay(2500);
-    chassis.turnToHeading(175, 2000);
+    chassis.turnToHeading(175, 1500);
+    pros::delay(1500);
     back_right_solenoid.set_value(1);
-    pros::delay(2000);
-    pros::delay(500);
+    back_left_solenoid.set_value(1);
+    pros::delay(250);
     chassis.setPose({58, -36, 180});
-    chassis.moveToPoint(58, -12, 1500, {false, 127, 100});
-    pros::delay(1500);
-    chassis.moveToPoint(58, -36, 1500);
-    pros::delay(1500);
-    chassis.moveToPoint(58, -12, 1500, {false, 127, 100});
-    pros::delay(1500);
-    pros::delay(500);
+    chassis.moveToPoint(58, -12, 1000, {false, 127, 100});
+    pros::delay(1000);
+    chassis.moveToPoint(58, -36, 1000);
+    pros::delay(1000);
+    chassis.moveToPoint(58, -12, 1000, {false, 127, 100});
+    pros::delay(1000);
+    pros::delay(250);
     back_left_solenoid.set_value(0);
     back_right_solenoid.set_value(0);
     chassis.setPose({0, 0, 0});
     pros::delay(250);
-    chassis.moveToPoint(0, 15, 2000);
-    pros::delay(2000);
+    chassis.moveToPoint(0, 15, 1000);
+    pros::delay(1000);
     chassis.turnToHeading(45, 2000);
     pros::delay(2000);
     chassis.moveToPoint(15, 30, 2000);
