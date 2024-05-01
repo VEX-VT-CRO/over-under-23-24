@@ -579,6 +579,114 @@ void qualPB()
 
     //Flick 12 triballs
     //Flick 11 in a loop
+    constexpr int MAX_FLICKS = 4;
+    for(int i = 0; i < MAX_FLICKS - 1; ++i)
+    {
+        front_right_solenoid.set_value(1);
+        pros::delay(500);
+        front_right_solenoid.set_value(0);
+        pros::delay(1500);
+    }
+    //Flick one more
+    front_right_solenoid.set_value(1);
+    pros::delay(500);
+    front_right_solenoid.set_value(0);
+    //Retract left wing
+    front_left_solenoid.set_value(0);
+    pros::delay(500);
+    pros::delay(14000);
+
+    //Let the chassis brake
+    leftSide.set_brake_modes(pros::motor_brake_mode_e_t::E_MOTOR_BRAKE_BRAKE);
+    rightSide.set_brake_modes(pros::motor_brake_mode_e_t::E_MOTOR_BRAKE_BRAKE);
+
+    //Push balls into alley
+    chassis.follow(PB_M_1_1_txt, 30, 5000, true, false);
+    pros::delay(10);
+    leftSide.brake();
+    rightSide.brake();
+    pros::delay(500);
+    
+    //Back up for a spin
+    chassis.follow(PB_M_2_txt, 30, 5000, false, false);
+    pros::delay(10);
+    leftSide.brake();
+    rightSide.brake();
+    ri.spin(0);
+    pros::delay(500);
+
+    //Turn around
+    chassis.turnToHeading(0, 3000, true);
+    chassis.turnToHeading(-90, 3000, false);
+    pros::delay(500);
+
+    //Push all the balls into the goal
+    chassis.follow(PB_M_3_1_txt, 30, 6000, false, true);
+    pros::delay(950);
+    back_right_solenoid.set_value(1);
+    pros::delay(5050);
+    pros::delay(10);
+    leftSide.brake();
+    rightSide.brake();
+    pros::delay(100);
+    ri.spin(-12000);
+
+    //Drive away from goal to post
+    chassis.setPose(59.728, -30.914, 180);
+    //chassis.moveToPoint(59.728, -40.104, 10000, {}, false);
+    leftSide.move(90);
+    rightSide.move(90);
+    pros::delay(300);
+    leftSide.brake();
+    rightSide.brake();
+    pros::delay(200);
+    back_right_solenoid.set_value(0);
+    pros::delay(200);
+    chassis.turnToHeading(270, 1000, false);
+    ri.spin(12000);
+    chassis.moveToPoint(22, -36.104, 2000, {}, false);
+    chassis.turnToHeading(195, 1000, false);
+    
+    front_right_solenoid.set_value(1);
+    leftSide.move(40);
+    rightSide.move(40);
+    pros::delay(1000);
+    leftSide.brake();
+    rightSide.brake();
+    ri.spin(0);
+
+    //Done, prepare the motors for driving
+    for (int i = 0; i < 4; i++){
+        leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+        rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+    }
+}
+
+void matchPB()
+{   
+    chassis.setPose({-50.5, -55, 125});
+
+    // //Wait for J to leave
+    pros::delay(1000);
+
+    //Release the intake and out-take balls
+    climb.moveClimb(12000);
+    front_left_solenoid.set_value(1);
+    pros::delay(100);
+    climb.moveClimb(-12000);
+    pros::delay(200);
+    climb.moveClimb(0);
+    ri.spin(-ri.STANDARD_MV);
+    pros::delay(500);
+
+    //Prevent wheels from moving laterally
+    for (int i = 0; i < 4; i++){
+        leftSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+        rightSide[i].set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
+    }
+
+    //Flick 12 triballs
+    //Flick 11 in a loop
     constexpr int MAX_FLICKS = 11;
     for(int i = 0; i < MAX_FLICKS - 1; ++i)
     {
@@ -661,11 +769,6 @@ void qualPB()
     }
 }
 
-void matchPB()
-{   
-    qualPB();
-}
-
 
 void qualJ()
 {
@@ -673,8 +776,8 @@ void qualJ()
 
     ri.spin(12000);
 
-    chassis.follow(J_Q_1_txt, 30, 5000);
-    pros::delay(5000);
+    chassis.follow(J_Q_1_txt, 30, 4000);
+    pros::delay(4000);
     leftSide.brake();
     rightSide.brake();
     pros::delay(500);
@@ -687,38 +790,43 @@ void qualJ()
     pros::delay(2000);
     back_right_solenoid.set_value(0);
     pros::delay(500);
-    chassis.turnToHeading(-135, 3000, {true, 50});
-    pros::delay(3000);
+    chassis.turnToHeading(-135, 2000, {true, 50});
+    pros::delay(2000);
     pros::delay(500);
     back_right_solenoid.set_value(1);
 
     chassis.setPose({53, -48, -135});
     chassis.moveToPoint(60.4, -40.6, 2000, {false});
     pros::delay(2000);
-    chassis.turnToHeading(-180, 2000);
-    pros::delay(2000);
+    chassis.turnToHeading(-180, 1500);
+    pros::delay(1500);
     pros::delay(500);
     chassis.setPose({0, 0, 180});
-    chassis.moveToPoint(0, 30, 2000, {false, 127, 100});
-    pros::delay(2000);
-    chassis.moveToPoint(0, 0, 2000);
-    pros::delay(2000);
+    chassis.moveToPoint(0, 30, 1500, {false, 127, 100});
+    pros::delay(1500);
+    chassis.moveToPoint(0, 0, 1500);
+    pros::delay(1500);
     pros::delay(500);
     back_right_solenoid.set_value(0);
-    chassis.turnToHeading(-90, 2000);
-    pros::delay(2000);
-    chassis.moveToPoint(-18, 0, 2000);
-    pros::delay(2000);
-    chassis.turnToHeading(0, 2000);
-    pros::delay(2000);
-    chassis.moveToPoint(-18, 10, 2000);
-    pros::delay(2000);
+    chassis.turnToHeading(-90, 1000);
     pros::delay(1000);
-    chassis.moveToPoint(-18, -35, 2000, {false});
+    chassis.moveToPoint(-19.5, 0, 2000);
     pros::delay(2000);
-    chassis.turnToHeading(-90, 2000);
+    chassis.turnToHeading(0, 1000);
+    pros::delay(1000);
+    chassis.moveToPoint(-19.5, 10, 2000);
+    pros::delay(2000);
+    pros::delay(7500);
+    chassis.moveToPoint(-19.5, -35, 2000, {false});
+    pros::delay(2000);
+    pros::delay(100);
     chassis.setPose({0, 0, 0});
-    chassis.moveToPoint(0, 25, 2000);
+    chassis.turnToHeading(-90, 2000);
+    pros::delay(2000);
+    pros::delay(100);
+    chassis.setPose({0,0,0});
+    pros::delay(100);
+    chassis.moveToPoint(0, 28, 2000);
 }
 
 void matchJ()
